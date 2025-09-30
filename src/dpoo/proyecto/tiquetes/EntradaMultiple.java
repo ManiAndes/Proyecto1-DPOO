@@ -1,4 +1,4 @@
-package tiqueteria;
+package dpoo.proyecto.tiquetes;
 
 public abstract class EntradaMultiple extends Tiquete {
 

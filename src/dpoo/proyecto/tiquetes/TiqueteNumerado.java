@@ -1,4 +1,4 @@
-package tiqueteria;
+package dpoo.proyecto.tiquetes;
 
 public class TiqueteNumerado extends Tiquete{
 	
