@@ -2,8 +2,8 @@ package dpoo.proyecto.eventos;
 
 import dpoo.proyecto.tiquetes.Tiquete;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Localidad {
 	
@@ -11,6 +11,7 @@ public class Localidad {
 	private double precioTiquetes;
 	private boolean esNumerada;
 	private Evento<?> evento;
+	private Map<Integer, Tiquete> tiquetes = new HashMap<Integer, Tiquete>();
 	
 	public Localidad(String nombreLocalidad, double precioTiquetes, boolean esNumerada, Evento<?> evento) {
 		this.nombreLocalidad = nombreLocalidad;
@@ -18,8 +19,6 @@ public class Localidad {
 		this.esNumerada = esNumerada;
 		this.evento = evento;
 	}
-
-	private List<Tiquete> tiquetes = new ArrayList<Tiquete>();
 
 	public String getNombreLocalidad() {
 		return nombreLocalidad;
@@ -37,7 +36,7 @@ public class Localidad {
 		return evento;
 	}
 
-	public List<Tiquete> getTiquetes() {
+	public Map<Integer, Tiquete> getTiquetes() {
 		return tiquetes;
 	}
 
@@ -57,7 +56,7 @@ public class Localidad {
 		this.evento = evento;
 	}
 
-	public void setTiquetes(List<Tiquete> tiquetes) {
+	public void setTiquetes(Map<Integer, Tiquete> tiquetes) {
 		this.tiquetes = tiquetes;
 	}
 

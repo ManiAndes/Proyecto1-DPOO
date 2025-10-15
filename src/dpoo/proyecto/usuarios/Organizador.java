@@ -6,7 +6,7 @@ import java.util.List;
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.tiquetes.Tiquete;
 
-public class Organizador<T extends Tiquete> extends Cliente<T> {
+public class Organizador<T extends Tiquete> extends Usuario<T> {
 	
 	private List<Evento<T>> eventos = new ArrayList<Evento<T>>();
 

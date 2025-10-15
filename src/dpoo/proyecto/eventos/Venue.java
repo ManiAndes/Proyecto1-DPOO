@@ -8,6 +8,7 @@ import dpoo.proyecto.usuarios.Organizador;
 
 public class Venue {
 	
+	private String nombre;
 	private int capacidad;
 	private String ubicacion;
 	private List<Evento<? extends Tiquete>> eventos = new ArrayList<>();
@@ -19,6 +20,10 @@ public class Venue {
 		}
 	}
 
+	public String getNombre() {
+		return this.nombre;
+	}
+	
 	public int getCapacidad() {
 		return capacidad;
 	}
@@ -33,6 +38,10 @@ public class Venue {
 
 	public Organizador<? extends Tiquete> getOrganizador() {
 		return organizador;
+	}
+	
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
 	}
 
 	public void setCapacidad(int capacidad) {
