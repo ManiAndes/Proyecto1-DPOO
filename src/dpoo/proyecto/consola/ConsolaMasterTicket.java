@@ -20,6 +20,9 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			
 		}
 		
+		
+		
+		
 		boolean running = true;
 		
 		String menu = "1 - Login y contraseña\n2 - Crear usuario";
