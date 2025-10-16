@@ -49,6 +49,57 @@ public class MasterTicket {
 		this.venues = venues;
 	}
 	
+	public void viewEventos() {
+		
+		System.out.println("Eventos disponibles: ");
+		
+		int i = 1;
+	
+		
+		for (Map.Entry<String, Evento<T>> pareja : this.eventos.entrySet()) {
+			
+			String i_ = Integer.toString(i);
+			
+			
+			String nombre = pareja.getKey();
+			
+			
+			System.out.println(i_ + ". "+nombre+"/n");
+			
+			i++;
+			
+		}
+		
+		
+	}
+	
+	public void viewLocalidades(Evento evento) {
+		
+		Iterator<Localidad> it = evento.getLocalidades().iterator();
+		
+		int i = 1;
+		
+		while (it.hasNext()) {
+			Localidad localidad = it.next();
+			
+			String i_ = Integer.toString(i);
+			
+			System.out.println(i_ + ". "+localidad.getNombreLocalidad());
+			System.out.println("    Precio Tiquetes: "+localidad.getPrecioTiquetes());
+			System.out.println("    Numerada? : "+localidad.isEsNumerada());
+			
+			i++;
+		}
+		
+		
+	}
+	
+	public List<Tiquete> seleccionarTiquete(Evento evento, Localidad localidad){
+		
+	}
+	
+	
+	
 	public boolean cargarUsuarios() {
 		// TODO
 		return false;
