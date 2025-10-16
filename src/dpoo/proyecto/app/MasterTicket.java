@@ -56,7 +56,7 @@ public class MasterTicket {
 		int i = 1;
 	
 		
-		for (Map.Entry<String, Evento<T>> pareja : this.eventos.entrySet()) {
+		for (Map.Entry<String, Evento> pareja : this.eventos.entrySet()) {
 			
 			String i_ = Integer.toString(i);
 			

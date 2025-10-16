@@ -10,8 +10,8 @@ public class Evento {
 	
 	private List<Tiquete> tiquetes = new ArrayList<Tiquete>();
 	private List<Localidad> localidades = new ArrayList<Localidad>();
-	private Organizador<T> organizador;
-	private List<T> tiquetesVendidos = new ArrayList<T>();
+	private Organizador organizador;
+	private List<Tiquete> tiquetesVendidos = new ArrayList<Tiquete>();
 	
 	
 
@@ -118,11 +118,11 @@ public class Evento {
 		this.venue.addEvento(this);
 		this.venue.setOrganizador(organizador);
 	}
-	public List<T> getTiquetesVendidos() {
+	public List<Tiquete> getTiquetesVendidos() {
 		return tiquetesVendidos;
 	}
 
-	public void setTiquetesVendidos(List<T> tiquetesVendidos) {
+	public void setTiquetesVendidos(List<Tiquete> tiquetesVendidos) {
 		this.tiquetesVendidos = tiquetesVendidos;
 	}
 
@@ -130,12 +130,8 @@ public class Evento {
 		return ganancias;
 	}
 
-	public void setGanancias(double ganancias) {
+	public void setGanancias1(double ganancias) {
 		this.ganancias = ganancias;
-	}
-
-	public double getGanancias() {
-		return ganancias;
 	}
 
 	public void setGanancias(double ganancias) {

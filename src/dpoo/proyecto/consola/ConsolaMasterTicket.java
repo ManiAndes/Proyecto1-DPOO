@@ -13,35 +13,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	private MasterTicket sistemaBoleteria;
 	
 	private void correrApp() {
-	
-	
-	public ConsolaMasterTicket(MasterTicket sistemaBoleteria) {
-		super();
-		this.sistemaBoleteria = sistemaBoleteria;
-	}
-
-	private Usuario logInYAuth() {
 		
-		try {
-			
-			sistemaBoleteria = new MasterTicket();
-			// Cargar la persistencia y añadirla al objeto de MasterTicket para operar
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			
-		}
-		
-		UsuarioGenerico usuarioActual = logInYAuth();
-		
-		// Mostrar los menus para el usuario respectivo
-		if (usuarioActual instanceof Usuario) {
-			menuUsuario();
-			
-		} else if (usuarioActual instanceof Administrador) {
-			menuAdmin();
-			
-		}
 		
 	}
 	
@@ -77,7 +49,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 				String newContrasena = pedirCadena("Ingrese una contraseña");
 				String tipoUsuario = pedirCadena("Tipo de usuario deseado...\nn - Natural\no - Organizador\na - Administrador");
 				
-				if (usuarios.get(newLogIn).equals(null)) {
+				if (usuarios.get(newLogIn) == null) {
 					
 					UsuarioGenerico nuevoUsuario = null;
 					
@@ -132,10 +104,6 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	}
 	
 	public static void main(String[] args) {
-	
-	
-	
-	private static void main(String[] args) {
 		
 		ConsolaMasterTicket c = new ConsolaMasterTicket();
 		c.logInYAuth();
