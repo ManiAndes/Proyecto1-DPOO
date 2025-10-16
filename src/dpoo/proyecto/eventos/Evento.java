@@ -115,4 +115,12 @@ public class Evento {
 		this.venue.setOrganizador(organizador);
 	}
 
+	public double getGanancias() {
+		return ganancias;
+	}
+
+	public void setGanancias(double ganancias) {
+		this.ganancias = ganancias;
+	}
+
 }
