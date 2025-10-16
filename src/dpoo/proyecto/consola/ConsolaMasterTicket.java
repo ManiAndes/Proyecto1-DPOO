@@ -14,6 +14,26 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	
 	private void correrApp() {
 		
+		try {
+			
+			sistemaBoleteria = new MasterTicket();
+			// Cargar la persistencia y añadirla al objeto de MasterTicket para operar
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+		}
+		
+		UsuarioGenerico usuarioActual = logInYAuth();
+		
+		// Mostrar los menus para el usuario respectivo
+		if (usuarioActual instanceof Usuario) {
+			menuUsuario();
+			
+		} else if (usuarioActual instanceof Administrador) {
+			menuAdmin();
+			
+		}
 		
 	}
 	
@@ -27,7 +47,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			
 			String menu = "1 - Login y contraseña\n2 - Crear usuario";
 			System.out.println(menu);
-			String opcionLogIn = pedirCadena("Seleccione la opción: ");
+			String opcionLogIn = pedirCadena("Seleccione la opción");
 			
 			// Login usuario existente
 			if (opcionLogIn.equals("1")) {
@@ -106,8 +126,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	public static void main(String[] args) {
 		
 		ConsolaMasterTicket c = new ConsolaMasterTicket();
-		c.logInYAuth();
-		
+		c.correrApp();
 		
 	}
 

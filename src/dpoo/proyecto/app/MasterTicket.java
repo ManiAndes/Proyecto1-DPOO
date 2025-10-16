@@ -94,10 +94,13 @@ public class MasterTicket {
 		
 	}
 	
-	public List<Tiquete> seleccionarTiquete(Evento evento, Localidad localidad){
-		
-	}
 	
+	/* TODO
+	 * 
+	 * 
+	 * public List<Tiquete> seleccionarTiquete(Evento evento, Localidad localidad){
+	 * }
+	 */
 	
 	
 	public boolean cargarUsuarios() {
