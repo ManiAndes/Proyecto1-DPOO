@@ -11,7 +11,10 @@ public class Evento<T extends Tiquete> {
 	private List<T> tiquetes = new ArrayList<T>();
 	private List<Localidad> localidades = new ArrayList<Localidad>();
 	private Organizador<T> organizador;
+	private List<T> tiquetesVendidos = new ArrayList<T>();
 	
+	
+
 	private String nombre;
 	private String tipoEvento;
 	private String tipoTiquetes;
@@ -29,6 +32,7 @@ public class Evento<T extends Tiquete> {
 		this.fecha = fecha;
 	}
 
+	// ??? pq uno sin nombre
 	public Evento(Organizador<T> organizador, String tipoEvento, String tipoTiquetes, int cantidadTiquetesDisponibles,
 			Venue venue, String fecha) {
 		this.organizador = organizador;
@@ -48,7 +52,7 @@ public class Evento<T extends Tiquete> {
 	}
 
 	public List<Localidad> getLocalidades() {
-		return localidades;
+		return this.localidades;
 	}
 
 	public Organizador<T> getOrganizador() {
@@ -111,6 +115,13 @@ public class Evento<T extends Tiquete> {
 		this.venue = venue;
 		this.venue.addEvento(this);
 		this.venue.setOrganizador(organizador);
+	}
+	public List<T> getTiquetesVendidos() {
+		return tiquetesVendidos;
+	}
+
+	public void setTiquetesVendidos(List<T> tiquetesVendidos) {
+		this.tiquetesVendidos = tiquetesVendidos;
 	}
 
 }

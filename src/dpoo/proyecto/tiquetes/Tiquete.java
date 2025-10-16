@@ -1,5 +1,10 @@
 package dpoo.proyecto.tiquetes;
 
+import java.util.List;
+import java.util.Random;
+
+import dpoo.proyecto.usuarios.Natural;
+
 public abstract class Tiquete {
 	private double precio;
 	private double cargoPorcentualServicio;
@@ -9,14 +14,35 @@ public abstract class Tiquete {
 	private int id;
 	private int maximoTiquetesPorTransaccion;
 	private String tipo;
+	private boolean usado;
 	
 	
 	
+	
+
+
+
+	public Tiquete(double precio, double cargoPorcentualServicio, double cuotaAdicionalEmision, String fecha,
+			String hora, int maximoTiquetesPorTransaccion, String tipo) {
+		
+		Random random = new Random();
+		
+        this.id = random.nextInt(99999);
+		this.precio = precio;
+		this.cargoPorcentualServicio = cargoPorcentualServicio;
+		this.cuotaAdicionalEmision = cuotaAdicionalEmision;
+		this.fecha = fecha;
+		this.hora = hora;
+		this.maximoTiquetesPorTransaccion = maximoTiquetesPorTransaccion;
+		this.tipo = tipo;
+		
+	}
 	
 	
 	public double getPrecio() {
 		return precio;
 	}
+	
 	public void setPrecio(double precio) {
 		this.precio = precio;
 	}
@@ -50,6 +76,10 @@ public abstract class Tiquete {
 	public void setId(int id) {
 		this.id = id;
 	}
+	public void setRandomId() {
+        Random random = new Random();
+        this.id = random.nextInt(99999); // nextInt(99999) genera [0, 99998], por eso se suma 1
+    }
 	public int getMaximoTiquetesPorTransaccion() {
 		return maximoTiquetesPorTransaccion;
 	}
@@ -62,6 +92,19 @@ public abstract class Tiquete {
 	public void setTipo(String tipo) {
 		this.tipo = tipo;
 	}
+	
+	public boolean isUsado() {
+		return usado;
+	}
+
+
+	public void setUsado(boolean usado) {
+		this.usado = usado;
+	}
+	
+	
+
+
 	
 	
 	

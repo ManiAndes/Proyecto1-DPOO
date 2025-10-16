@@ -9,6 +9,12 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	private MasterTicket sistemaBoleteria;
 	
 	
+	
+	public ConsolaMasterTicket(MasterTicket sistemaBoleteria) {
+		super();
+		this.sistemaBoleteria = sistemaBoleteria;
+	}
+
 	private Usuario logInYAuth() {
 		
 		try {
@@ -51,6 +57,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 		return null;
 		
 	}
+	
 	private void menuUsuario() {
 		try {
 			
@@ -58,6 +65,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			e.printStackTrace();
 		}
 	}
+	
 	private void menuAdmin() {
 		
 		try {
@@ -69,10 +77,12 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	}
 	
 	
+	
+	
 	private static void main(String[] args) {
 		
 		ConsolaMasterTicket c = new ConsolaMasterTicket();
-		c.logIn();
+		c.logInYAuth();
 		
 		
 	}
