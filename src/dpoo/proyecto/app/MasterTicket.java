@@ -93,6 +93,10 @@ public class MasterTicket<T extends Tiquete> {
 		
 	}
 	
+	public List<Tiquete> seleccionarTiquete(Evento evento, Localidad localidad){
+		
+	}
+	
 	
 	
 }
