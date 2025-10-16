@@ -9,7 +9,7 @@ import java.util.*;
 public class MasterTicket<T extends Tiquete> {
 	
 	// Mapa de los usuarios registrados
-	private Map<String, Usuario<T>> clientes;
+	private Map<String, Usuario<T>> usuarios;
 	
 	// Mapa de todos los eventos (activos?)
 	private Map<String, Evento<T>> eventos;
@@ -19,13 +19,13 @@ public class MasterTicket<T extends Tiquete> {
 
 	public MasterTicket() {
 		super();
-		this.clientes = new HashMap<String, Usuario<T>>();
+		this.usuarios = new HashMap<String, Usuario<T>>();
 		this.eventos = new HashMap<String, Evento<T>>();
 		this.venues = new HashMap<String, Venue>();
 	}
 
-	public Map<String, Usuario<T>> getClientes() {
-		return clientes;
+	public Map<String, Usuario<T>> getUsuarios() {
+		return usuarios;
 	}
 
 	public Map<String, Evento<T>> getEventos() {
@@ -36,8 +36,8 @@ public class MasterTicket<T extends Tiquete> {
 		return venues;
 	}
 
-	public void setClientes(Map<String, Usuario<T>> clientes) {
-		this.clientes = clientes;
+	public void setUsuarios(Map<String, Usuario<T>> usuarios) {
+		this.usuarios = usuarios;
 	}
 
 	public void setEventos(Map<String, Evento<T>> eventos) {
@@ -46,6 +46,21 @@ public class MasterTicket<T extends Tiquete> {
 
 	public void setVenues(Map<String, Venue> venues) {
 		this.venues = venues;
+	}
+	
+	public boolean cargarUsuarios() {
+		// TODO
+		return false;
+	}
+	
+	public boolean cargarEventos() {
+		// TODO
+		return false;
+	}
+	
+	public boolean cargarVenues() {
+		// TODO
+		return false;
 	}
 	
 }
