@@ -5,51 +5,25 @@ import java.util.ArrayList;
 
 import dpoo.proyecto.tiquetes.Tiquete;
 
-public abstract class Usuario<T extends Tiquete> {
+public abstract class Usuario extends UsuarioGenerico {
 	
-	private String login;
-	private String password;
-	private double saldoVirtual;
-	private List<T> misTiquetes = new ArrayList<T>();
+	private List<Tiquete> misTiquetes = new ArrayList<Tiquete>();
 	
 	public Usuario(String login, String password) {
-		this.login = login;
-		this.password = password;
+		super(login, password);
 	}
 	
-	public Usuario(String login, String password, double saldoVirtual, List<T> misTiquetes) {
-		this.login = login;
-		this.password = password;
-		this.saldoVirtual = saldoVirtual;
+	public Usuario(String login, String password, List<Tiquete> misTiquetes) {
+		super(login, password);
 		this.misTiquetes = misTiquetes;
 	}
 
-	public String getLogin() {
-		return login;
-	}
-	public String getPassword() {
-		return password;
-	}
-	public double getSaldoVirtual() {
-		return saldoVirtual;
-	}
-	public List<T> getMisTiquetes() {
+	public List<Tiquete> getMisTiquetes() {
 		return misTiquetes;
 	}
 	
-	public void setLogin(String login) {
-		this.login = login;
-	}
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	public void setSaldoVirtual(double saldoVirtual) {
-		this.saldoVirtual = saldoVirtual;
-	}
-	public void setMisTiquetes(List<T> misTiquetes) {
+	public void setMisTiquetes(List<Tiquete> misTiquetes) {
 		this.misTiquetes = misTiquetes;
 	}
-	
-	
 	
 }

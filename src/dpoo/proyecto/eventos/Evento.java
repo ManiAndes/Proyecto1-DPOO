@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.usuarios.Organizador;
 
-public class Evento<T extends Tiquete> {
+public class Evento {
 	
-	private List<T> tiquetes = new ArrayList<T>();
+	private List<Tiquete> tiquetes = new ArrayList<Tiquete>();
 	private List<Localidad> localidades = new ArrayList<Localidad>();
-	private Organizador<T> organizador;
+	private Organizador organizador;
 	
 	private String nombre;
 	private String tipoEvento;
@@ -18,6 +18,8 @@ public class Evento<T extends Tiquete> {
 	private int cantidadTiquetesDisponibles;
 	private Venue venue;
 	private String fecha;
+	
+	private double ganancias = 0;
 
 	public Evento(String nombre, String tipoEvento, String tipoTiquetes, int cantidadTiquetesDisponibles, Venue venue, String fecha) {
 		super();
@@ -29,7 +31,7 @@ public class Evento<T extends Tiquete> {
 		this.fecha = fecha;
 	}
 
-	public Evento(Organizador<T> organizador, String tipoEvento, String tipoTiquetes, int cantidadTiquetesDisponibles,
+	public Evento(Organizador organizador, String tipoEvento, String tipoTiquetes, int cantidadTiquetesDisponibles,
 			Venue venue, String fecha) {
 		this.organizador = organizador;
 		this.tipoEvento = tipoEvento;
@@ -43,7 +45,7 @@ public class Evento<T extends Tiquete> {
 		return this.nombre;
 	}
 	
-	public List<T> getTiquetes() {
+	public List<Tiquete> getTiquetes() {
 		return tiquetes;
 	}
 
@@ -51,7 +53,7 @@ public class Evento<T extends Tiquete> {
 		return localidades;
 	}
 
-	public Organizador<T> getOrganizador() {
+	public Organizador getOrganizador() {
 		return organizador;
 	}
 
@@ -75,7 +77,7 @@ public class Evento<T extends Tiquete> {
 		this.nombre = nombre;
 	}
 
-	public void setTiquetes(List<T> tiquetes) {
+	public void setTiquetes(List<Tiquete> tiquetes) {
 		this.tiquetes = tiquetes;
 	}
 
@@ -83,7 +85,7 @@ public class Evento<T extends Tiquete> {
 		this.localidades = localidades;
 	}
 
-	public void setOrganizador(Organizador<T> organizador) {
+	public void setOrganizador(Organizador organizador) {
 		this.organizador = organizador;
 	}
 

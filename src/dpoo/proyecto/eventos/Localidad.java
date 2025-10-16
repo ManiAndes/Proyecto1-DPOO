@@ -10,10 +10,10 @@ public class Localidad {
 	private String nombreLocalidad;
 	private double precioTiquetes;
 	private boolean esNumerada;
-	private Evento<?> evento;
+	private Evento evento;
 	private Map<Integer, Tiquete> tiquetes = new HashMap<Integer, Tiquete>();
 	
-	public Localidad(String nombreLocalidad, double precioTiquetes, boolean esNumerada, Evento<?> evento) {
+	public Localidad(String nombreLocalidad, double precioTiquetes, boolean esNumerada, Evento evento) {
 		this.nombreLocalidad = nombreLocalidad;
 		this.precioTiquetes = precioTiquetes;
 		this.esNumerada = esNumerada;
@@ -32,7 +32,7 @@ public class Localidad {
 		return esNumerada;
 	}
 
-	public Evento<?> getEvento() {
+	public Evento getEvento() {
 		return evento;
 	}
 
@@ -52,7 +52,7 @@ public class Localidad {
 		this.esNumerada = esNumerada;
 	}
 
-	public void setEvento(Evento<?> evento) {
+	public void setEvento(Evento evento) {
 		this.evento = evento;
 	}
 

@@ -6,29 +6,30 @@ import dpoo.proyecto.tiquetes.*;
 
 import java.util.*;
 
-public class MasterTicket<T extends Tiquete> {
+public class MasterTicket {
 	
 	// Mapa de los usuarios registrados
-	private Map<String, Usuario<T>> usuarios;
+	private Map<String, UsuarioGenerico> usuarios;
 	
 	// Mapa de todos los eventos (activos?)
-	private Map<String, Evento<T>> eventos;
+	private Map<String, Evento> eventos;
 	
 	// Mapa de todos los venues
 	private Map<String, Venue> venues;
+	
 
 	public MasterTicket() {
 		super();
-		this.usuarios = new HashMap<String, Usuario<T>>();
-		this.eventos = new HashMap<String, Evento<T>>();
+		this.usuarios = new HashMap<String, UsuarioGenerico>();
+		this.eventos = new HashMap<String, Evento>();
 		this.venues = new HashMap<String, Venue>();
 	}
 
-	public Map<String, Usuario<T>> getUsuarios() {
+	public Map<String, UsuarioGenerico> getUsuarios() {
 		return usuarios;
 	}
 
-	public Map<String, Evento<T>> getEventos() {
+	public Map<String, Evento> getEventos() {
 		return eventos;
 	}
 
@@ -36,11 +37,11 @@ public class MasterTicket<T extends Tiquete> {
 		return venues;
 	}
 
-	public void setUsuarios(Map<String, Usuario<T>> usuarios) {
+	public void setUsuarios(Map<String, UsuarioGenerico> usuarios) {
 		this.usuarios = usuarios;
 	}
 
-	public void setEventos(Map<String, Evento<T>> eventos) {
+	public void setEventos(Map<String, Evento> eventos) {
 		this.eventos = eventos;
 	}
 

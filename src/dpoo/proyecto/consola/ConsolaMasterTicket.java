@@ -10,132 +10,102 @@ import dpoo.proyecto.usuarios.Usuario;
 
 public class ConsolaMasterTicket extends ConsolaBasica {
 	
-	private MasterTicket<Tiquete> sistemaBoleteria;
+	private MasterTicket sistemaBoleteria;
 	
-	private Usuario<Tiquete> login() {
-		
-		String menu = "1 - Login y contraseña\n2 - Crear usuario";
-		System.out.println(menu);
-		
-		boolean running = true;
-		
-		Map<String, Usuario<Tiquete>> usuarios = this.sistemaBoleteria.getUsuarios();
-		Usuario elegido;
-		
-		while (running) {
-			
-			String opcion = pedirCadena("Seleccione la opción");
-			
-			if (opcion == "1") {
-				
-				String usuario = pedirCadena("Usuario");
-				String password = pedirCadena("Contraseña");
-				
-				Usuario<Tiquete> usuarioBuscado = usuarios.get(usuario);
-				
-				if (usuarioBuscado == null) {
-					System.out.println("No existe...");
-				}
-				
-				else if (password == usuarioBuscado.getPassword()) {
-					elegido = usuarioBuscado;
-					running = false;
-				}
-				
-				else {
-					System.out.println("Contraseña incorrecta...");
-				}
-			}
-			
-			else if (opcion == "2") {
-				
-				String tipo;
-				boolean tipoElegido = false;
-				while (tipoElegido == false) {
-					String tipo = pedirCadena("Seleccione tipo de usuario");
-					
-					if () {
-						
-					}
-					
-				}
-				
-				String usuario = pedirCadena("Usuario");
-				String password = pedirCadena("Contraseña");
-				
-				Usuario<Tiquete> usuarioBuscado = usuarios.get(usuario);
-				
-				if (usuarioBuscado == null) {
-					Usuario nuevo = new Usuario(usuario, password);
-					
-					usuarios.put(usuario, usuarioBuscado)
-				}
-				
-				else if (password == usuarioBuscado.getPassword()) {
-					elegido = usuarioBuscado;
-					running = false;
-				}
-				
-				else {
-					System.out.println("Contraseña incorrecta...");
-				}
-				
-			}
-			
-			else {
-				System.out.println("Opción inválida...");
-			}
-			
-		
-			
-		}
-		
-		return loginUsuario;
-	}
-	
-	private Usuario logInYAuth() {
+	private void correrApp() {
 		
 		try {
 			
-			sistemaBoleteria = new MasterTicket<Tiquete>();
+			sistemaBoleteria = new MasterTicket();
+			// Cargar la persistencia y añadirla al objeto de MasterTicket para operar
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 			
 		}
 		
-		Usuario usuarioActual = login();
+		UsuarioGenerico usuarioActual = logInYAuth();
 		
-		
-		
-		boolean running = true;
-		
-		String menu = "1 - Login y contraseña\n2 - Crear usuario";
-		
-		System.out.println(menu);
-		
-		String opcionLogIn = pedirCadena("Seleccione la opción: ");
-		
-		if (opcionLogIn.equals("1")) {
-			String logIn = pedirCadena("Log In");
-			String contrasena = pedirCadena("Contraseña");
+		// Mostrar los menus para el usuario respectivo
+		if (usuarioActual instanceof Usuario) {
+			menuUsuario();
 			
-		}else {
-			String newLogIn = pedirCadena("Igrese un nombre de usuario");
-			String newContrasena = pedirCadena("Ingrese una contraseña");
+		} else if (usuarioActual instanceof Administrador) {
+			menuAdmin();
+			
 		}
 		
+	}
+	
+	private UsuarioGenerico logInYAuth() {
 		
+		boolean running = true;
+		Map<String, UsuarioGenerico> usuarios = this.sistemaBoleteria.getUsuarios();
+		UsuarioGenerico usuarioDeseado = null;
 		
 		while (running) {
 			
+			String menu = "1 - Login y contraseña\n2 - Crear usuario";
+			System.out.println(menu);
+			String opcionLogIn = pedirCadena("Seleccione la opción: ");
 			
+			// Login usuario existente
+			if (opcionLogIn.equals("1")) {
+				String logIn = pedirCadena("Log In");
+				String contrasena = pedirCadena("Contraseña");
+				
+				if (usuarios.get(logIn).getPassword().equals(contrasena)) {
+					
+					usuarioDeseado = usuarios.get(logIn);
+					running = false;
+					
+				} else {
+					System.out.println("Contraseña o login incorrecto...");
+				}
 			
+			// Crear un nuevo usuario específico
+			} else if (opcionLogIn.equals("2")) {
+				String newLogIn = pedirCadena("Igrese un nombre de usuario");
+				String newContrasena = pedirCadena("Ingrese una contraseña");
+				String tipoUsuario = pedirCadena("Tipo de usuario deseado...\nn - Natural\no - Organizador\na - Administrador");
+				
+				if (usuarios.get(newLogIn).equals(null)) {
+					
+					UsuarioGenerico nuevoUsuario = null;
+					
+					if (tipoUsuario.equals("n")) {
+						nuevoUsuario = new Natural(newLogIn, newContrasena);
+						
+					} else if (tipoUsuario.equals("o")) {
+						nuevoUsuario = new Organizador(newLogIn, newContrasena);
+						
+					} else if (tipoUsuario.equals("a")) {
+						nuevoUsuario = new Administrador(newLogIn, newContrasena);
+						
+					} else {
+						System.out.println("Opción inválida...");
+					
+					}
+					
+					if (nuevoUsuario != null) {
+						usuarios.put(newLogIn, nuevoUsuario);
+						usuarioDeseado = nuevoUsuario;
+						running = false;
+						
+					}
+				}
+			} else {
+				System.out.println("Opción inválida...");
+				
+			}
 			
 		}
-		return null;
+		
+		return usuarioDeseado;
 		
 	}
+	
+
 	private void menuUsuario() {
 		try {
 			
@@ -143,6 +113,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			e.printStackTrace();
 		}
 	}
+	
 	private void menuAdmin() {
 		
 		try {
@@ -153,11 +124,10 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 		
 	}
 	
-	
-	private static void main(String[] args) {
+	public static void main(String[] args) {
 		
 		ConsolaMasterTicket c = new ConsolaMasterTicket();
-		c.login();
+		c.correrApp();
 		
 	}
 
