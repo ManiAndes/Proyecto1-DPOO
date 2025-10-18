@@ -6,21 +6,13 @@ import java.util.Map;
 import java.util.HashMap;
 
 import dpoo.proyecto.tiquetes.Tiquete;
+import dpoo.proyecto.app.MasterTicket;
 import dpoo.proyecto.eventos.Evento;
 
-public class Administrador {
-	
-	private double cargoServicio;
-	private static double COBRO_POR_EMISION;
-	
-	// Llaves son logins y valor son Organizador
-	private Map<String, Organizador> organizadores = new HashMap<String, Organizador>();
-	private Map<String, Organizador> organizadores = new HashMap<String, Organizador>();
-	
-	// Llaves son fechas y valor son lista de Evento
-	private Map<String, List<Evento>> eventosFecha = new HashMap<String, List<Evento>>();
-	private Map<String, List<Evento>> eventosFecha = new HashMap<String, List<Evento>>();
-	
+public class Administrador extends UsuarioGenerico {
+
+	private double CostoPorcentualServicio;
+
 
 	
 
@@ -34,6 +26,16 @@ public class Administrador {
 		return false;
 	}
 	
+	public double getCostoPorcentualEmision() {
+		return CostoPorcentualServicio;
+	}
+
+
+	public void setCostoPorcentualEmision(double costoPorcentualServicio) {
+		CostoPorcentualServicio = costoPorcentualServicio;
+	}
+
+
 	public boolean aprobacionReembolso() {
 		// TODO
 		return false;
@@ -50,71 +52,41 @@ public class Administrador {
 			
 		}
 		
-		
-		
-		
+
 	
-	
-	public void cancelarEvento(Evento evento, Map<String, Evento> eventos) {
+	public void cancelarEvento(Evento evento, int tipoReembolso) {
 		String nombre = evento.cancelar();
 		
 		
 		List<Tiquete> tiquetes = evento.getTiquetesVendidos();
+		
+		double cuotaPorcentual = evento.getCargoPorcentualServicio();
+		double cuotaEmision = evento.getCuotaAdicionalEmision();
+		
+
 		for (Tiquete tiquete: tiquetes) {
 			Usuario cliente = tiquete.getCliente();
 			
-			double precio = tiquete.getPrecio();
+			double precio = tiquete.calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
 			
-			reembolsar(cliente, 0.0);
+			double reembolso = precio - tiquete.getPrecioOriginal();
+			
+			if (tipoReembolso == 1) {
+				reembolso = precio - cuotaEmision;
+			}
+			
+			reembolsar(cliente, reembolso);
 			
 			
 		}
 		
-		eventos.remove(nombre);
 		
 		
 		
+		
 	}
 
-	public Map<String, Organizador> getOrganizadores() {
-	public Map<String, Organizador> getOrganizadores() {
-		return organizadores;
-	}
-
-	public Map<String, List<Evento>> getEventosFecha() {
-	public Map<String, List<Evento>> getEventosFecha() {
-		return eventosFecha;
-	}
-
-	public List<Tiquete> getTiquetes() {
-	public List<Tiquete> getTiquetes() {
-		return tiquetes;
-	}
-
-	public List<Evento> getEventos() {
-	public List<Evento> getEventos() {
-		return eventos;
-	}
-
-	public void setOrganizadores(Map<String, Organizador> organizadores) {
-	public void setOrganizadores(Map<String, Organizador> organizadores) {
-		this.organizadores = organizadores;
-	}
-
-	public void setEventosFecha(Map<String, List<Evento>> eventosFecha) {
-	public void setEventosFecha(Map<String, List<Evento>> eventosFecha) {
-		this.eventosFecha = eventosFecha;
-	}
-
-	public void setTiquetes(List<Tiquete> tiquetes) {
-	public void setTiquetes(List<Tiquete> tiquetes) {
-		this.tiquetes = tiquetes;
-	}
-
-	public void setEventos(List<Evento> eventos) {
-	public void setEventos(List<Evento> eventos) {
-		this.eventos = eventos;
-	}
+	
 	
 	
 

@@ -8,6 +8,8 @@ import java.util.*;
 
 public class MasterTicket {
 	
+	private double costoPorEmision;
+	
 	// Mapa de los usuarios registrados
 	private Map<String, UsuarioGenerico> usuarios;
 	
@@ -23,7 +25,22 @@ public class MasterTicket {
 		this.usuarios = new HashMap<String, UsuarioGenerico>();
 		this.eventos = new HashMap<String, Evento>();
 		this.venues = new HashMap<String, Venue>();
+		this.costoPorEmision = 0.0;
 	}
+	
+	
+
+	public double getCostoPorEmision() {
+		return costoPorEmision;
+	}
+
+
+
+	public void setCostoPorEmision(double costoPorEmision) {
+		this.costoPorEmision = costoPorEmision;
+	}
+
+
 
 	public Map<String, UsuarioGenerico> getUsuarios() {
 		return usuarios;
@@ -47,6 +64,22 @@ public class MasterTicket {
 
 	public void setVenues(Map<String, Venue> venues) {
 		this.venues = venues;
+	}
+	
+	public Map<String, Evento> eliminarEvento(UsuarioGenerico admin, String nombreEvento){
+		
+		
+		if (admin instanceof Administrador) {
+			
+			this.eventos.remove(nombreEvento);
+			Evento evento = this.eventos.get(nombreEvento);
+			
+			return this.eventos;
+			
+		}else {
+			System.out.println("No eres admin");
+			return null;
+		}
 	}
 	
 	public void viewEventos() {
@@ -73,6 +106,10 @@ public class MasterTicket {
 		
 	}
 	
+	public Evento selectorEvento(String nombreEvento) {
+		return this.eventos.get(nombreEvento);
+	}
+	
 	public void viewLocalidades(Evento evento) {
 		
 		Iterator<Localidad> it = evento.getLocalidades().iterator();
@@ -93,6 +130,8 @@ public class MasterTicket {
 		
 		
 	}
+	
+	
 	
 	
 	/* TODO

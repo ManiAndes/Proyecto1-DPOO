@@ -3,12 +3,13 @@ package dpoo.proyecto.tiquetes;
 import java.util.List;
 import java.util.Random;
 
+import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.usuarios.Natural;
 import dpoo.proyecto.usuarios.Usuario;
 
 public abstract class Tiquete {
 	private double precioOriginal;
-	private double cargoPorcentualServicio;
+
 	private double cuotaAdicionalEmision;
 	private String fecha;
 	private String hora;
@@ -19,30 +20,26 @@ public abstract class Tiquete {
 	
 	private Usuario cliente;
 	
+	private Evento evento;
 	
 	
 	
 
 
 
-	public Usuario getCliente() {
-		return cliente;
-	}
 
 
-	public void setCliente(Usuario cliente) {
-		this.cliente = cliente;
-	}
 
 
-	public Tiquete(double precioOriginal, double cargoPorcentualServicio, double cuotaAdicionalEmision, String fecha,
+
+	public Tiquete(double precioOriginal, double cuotaAdicionalEmision, String fecha,
 			String hora, int maximoTiquetesPorTransaccion, String tipo) {
 		
 		Random random = new Random();
 		
         this.id = random.nextInt(99999);
 		this.precioOriginal = precioOriginal;
-		this.cargoPorcentualServicio = cargoPorcentualServicio;
+		
 		this.cuotaAdicionalEmision = cuotaAdicionalEmision;
 		this.fecha = fecha;
 		this.hora = hora;
@@ -52,19 +49,26 @@ public abstract class Tiquete {
 	}
 	
 	
-	public double getprecioOriginal() {
+	
+
+	public Usuario getCliente() {
+		return cliente;
+	}
+
+
+	public void setCliente(Usuario cliente) {
+		this.cliente = cliente;
+	
+	}
+	
+	public double getPrecioOriginal() {
 		return precioOriginal;
 	}
 	
 	public void setprecioOriginal(double precioOriginal) {
 		this.precioOriginal = precioOriginal;
 	}
-	public double getCargoPorcentualServicio() {
-		return cargoPorcentualServicio;
-	}
-	public void setCargoPorcentualServicio(double cargoPorcentualServicio) {
-		this.cargoPorcentualServicio = cargoPorcentualServicio;
-	}
+
 	public double getCuotaAdicionalEmision() {
 		return cuotaAdicionalEmision;
 	}
@@ -88,6 +92,16 @@ public abstract class Tiquete {
 	}
 	public void setId(int id) {
 		this.id = id;
+	}
+	public Evento getEvento() {
+		return evento;
+	}
+
+
+
+
+	public void setEvento(Evento evento) {
+		this.evento = evento;
 	}
 	
 	
@@ -120,6 +134,7 @@ public abstract class Tiquete {
 		this.usado = usado;
 	}
 	
+	
 	public double getprecioOriginalConCostos(double costoEmision, double costoServicio) {
 		double costoTiquete = ((this.precioOriginal * costoEmision) + this.precioOriginal) + costoEmision;
 		
@@ -128,6 +143,12 @@ public abstract class Tiquete {
 	
 	public double getprecioOriginalConPorecentaje(double costoServicio) {
 		return this.precioOriginal * costoServicio;
+	}
+	
+	
+	public double calcularPrecioFinal(double servicio, double emision) {
+		double retorno = ((this.precioOriginal * servicio) + this.precioOriginal) + emision;
+		return retorno;
 	}
 	
 	

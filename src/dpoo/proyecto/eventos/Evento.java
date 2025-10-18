@@ -13,7 +13,8 @@ public class Evento {
 	private Organizador organizador;
 	private List<Tiquete> tiquetesVendidos = new ArrayList<Tiquete>();
 	
-	
+	private double cargoPorcentualServicio;
+
 
 	private String nombre;
 	private String tipoEvento;
@@ -21,6 +22,8 @@ public class Evento {
 	private int cantidadTiquetesDisponibles;
 	private Venue venue;
 	private String fecha;
+	
+	private boolean cancelado;
 	
 	private double ganancias = 0;
 
@@ -127,6 +130,18 @@ public class Evento {
 	public void setTiquetesVendidos(List<Tiquete> tiquetesVendidos) {
 		this.tiquetesVendidos = tiquetesVendidos;
 	}
+	
+	public double getCargoPorcentualServicio() {
+		return cargoPorcentualServicio;
+	}
+
+	public void setCargoPorcentualServicio(double cargoPorcentualServicio) {
+		this.cargoPorcentualServicio = cargoPorcentualServicio;
+	}
+
+	public double getCuotaAdicionalEmision() {
+		return this.tiquetes.get(0).getCuotaAdicionalEmision();
+	}
 
 	public double getGanancias() {
 		return ganancias;
@@ -138,6 +153,16 @@ public class Evento {
 
 	public void setGanancias(double ganancias) {
 		this.ganancias = ganancias;
+	}
+	
+	public String cancelar() {
+		this.cancelado = true;
+		return this.nombre;
+	}
+	
+	public String habilitar() {
+		this.cancelado = false;
+		return this.nombre;
 	}
 
 }

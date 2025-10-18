@@ -3,9 +3,9 @@ package dpoo.proyecto.consola;
 import java.util.Map;
 
 import dpoo.proyecto.app.MasterTicket;
+import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.usuarios.*;
-import dpoo.proyecto.usuarios.Usuario;
 
 
 public class ConsolaMasterTicket extends ConsolaBasica {
@@ -18,28 +18,17 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			
 			sistemaBoleteria = new MasterTicket();
 			// Cargar la persistencia y añadirla al objeto de MasterTicket para operar
+			UsuarioGenerico usuario = logInYAuth();
+	
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 			
 		}
+		
 	}
 	
 
-	private Usuario logInYAuth() {
-		
-		UsuarioGenerico usuarioActual = logInYAuth();
-		
-		// Mostrar los menus para el usuario respectivo
-		if (usuarioActual instanceof Usuario) {
-			menuUsuario();
-			
-		} else if (usuarioActual instanceof Administrador) {
-			menuAdmin();
-			
-		}
-		
-	}
 	
 	private UsuarioGenerico logInYAuth() {
 		
@@ -58,16 +47,24 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 				String logIn = pedirCadena("Log In");
 				String contrasena = pedirCadena("Contraseña");
 				
-				if (usuarios.get(logIn).getPassword().equals(contrasena)) {
-					
-					usuarioDeseado = usuarios.get(logIn);
-					running = false;
-					
-				} else {
+				try {
+					if (usuarios.get(logIn).getPassword().equals(contrasena)) {
+						
+						usuarioDeseado = usuarios.get(logIn);
+						running = false;
+						
+					} else {
+						System.out.println("Contraseña o login incorrecto...");
+					}
+				}catch (Exception e){
+					e.printStackTrace();
 					System.out.println("Contraseña o login incorrecto...");
 				}
+				
+				
+				
 			
-			// Crear un nuevo usuario específico
+			// Crear un nuevo usuario específico REGISTRO
 			} else if (opcionLogIn.equals("2")) {
 				String newLogIn = pedirCadena("Igrese un nombre de usuario");
 				String newContrasena = pedirCadena("Ingrese una contraseña");
@@ -94,6 +91,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 					if (nuevoUsuario != null) {
 						usuarios.put(newLogIn, nuevoUsuario);
 						usuarioDeseado = nuevoUsuario;
+						System.out.println("Usuario creado exitosamente!");
 						running = false;
 						
 					}
@@ -109,7 +107,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 		
 	}
 	
-	private static void menuUsuario() {
+	private void menuUsuario(Usuario usuario) {
 		try {
 			System.out.print("no soy admin");
 		}catch (Exception e) {
@@ -117,14 +115,23 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 		}
 	}
 	
-	private static void menuAdmin() {
+	private void menuAdmin(Administrador admin) {
 		
-		try {
-			System.out.print("Soy admin");
+		ConsolaAdmin consolaAdmin = new ConsolaAdmin(this.sistemaBoleteria, admin);
+		
+		boolean running = true;
+		
+		while (running){
 			
-		}catch (Exception e) {
-			e.printStackTrace();
+			consolaAdmin.showMenuAdmin();
+			String opcion = pedirCadena("Opcion: ");
+			consolaAdmin.consolaAdmin(opcion);
+			
+	
+			
 		}
+		
+		
 		
 	}
 	
@@ -132,6 +139,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 		
 		ConsolaMasterTicket c = new ConsolaMasterTicket();
 		c.correrApp();
+		
 		
 	}
 
