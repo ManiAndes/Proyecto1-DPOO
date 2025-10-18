@@ -4,9 +4,10 @@ import java.util.List;
 import java.util.Random;
 
 import dpoo.proyecto.usuarios.Natural;
+import dpoo.proyecto.usuarios.Usuario;
 
 public abstract class Tiquete {
-	private double precio;
+	private double precioOriginal;
 	private double cargoPorcentualServicio;
 	private double cuotaAdicionalEmision;
 	private String fecha;
@@ -16,19 +17,31 @@ public abstract class Tiquete {
 	private String tipo;
 	private boolean usado;
 	
+	private Usuario cliente;
+	
 	
 	
 	
 
 
 
-	public Tiquete(double precio, double cargoPorcentualServicio, double cuotaAdicionalEmision, String fecha,
+	public Usuario getCliente() {
+		return cliente;
+	}
+
+
+	public void setCliente(Usuario cliente) {
+		this.cliente = cliente;
+	}
+
+
+	public Tiquete(double precioOriginal, double cargoPorcentualServicio, double cuotaAdicionalEmision, String fecha,
 			String hora, int maximoTiquetesPorTransaccion, String tipo) {
 		
 		Random random = new Random();
 		
         this.id = random.nextInt(99999);
-		this.precio = precio;
+		this.precioOriginal = precioOriginal;
 		this.cargoPorcentualServicio = cargoPorcentualServicio;
 		this.cuotaAdicionalEmision = cuotaAdicionalEmision;
 		this.fecha = fecha;
@@ -39,12 +52,12 @@ public abstract class Tiquete {
 	}
 	
 	
-	public double getPrecio() {
-		return precio;
+	public double getprecioOriginal() {
+		return precioOriginal;
 	}
 	
-	public void setPrecio(double precio) {
-		this.precio = precio;
+	public void setprecioOriginal(double precioOriginal) {
+		this.precioOriginal = precioOriginal;
 	}
 	public double getCargoPorcentualServicio() {
 		return cargoPorcentualServicio;
@@ -76,10 +89,15 @@ public abstract class Tiquete {
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+	
 	public void setRandomId() {
         Random random = new Random();
-        this.id = random.nextInt(99999); // nextInt(99999) genera [0, 99998], por eso se suma 1
+        this.id = random.nextInt(99999); 
     }
+	
+	
+	
 	public int getMaximoTiquetesPorTransaccion() {
 		return maximoTiquetesPorTransaccion;
 	}
@@ -100,6 +118,16 @@ public abstract class Tiquete {
 
 	public void setUsado(boolean usado) {
 		this.usado = usado;
+	}
+	
+	public double getprecioOriginalConCostos(double costoEmision, double costoServicio) {
+		double costoTiquete = ((this.precioOriginal * costoEmision) + this.precioOriginal) + costoEmision;
+		
+		return costoTiquete;
+	}
+	
+	public double getprecioOriginalConPorecentaje(double costoServicio) {
+		return this.precioOriginal * costoServicio;
 	}
 	
 	

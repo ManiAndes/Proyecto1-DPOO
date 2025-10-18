@@ -9,26 +9,26 @@ import java.util.*;
 public class MasterTicket<T extends Tiquete> {
 	
 	// Mapa de los usuarios registrados
-	private Map<String, Usuario<T>> clientes;
+	private Map<String, Usuario> clientes;
 	
 	// Mapa de todos los eventos (activos?)
-	private Map<String, Evento<T>> eventos;
+	private Map<String, Evento> eventos;
 	
 	// Mapa de todos los venues
 	private Map<String, Venue> venues;
 
 	public MasterTicket() {
 		super();
-		this.clientes = new HashMap<String, Usuario<T>>();
-		this.eventos = new HashMap<String, Evento<T>>();
+		this.clientes = new HashMap<String, Usuario>();
+		this.eventos = new HashMap<String, Evento>();
 		this.venues = new HashMap<String, Venue>();
 	}
 
-	public Map<String, Usuario<T>> getClientes() {
+	public Map<String, Usuario> getClientes() {
 		return clientes;
 	}
 
-	public Map<String, Evento<T>> getEventos() {
+	public Map<String, Evento> getEventos() {
 		return eventos;
 	}
 
@@ -36,11 +36,11 @@ public class MasterTicket<T extends Tiquete> {
 		return venues;
 	}
 
-	public void setClientes(Map<String, Usuario<T>> clientes) {
+	public void setClientes(Map<String, Usuario> clientes) {
 		this.clientes = clientes;
 	}
 
-	public void setEventos(Map<String, Evento<T>> eventos) {
+	public void setEventos(Map<String, Evento> eventos) {
 		this.eventos = eventos;
 	}
 
@@ -55,7 +55,7 @@ public class MasterTicket<T extends Tiquete> {
 		int i = 1;
 	
 		
-		for (Map.Entry<String, Evento<T>> pareja : this.eventos.entrySet()) {
+		for (Map.Entry<String, Evento> pareja : this.eventos.entrySet()) {
 			
 			String i_ = Integer.toString(i);
 			
@@ -94,6 +94,7 @@ public class MasterTicket<T extends Tiquete> {
 	}
 	
 	public List<Tiquete> seleccionarTiquete(Evento evento, Localidad localidad){
+		return null;
 		
 	}
 	

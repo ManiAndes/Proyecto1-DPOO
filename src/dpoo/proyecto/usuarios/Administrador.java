@@ -8,22 +8,18 @@ import java.util.HashMap;
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.eventos.Evento;
 
-public class Administrador<T extends Tiquete> {
+public class Administrador {
 	
 	private double cargoServicio;
 	private static double COBRO_POR_EMISION;
 	
 	// Llaves son logins y valor son Organizador
-	private Map<String, Organizador<T>> organizadores = new HashMap<String, Organizador<T>>();
+	private Map<String, Organizador> organizadores = new HashMap<String, Organizador>();
 	
 	// Llaves son fechas y valor son lista de Evento
-	private Map<String, List<Evento<T>>> eventosFecha = new HashMap<String, List<Evento<T>>>();
+	private Map<String, List<Evento>> eventosFecha = new HashMap<String, List<Evento>>();
 	
-	// Todos los tiquetes
-	private List<T> tiquetes = new ArrayList<T>();
-	
-	// Todos los eventos
-	private List<Evento<T>> eventos = new ArrayList<Evento<T>>();
+
 	
 
 	public Administrador() {
@@ -40,46 +36,75 @@ public class Administrador<T extends Tiquete> {
 		return false;
 	}
 	
-	private static boolean reembolsar() {
-		//TODO 
-		return false;
-	}
+	private void reembolsar(Usuario cliente, double precio) {
+		
 	
-	public boolean cancelarEvento() {
-		// TODO
-		return false;
+			
+			double saldoOriginal = cliente.getSaldoVirtual();
+			
+			cliente.setSaldoVirtual(precio + saldoOriginal);
+			
+			
+		}
+		
+		
+		
+		
+	
+	
+	public void cancelarEvento(Evento evento, Map<String, Evento> eventos) {
+		String nombre = evento.cancelar();
+		
+		
+		List<Tiquete> tiquetes = evento.getTiquetesVendidos();
+		for (Tiquete tiquete: tiquetes) {
+			Usuario cliente = tiquete.getCliente();
+			
+			double precio = tiquete.getPrecio();
+			
+			reembolsar(cliente, 0.0);
+			
+			
+		}
+		
+		eventos.remove(nombre);
+		
+		
+		
 	}
 
-	public Map<String, Organizador<T>> getOrganizadores() {
+	public Map<String, Organizador> getOrganizadores() {
 		return organizadores;
 	}
 
-	public Map<String, List<Evento<T>>> getEventosFecha() {
+	public Map<String, List<Evento>> getEventosFecha() {
 		return eventosFecha;
 	}
 
-	public List<T> getTiquetes() {
+	public List<Tiquete> getTiquetes() {
 		return tiquetes;
 	}
 
-	public List<Evento<T>> getEventos() {
+	public List<Evento> getEventos() {
 		return eventos;
 	}
 
-	public void setOrganizadores(Map<String, Organizador<T>> organizadores) {
+	public void setOrganizadores(Map<String, Organizador> organizadores) {
 		this.organizadores = organizadores;
 	}
 
-	public void setEventosFecha(Map<String, List<Evento<T>>> eventosFecha) {
+	public void setEventosFecha(Map<String, List<Evento>> eventosFecha) {
 		this.eventosFecha = eventosFecha;
 	}
 
-	public void setTiquetes(List<T> tiquetes) {
+	public void setTiquetes(List<Tiquete> tiquetes) {
 		this.tiquetes = tiquetes;
 	}
 
-	public void setEventos(List<Evento<T>> eventos) {
+	public void setEventos(List<Evento> eventos) {
 		this.eventos = eventos;
 	}
+	
+	
 
 }

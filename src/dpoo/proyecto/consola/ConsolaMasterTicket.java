@@ -2,11 +2,14 @@ package dpoo.proyecto.consola;
 
 import dpoo.proyecto.app.MasterTicket;
 import dpoo.proyecto.tiquetes.Tiquete;
+import dpoo.proyecto.usuarios.Administrador;
+import dpoo.proyecto.usuarios.Natural;
+import dpoo.proyecto.usuarios.Organizador;
 import dpoo.proyecto.usuarios.Usuario;
 
 public class ConsolaMasterTicket extends ConsolaBasica {
 	
-	private MasterTicket sistemaBoleteria;
+	private static MasterTicket sistemaBoleteria;
 	
 	
 	
@@ -14,9 +17,10 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 		super();
 		this.sistemaBoleteria = sistemaBoleteria;
 	}
-
-	private Usuario logInYAuth() {
-		
+	
+	
+	
+	private void iniciar() {
 		try {
 			
 			sistemaBoleteria = new MasterTicket<Tiquete>();
@@ -25,8 +29,14 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			e.printStackTrace();
 			
 		}
+	}
+	
+
+	private Usuario logInYAuth() {
 		
 		
+		
+		Usuario retorno = new Natural("UsuarioPrueba", "123");
 		
 		
 		boolean running = true;
@@ -41,6 +51,13 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			String logIn = pedirCadena("Log In");
 			String contrasena = pedirCadena("Contraseña");
 			
+			
+			//Validacion del log in
+			if (logIn.isEmpty()) {
+				return null;
+			}
+			
+			
 		}else {
 			String newLogIn = pedirCadena("Igrese un nombre de usuario");
 			String newContrasena = pedirCadena("Ingrese una contraseña");
@@ -48,27 +65,23 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 		
 		
 		
-		while (running) {
-			
-			
-			
-			
-		}
-		return null;
+		
+		return retorno;
 		
 	}
 	
-	private void menuUsuario() {
+	private static void menuUsuario() {
 		try {
-			
+			System.out.print("no soy admin");
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private void menuAdmin() {
+	private static void menuAdmin() {
 		
 		try {
+			System.out.print("Soy admin");
 			
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -81,8 +94,21 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	
 	private static void main(String[] args) {
 		
-		ConsolaMasterTicket c = new ConsolaMasterTicket();
-		c.logInYAuth();
+		ConsolaMasterTicket c = new ConsolaMasterTicket(sistemaBoleteria);
+		
+		Usuario usuario = c.logInYAuth();
+		if (usuario instanceof Natural ) { //Crear clase abstracta de todos los tipos de usuarios unificados
+			Usuario cliente = (Natural) usuario;
+			menuUsuario();
+			
+		}else if(usuario instanceof Organizador) {
+			
+			Usuario organizador = (Organizador) usuario;
+			menuUsuario();
+			
+		}else {
+			menuAdmin();
+		}
 		
 		
 	}

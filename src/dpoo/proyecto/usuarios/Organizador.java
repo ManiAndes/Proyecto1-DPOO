@@ -6,9 +6,9 @@ import java.util.List;
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.tiquetes.Tiquete;
 
-public class Organizador<T extends Tiquete> extends Usuario<T> {
+public class Organizador extends Usuario {
 	
-	private List<Evento<T>> eventos = new ArrayList<Evento<T>>();
+	private List<Evento> eventos = new ArrayList<Evento>();
 
 	public Organizador(String login, String password) {
 		super(login, password);

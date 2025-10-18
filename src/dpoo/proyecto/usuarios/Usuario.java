@@ -5,19 +5,19 @@ import java.util.ArrayList;
 
 import dpoo.proyecto.tiquetes.Tiquete;
 
-public abstract class Usuario<T extends Tiquete> {
+public abstract class Usuario {
 	
 	private String login;
 	private String password;
 	private double saldoVirtual;
-	private List<T> misTiquetes = new ArrayList<T>();
+	private List<Tiquete> misTiquetes = new ArrayList<Tiquete>();
 	
 	public Usuario(String login, String password) {
 		this.login = login;
 		this.password = password;
 	}
 	
-	public Usuario(String login, String password, double saldoVirtual, List<T> misTiquetes) {
+	public Usuario(String login, String password, double saldoVirtual, List<Tiquete> misTiquetes) {
 		this.login = login;
 		this.password = password;
 		this.saldoVirtual = saldoVirtual;
@@ -33,7 +33,7 @@ public abstract class Usuario<T extends Tiquete> {
 	public double getSaldoVirtual() {
 		return saldoVirtual;
 	}
-	public List<T> getMisTiquetes() {
+	public List<Tiquete> getMisTiquetes() {
 		return misTiquetes;
 	}
 	
@@ -46,7 +46,7 @@ public abstract class Usuario<T extends Tiquete> {
 	public void setSaldoVirtual(double saldoVirtual) {
 		this.saldoVirtual = saldoVirtual;
 	}
-	public void setMisTiquetes(List<T> misTiquetes) {
+	public void setMisTiquetes(List<Tiquete> misTiquetes) {
 		this.misTiquetes = misTiquetes;
 	}
 	

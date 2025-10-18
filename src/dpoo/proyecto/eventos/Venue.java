@@ -11,10 +11,10 @@ public class Venue {
 	private String nombre;
 	private int capacidad;
 	private String ubicacion;
-	private List<Evento<? extends Tiquete>> eventos = new ArrayList<>();
-	private Organizador<? extends Tiquete> organizador;
+	private List<Evento> eventos = new ArrayList<>();
+	private Organizador organizador;
 	
-	public void addEvento(Evento<? extends Tiquete> evento) {
+	public void addEvento(Evento evento) {
 		if (this.eventos.contains(evento) == false) {
 			this.eventos.add(evento);
 		}
@@ -32,11 +32,11 @@ public class Venue {
 		return ubicacion;
 	}
 
-	public List<Evento<? extends Tiquete>> getEventos() {
+	public List<Evento> getEventos() {
 		return eventos;
 	}
 
-	public Organizador<? extends Tiquete> getOrganizador() {
+	public Organizador getOrganizador() {
 		return organizador;
 	}
 	
@@ -52,11 +52,11 @@ public class Venue {
 		this.ubicacion = ubicacion;
 	}
 
-	public void setEventos(List<Evento<? extends Tiquete>> eventos) {
+	public void setEventos(List<Evento> eventos) {
 		this.eventos = eventos;
 	}
 
-	public void setOrganizador(Organizador<? extends Tiquete> organizador) {
+	public void setOrganizador(Organizador organizador) {
 		this.organizador = organizador;
 	}
 
