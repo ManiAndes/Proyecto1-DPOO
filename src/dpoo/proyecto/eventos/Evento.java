@@ -21,7 +21,8 @@ public class Evento {
 	private int cantidadTiquetesDisponibles;
 	private Venue venue;
 	private String fecha;
-	private boolean cancelado;
+	
+	private double ganancias = 0;
 
 	public Evento(String nombre, String tipoEvento, String tipoTiquetes, int cantidadTiquetesDisponibles, Venue venue, String fecha) {
 		super();
@@ -126,16 +127,17 @@ public class Evento {
 	public void setTiquetesVendidos(List<Tiquete> tiquetesVendidos) {
 		this.tiquetesVendidos = tiquetesVendidos;
 	}
-	
-	public String cancelar() {
-		this.cancelado = true;
 
-		return this.nombre;
+	public double getGanancias() {
+		return ganancias;
 	}
-	
-	public String habilitar() {
-		this.cancelado = false;
-		return this.nombre;
+
+	public void setGanancias1(double ganancias) {
+		this.ganancias = ganancias;
+	}
+
+	public void setGanancias(double ganancias) {
+		this.ganancias = ganancias;
 	}
 
 }
