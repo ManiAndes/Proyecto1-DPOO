@@ -1,15 +1,16 @@
 package dpoo.proyecto.eventos;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.usuarios.Organizador;
 
 public class Evento {
 	
-	private List<Tiquete> tiquetes = new ArrayList<Tiquete>();
-	private List<Localidad> localidades = new ArrayList<Localidad>();
+	private Map<Integer, Tiquete> tiquetesDisponibles = new HashMap<Integer, Tiquete>();
+	private Map<Integer, Tiquete> tiquetesNoDisponibles = new HashMap<Integer, Tiquete>();
+	private Map<String, Localidad> localidades = new HashMap<String, Localidad>();
 	private Organizador organizador;
 	
 	private String nombre;
@@ -45,11 +46,19 @@ public class Evento {
 		return this.nombre;
 	}
 	
-	public List<Tiquete> getTiquetes() {
-		return tiquetes;
+	public Map<Integer, Tiquete> getTiquetesDisponibles() {
+		return tiquetesDisponibles;
 	}
 
-	public List<Localidad> getLocalidades() {
+	public Map<Integer, Tiquete> getTiquetesNoDisponibles() {
+		return tiquetesNoDisponibles;
+	}
+
+	public void setTiquetesNoDisponibles(Map<Integer, Tiquete> tiquetesNoDisponibles) {
+		this.tiquetesNoDisponibles = tiquetesNoDisponibles;
+	}
+
+	public Map<String, Localidad> getLocalidades() {
 		return localidades;
 	}
 
@@ -77,11 +86,11 @@ public class Evento {
 		this.nombre = nombre;
 	}
 
-	public void setTiquetes(List<Tiquete> tiquetes) {
-		this.tiquetes = tiquetes;
+	public void setTiquetesDisponibles(Map<Integer, Tiquete> tiquetes) {
+		this.tiquetesDisponibles = tiquetes;
 	}
 
-	public void setLocalidades(List<Localidad> localidades) {
+	public void setLocalidades(Map<String, Localidad> localidades) {
 		this.localidades = localidades;
 	}
 
@@ -121,6 +130,13 @@ public class Evento {
 
 	public void setGanancias(double ganancias) {
 		this.ganancias = ganancias;
+	}
+	
+	public void marcarVendido(Tiquete tiquete) {
+		
+		this.tiquetesDisponibles.remove(tiquete.getId());
+		this.tiquetesNoDisponibles.put(tiquete.getId(), tiquete);
+		
 	}
 
 }

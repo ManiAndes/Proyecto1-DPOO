@@ -10,9 +10,11 @@ public abstract class Tiquete {
 	private int maximoTiquetesPorTransaccion;
 	private String tipo;
 	
-	
-	
-	
+	public Tiquete(double precio, int id, int maximoTiquetesPorTransaccion) {
+		this.precio = precio;
+		this.id = id;
+		this.maximoTiquetesPorTransaccion = maximoTiquetesPorTransaccion;
+	}
 	
 	public double getPrecio() {
 		return precio;
@@ -62,9 +64,5 @@ public abstract class Tiquete {
 	public void setTipo(String tipo) {
 		this.tipo = tipo;
 	}
-	
-	
-	
-	
 
 }

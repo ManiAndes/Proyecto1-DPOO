@@ -30,6 +30,8 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 		if (usuarioActual instanceof Usuario) {
 			menuUsuario();
 			
+			
+			
 		} else if (usuarioActual instanceof Administrador) {
 			menuAdmin();
 			
@@ -109,7 +111,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	private void menuUsuario() {
 		try {
 			
-		}catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
