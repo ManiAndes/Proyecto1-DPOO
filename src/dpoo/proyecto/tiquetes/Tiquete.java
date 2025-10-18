@@ -22,16 +22,12 @@ public abstract class Tiquete {
 	
 	private Evento evento;
 	
+	public Tiquete(double precioOriginal, int id, int maximoTiquetesPorTransaccion) {
+		this.precioOriginal = precioOriginal;
+		this.id = id;
+		this.maximoTiquetesPorTransaccion = maximoTiquetesPorTransaccion;
+	}
 	
-	
-
-
-
-
-
-
-
-
 	public Tiquete(double precioOriginal, double cuotaAdicionalEmision, String fecha,
 			String hora, int maximoTiquetesPorTransaccion, String tipo) {
 		
@@ -154,9 +150,5 @@ public abstract class Tiquete {
 	
 
 
-	
-	
-	
-	
 
 }

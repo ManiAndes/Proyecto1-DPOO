@@ -26,9 +26,18 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			
 		}
 		
+		UsuarioGenerico usuarioActual = logInYAuth();
+		
+		// Mostrar los menus para el usuario respectivo
+		if (usuarioActual instanceof Usuario) {
+			menuUsuario();
+			
+		} else if (usuarioActual instanceof Administrador) {
+			menuAdmin();
+			
+		}
+		
 	}
-	
-
 	
 	private UsuarioGenerico logInYAuth() {
 		
