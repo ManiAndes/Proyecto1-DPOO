@@ -1,16 +1,15 @@
 package dpoo.proyecto.eventos;
 
-import java.util.Map;
-import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.usuarios.Organizador;
 
 public class Evento {
 	
-	private Map<Integer, Tiquete> tiquetesDisponibles = new HashMap<Integer, Tiquete>();
-	private Map<Integer, Tiquete> tiquetesNoDisponibles = new HashMap<Integer, Tiquete>();
-	private Map<String, Localidad> localidades = new HashMap<String, Localidad>();
+	private List<Tiquete> tiquetes = new ArrayList<Tiquete>();
+	private List<Localidad> localidades = new ArrayList<Localidad>();
 	private Organizador organizador;
 	private List<Tiquete> tiquetesVendidos = new ArrayList<Tiquete>();
 	
@@ -55,8 +54,8 @@ public class Evento {
 		return this.nombre;
 	}
 	
-	public Map<Integer, Tiquete> getTiquetesDisponibles() {
-		return tiquetesDisponibles;
+	public List<Tiquete> getTiquetes() {
+		return tiquetes;
 	}
 
 	public Map<Integer, Tiquete> getTiquetesNoDisponibles() {
@@ -69,6 +68,9 @@ public class Evento {
 
 	public Map<String, Localidad> getLocalidades() {
 		return localidades;
+	
+		public List<Localidad> getLocalidades() {
+		return this.localidades;
 	}
 
 	public Organizador getOrganizador() {
@@ -95,11 +97,11 @@ public class Evento {
 		this.nombre = nombre;
 	}
 
-	public void setTiquetesDisponibles(Map<Integer, Tiquete> tiquetes) {
-		this.tiquetesDisponibles = tiquetes;
+	public void setTiquetes(List<Tiquete> tiquetes) {
+		this.tiquetes = tiquetes;
 	}
 
-	public void setLocalidades(Map<String, Localidad> localidades) {
+	public void setLocalidades(List<Localidad> localidades) {
 		this.localidades = localidades;
 	}
 

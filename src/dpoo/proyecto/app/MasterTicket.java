@@ -10,10 +10,10 @@ public class MasterTicket {
 	
 	private double costoPorEmision;
 	
-	// Mapa de los usuarios registrados: Llaves son login y Valores el usuario
+	// Mapa de los usuarios registrados
 	private Map<String, UsuarioGenerico> usuarios;
 	
-	// Mapa de todos los eventos (activos?): Llaves nombre del evento y Valores el evento
+	// Mapa de todos los eventos (activos?)
 	private Map<String, Evento> eventos;
 	
 	// Mapa de todos los venues

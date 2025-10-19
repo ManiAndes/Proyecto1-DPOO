@@ -11,8 +11,7 @@ public class Localidad {
 	private double precioTiquetes;
 	private boolean esNumerada;
 	private Evento evento;
-	private Map<Integer, Tiquete> tiquetesDisponibles = new HashMap<Integer, Tiquete>();
-	private Map<Integer, Tiquete> tiquetesNoDisponibles = new HashMap<Integer, Tiquete>();
+	private Map<Integer, Tiquete> tiquetes = new HashMap<Integer, Tiquete>();
 	
 	public Localidad(String nombreLocalidad, double precioTiquetes, boolean esNumerada, Evento evento) {
 		this.nombreLocalidad = nombreLocalidad;
@@ -29,12 +28,16 @@ public class Localidad {
 		return precioTiquetes;
 	}
 
-	public boolean getEsNumerada() {
+	public boolean isEsNumerada() {
 		return esNumerada;
 	}
 
 	public Evento getEvento() {
 		return evento;
+	}
+
+	public Map<Integer, Tiquete> getTiquetes() {
+		return tiquetes;
 	}
 
 	public void setNombreLocalidad(String nombreLocalidad) {
@@ -53,27 +56,8 @@ public class Localidad {
 		this.evento = evento;
 	}
 
-	public Map<Integer, Tiquete> getTiquetesDisponibles() {
-		return tiquetesDisponibles;
-	}
-
-	public Map<Integer, Tiquete> getTiquetesNoDisponibles() {
-		return tiquetesNoDisponibles;
-	}
-
-	public void setTiquetesDisponibles(Map<Integer, Tiquete> tiquetesDisponibles) {
-		this.tiquetesDisponibles = tiquetesDisponibles;
-	}
-
-	public void setTiquetesNoDisponibles(Map<Integer, Tiquete> tiquetesNoDisponibles) {
-		this.tiquetesNoDisponibles = tiquetesNoDisponibles;
-	}
-	
-	public void marcarVendido(Tiquete tiquete) {
-		
-		this.tiquetesDisponibles.remove(tiquete.getId());
-		this.tiquetesNoDisponibles.put(tiquete.getId(), tiquete);
-		
+	public void setTiquetes(Map<Integer, Tiquete> tiquetes) {
+		this.tiquetes = tiquetes;
 	}
 
 }

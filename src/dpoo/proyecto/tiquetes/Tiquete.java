@@ -146,9 +146,5 @@ public abstract class Tiquete {
 		double retorno = ((this.precioOriginal * servicio) + this.precioOriginal) + emision;
 		return retorno;
 	}
-	
-	
-
-
 
 }
