@@ -4,7 +4,9 @@ import java.util.Map;
 
 import dpoo.proyecto.app.MasterTicket;
 import dpoo.proyecto.eventos.Evento;
+import dpoo.proyecto.eventos.Venue;
 import dpoo.proyecto.usuarios.Administrador;
+
 
 public class ConsolaAdmin extends ConsolaBasica {
 	
@@ -51,11 +53,11 @@ public class ConsolaAdmin extends ConsolaBasica {
 					
 					notError = verFinanzas();
 					
-				}else if (opcion.equals("4")) {
-					
-				}else if (opcion.equals("5")) {
-					
-				}
+			}else if (opcion.equals("4")) {
+				notError = verSolicitudesVenues();
+			}else if (opcion.equals("5")) {
+				
+			}
 				
 				
 				
@@ -68,15 +70,76 @@ public class ConsolaAdmin extends ConsolaBasica {
 	}
 	
 	public boolean verFinanzas() {
-		
-		System.out.println("1. Ver finanzas por Fecha");
-		System.out.println("2. Ver finanzas por Evento");
-		System.out.println("3. Ver finanzas por Organizador");
-		String opcion = pedirCadena("Como desea ver las finanzas de MasterTicket?");
-		
-		
+        System.out.println("=== VER FINANZAS ===");
+        System.out.println("1. Ver finanzas por Fecha");
+        System.out.println("2. Ver finanzas por Evento");
+        System.out.println("3. Ver finanzas por Organizador");
+        String opcion = pedirCadena("¿Cómo desea ver las finanzas de MasterTicket? (0 para volver)");
+
+        if ("0".equals(opcion)) {
+            return true; // volver al menú admin
+        }
+
+        Map<String, Double> resultado = null;
+        try {
+            if ("1".equals(opcion)) {
+                resultado = this.admin.verFinanzasPorFecha(this.sistemaBoleteria);
+            } else if ("2".equals(opcion)) {
+                resultado = this.admin.verFinanzasPorEvento(this.sistemaBoleteria);
+            } else if ("3".equals(opcion)) {
+                resultado = this.admin.verFinanzasPorOrganizador(this.sistemaBoleteria);
+            } else {
+                System.out.println("Opción inválida");
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return true;
+        }
+
+        if (resultado == null || resultado.isEmpty()) {
+            System.out.println("No hay datos para mostrar.");
+            return true;
+        }
+
+        double total = 0.0;
+        System.out.println("=== RESULTADOS ===");
+        for (Map.Entry<String, Double> entry : resultado.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+            total += entry.getValue();
+        }
+        System.out.println("TOTAL: " + total);
+        return true;
+    }
+	
+	public boolean verFinanzasFecha() {
 		return true;
 	}
+
+	public boolean verSolicitudesVenues() {
+	
+		Map<String, Venue> pendientes = this.sistemaBoleteria.getVenuesPendientes();
+		if (pendientes.isEmpty()) {
+			System.out.println("No hay venues pendientes de aprobación.");
+			return true;
+		}
+		System.out.println("=== VENUES PENDIENTES ===");
+		for (String nombre : pendientes.keySet()) {
+			System.out.println("- " + nombre);
+		}
+		String nombre = pedirCadena("Escriba el nombre a gestionar o 0 para volver").toUpperCase();
+		if ("0".equals(nombre)) return true;
+		String accion = pedirCadena("Aprobar (a) / Rechazar (r) ?");
+		boolean ok = false;
+		if ("a".equalsIgnoreCase(accion)) {
+			ok = this.admin.aprobarVenue(this.sistemaBoleteria, nombre);
+		} else if ("r".equalsIgnoreCase(accion)) {
+			ok = this.admin.rechazarVenue(this.sistemaBoleteria, nombre);
+		}
+		System.out.println(ok ? "Operación exitosa." : "Operación fallida.");
+		return ok;
+	}
+
 	
 	public boolean establecerCostoEmision() {
 		
@@ -96,11 +159,15 @@ public class ConsolaAdmin extends ConsolaBasica {
 		return true;
 	}
 	
-	public boolean gestionarEventos() {
-		this.sistemaBoleteria.viewEventos();
-		String eventoSeleccion = pedirCadena("Ingrese el nombre del evento que quiere gestionar: ").toUpperCase();
-		Evento eventoSeleccionado = this.sistemaBoleteria.selectorEvento(eventoSeleccion);
-		viewEventoAdmin(eventoSeleccionado);
+    public boolean gestionarEventos() {
+        this.sistemaBoleteria.viewEventos();
+        String eventoSeleccion = pedirCadena("Ingrese el nombre del evento que quiere gestionar: ").toUpperCase();
+        Evento eventoSeleccionado = this.sistemaBoleteria.selectorEvento(eventoSeleccion);
+        if (eventoSeleccionado == null) {
+            System.out.println("Evento no encontrado.");
+            return true;
+        }
+        viewEventoAdmin(eventoSeleccionado);
 		
 		System.out.println("1. Cancelar el evento");
 
@@ -116,15 +183,15 @@ public class ConsolaAdmin extends ConsolaBasica {
 			System.out.println("3. Salir");
 			int tipoReembolso = Integer.parseInt(pedirCadena("Escoja el tipo de reembolso: "));
 			
-			this.sistemaBoleteria.eliminarEvento(this.admin, eventoSeleccionado.getNombre());
-			this.admin.cancelarEvento(eventoSeleccionado, tipoReembolso); //REEMBOLSO EVENTO
-			
-			if (this.sistemaBoleteria.getEventos().get(eventoSeleccion).equals(null)) {
-				System.out.println("EVENTO ELIMINADO EXITOSAMENTE!");
-			}else {
-				System.out.println("Ups! Algo fallo...");
-				return false;
-			}
+            this.sistemaBoleteria.eliminarEvento(this.admin, eventoSeleccionado.getNombre());
+            this.admin.cancelarEvento(eventoSeleccionado, tipoReembolso); //REEMBOLSO EVENTO
+            
+            if (!this.sistemaBoleteria.getEventos().containsKey(eventoSeleccion)) {
+                System.out.println("EVENTO ELIMINADO EXITOSAMENTE!");
+            }else {
+                System.out.println("Ups! Algo fallo...");
+                return false;
+            }
 			
 			
 

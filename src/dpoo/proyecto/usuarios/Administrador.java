@@ -7,7 +7,9 @@ import java.util.HashMap;
 
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.app.MasterTicket;
+import dpoo.proyecto.app.SolicitudReembolso;
 import dpoo.proyecto.eventos.Evento;
+
 
 public class Administrador extends UsuarioGenerico {
 
@@ -51,10 +53,10 @@ public class Administrador extends UsuarioGenerico {
 			
 			
 		}
-		
-
-	
-	public void cancelarEvento(Evento evento, int tipoReembolso) {
+    
+    
+    
+    public void cancelarEvento(Evento evento, int tipoReembolso) {
 		String nombre = evento.cancelar();
 		
 		
@@ -73,17 +75,97 @@ public class Administrador extends UsuarioGenerico {
 			
 			if (tipoReembolso == 1) {
 				reembolso = precio - cuotaEmision;
+    }
 			}
-			
-			reembolsar(cliente, reembolso);
-			
-			
 		}
+
+    // === Aprobación de Venues ===
+    public boolean aprobarVenue(MasterTicket sistema, String nombreVenue) {
+        if (sistema.getVenuesPendientes().containsKey(nombreVenue)) {
+            sistema.getVenues().put(nombreVenue, sistema.getVenuesPendientes().get(nombreVenue));
+            sistema.getVenuesPendientes().remove(nombreVenue);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean rechazarVenue(MasterTicket sistema, String nombreVenue) {
+        if (sistema.getVenuesPendientes().containsKey(nombreVenue)) {
+            sistema.getVenuesPendientes().remove(nombreVenue);
+            return true;
+        }
+        return false;
+    }
+
+    // === Procesamiento de solicitudes de reembolso ===
+    public boolean aprobarReembolso(MasterTicket sistema, int idSolicitud, int tipoReembolso) {
+        SolicitudReembolso s = sistema.getSolicitudesReembolso().get(idSolicitud);
+        if (s == null || !"PENDIENTE".equals(s.getEstado())) return false;
+
+        Tiquete t = s.getTiquete();
+        Evento e = t.getEvento();
+        double cuotaPorcentual = e.getCargoPorcentualServicio();
+        double cuotaEmision = e.getCuotaAdicionalEmision();
+        double pagado = t.calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
+
+        double reembolso = pagado - t.getPrecioOriginal();
+        if (tipoReembolso == 1) { // Reembolsar total sin emisión
+            reembolso = pagado - cuotaEmision;
+        } else if (tipoReembolso == 2) { // Solo precio base
+            reembolso = t.getPrecioOriginal();
+        }
+
+        reembolsar(s.getSolicitante(), reembolso);
+        s.setEstado("APROBADA");
+        return true;
+    }
+
+    public boolean rechazarReembolso(MasterTicket sistema, int idSolicitud) {
+        SolicitudReembolso s = sistema.getSolicitudesReembolso().get(idSolicitud);
+        if (s == null || !"PENDIENTE".equals(s.getEstado())) return false;
+        s.setEstado("RECHAZADA");
+        return true;
+    }
+			
 		
-		
-		
-		
-		
+
+	// === Finanzas de la plataforma (ganancias por sobrecargos) ===
+	// Agrupa por fecha del evento
+	public Map<String, Double> verFinanzasPorFecha(MasterTicket sistema) {
+		Map<String, Double> porFecha = new HashMap<>();
+		for (Evento e : sistema.getEventos().values()) {
+			double g = e.calcularGanancias();
+			String fecha = e.getFecha();
+			if (fecha == null) fecha = "SIN_FECHA";
+			porFecha.put(fecha, porFecha.getOrDefault(fecha, 0.0) + g);
+		}
+
+		return porFecha;
+	}
+
+	// Agrupa por evento (nombre del evento)
+	public Map<String, Double> verFinanzasPorEvento(MasterTicket sistema) {
+		Map<String, Double> porEvento = new HashMap<>();
+		for (Evento e : sistema.getEventos().values()) {
+			double g = e.calcularGanancias();
+			String nombre = e.getNombre();
+			if (nombre == null) nombre = "SIN_NOMBRE";
+			porEvento.put(nombre, porEvento.getOrDefault(nombre, 0.0) + g);
+		}
+		return porEvento;
+	}
+
+	// Agrupa por organizador (login del organizador)
+	public Map<String, Double> verFinanzasPorOrganizador(MasterTicket sistema) {
+		Map<String, Double> porOrg = new HashMap<>();
+		for (Evento e : sistema.getEventos().values()) {
+			double g = e.calcularGanancias();
+			String org = (e.getOrganizador() != null && e.getOrganizador().getLogin() != null)
+					? e.getOrganizador().getLogin()
+					: "SIN_ORGANIZADOR";
+			porOrg.put(org, porOrg.getOrDefault(org, 0.0) + g);
+		}
+		return porOrg;
 	}
 
 	

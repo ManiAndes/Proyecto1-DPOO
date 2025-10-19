@@ -16,15 +16,21 @@ public class MasterTicket {
 	// Mapa de todos los eventos (activos?)
 	private Map<String, Evento> eventos;
 	
-	// Mapa de todos los venues
-	private Map<String, Venue> venues;
+    // Mapa de todos los venues
+    private Map<String, Venue> venues;
+    // Venues sugeridos por organizadores pendientes de aprobación
+    private Map<String, Venue> venuesPendientes;
+    // Solicitudes de reembolsos
+    private Map<Integer, SolicitudReembolso> solicitudesReembolso;
 	
 
 	public MasterTicket() {
 		super();
 		this.usuarios = new HashMap<String, UsuarioGenerico>();
 		this.eventos = new HashMap<String, Evento>();
-		this.venues = new HashMap<String, Venue>();
+        this.venues = new HashMap<String, Venue>();
+        this.venuesPendientes = new HashMap<String, Venue>();
+        this.solicitudesReembolso = new HashMap<Integer, SolicitudReembolso>();
 		this.costoPorEmision = 0.0;
 	}
 	
@@ -50,9 +56,15 @@ public class MasterTicket {
 		return eventos;
 	}
 
-	public Map<String, Venue> getVenues() {
-		return venues;
-	}
+    public Map<String, Venue> getVenues() {
+        return venues;
+    }
+    public Map<String, Venue> getVenuesPendientes() {
+        return venuesPendientes;
+    }
+    public Map<Integer, SolicitudReembolso> getSolicitudesReembolso() {
+        return solicitudesReembolso;
+    }
 
 	public void setUsuarios(Map<String, UsuarioGenerico> usuarios) {
 		this.usuarios = usuarios;
@@ -62,9 +74,23 @@ public class MasterTicket {
 		this.eventos = eventos;
 	}
 
-	public void setVenues(Map<String, Venue> venues) {
-		this.venues = venues;
-	}
+    public void setVenues(Map<String, Venue> venues) {
+        this.venues = venues;
+    }
+    public void setVenuesPendientes(Map<String, Venue> venuesPendientes) {
+        this.venuesPendientes = venuesPendientes;
+    }
+    public void setSolicitudesReembolso(Map<Integer, SolicitudReembolso> solicitudesReembolso) {
+        this.solicitudesReembolso = solicitudesReembolso;
+    }
+
+    // Utilidad para crear solicitudes de reembolso (prototipo)
+    public SolicitudReembolso crearSolicitudReembolso(Tiquete tiquete, Usuario solicitante, String motivo) {
+        int id = (int) (Math.random() * 100000);
+        SolicitudReembolso s = new SolicitudReembolso(id, tiquete, solicitante, motivo);
+        this.solicitudesReembolso.put(id, s);
+        return s;
+    }
 	
 	public Map<String, Evento> eliminarEvento(UsuarioGenerico admin, String nombreEvento){
 		
@@ -133,13 +159,7 @@ public class MasterTicket {
 	
 	
 	
-	
-	/* TODO
-	 * 
-	 * 
-	 * public List<Tiquete> seleccionarTiquete(Evento evento, Localidad localidad){
-	 * }
-	 */
+
 	
 	
 	public boolean cargarUsuarios() {

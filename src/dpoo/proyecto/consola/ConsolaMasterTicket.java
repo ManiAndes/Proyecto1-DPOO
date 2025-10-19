@@ -13,28 +13,25 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	private static MasterTicket sistemaBoleteria;
 	
 	private void correrApp() {
-		
+
 		try {
-			
 			sistemaBoleteria = new MasterTicket();
 			// Cargar la persistencia y añadirla al objeto de MasterTicket para operar
-			UsuarioGenerico usuario = logInYAuth();
-	
-			
 		} catch (Exception e) {
 			e.printStackTrace();
-			
 		}
-		
-		UsuarioGenerico usuarioActual = logInYAuth();
-		
-		// Mostrar los menus para el usuario respectivo
-		if (usuarioActual instanceof Usuario) {
-			menuUsuario();
-			
-		} else if (usuarioActual instanceof Administrador) {
-			menuAdmin();
-			
+
+		// Bucle principal: regresar al login cuando un menú termine (opción 0)
+		while (true) {
+        	UsuarioGenerico usuarioActual = logInYAuth();
+			// Mostrar los menus para el usuario respectivo
+			if (usuarioActual instanceof Administrador) {
+				menuAdmin((Administrador) usuarioActual);
+			} else if (usuarioActual instanceof Organizador) {
+				menuOrganizador((Organizador) usuarioActual);
+			} else if (usuarioActual instanceof Usuario) {
+				menuUsuario((Usuario) usuarioActual);
+			}
 		}
 		
 	}
@@ -118,8 +115,21 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	
 	private void menuUsuario(Usuario usuario) {
 		try {
-			System.out.print("no soy admin");
-		}catch (Exception e) {
+			ConsolaUsuario consolaUsuario = new ConsolaUsuario(this.sistemaBoleteria, usuario);
+			boolean running = true;
+			while (running) {
+				consolaUsuario.consolaUsuario();
+				String opcion = pedirCadena("Opcion");
+				if ("0".equals(opcion)) {
+					break; // volver al login
+				}
+				if ("1".equals(opcion)) {
+					consolaUsuario.comprarEvento();
+				} else {
+					System.out.println("Opción no implementada en prototipo.");
+				}
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -134,15 +144,31 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			
 			consolaAdmin.showMenuAdmin();
 			String opcion = pedirCadena("Opcion: ");
+			if ("0".equals(opcion)) {
+				break; // volver al login
+			}
 			consolaAdmin.consolaAdmin(opcion);
-			
-	
-			
+        
 		}
-		
-		
-		
+        
 	}
+
+    private void menuOrganizador(Organizador org) {
+        ConsolaOrganizador consolaOrg = new ConsolaOrganizador(this.sistemaBoleteria, org);
+        boolean running = true;
+        while (running) {
+            consolaOrg.showMenuOrganizador();
+            String opcion = pedirCadena("Opcion");
+            if ("0".equals(opcion)) {
+            	break; // volver al login
+            }
+            running = consolaOrg.consolaOrganizador(opcion);
+        }
+    }
+		
+		
+		
+	
 	
 	public static void main(String[] args) {
 		

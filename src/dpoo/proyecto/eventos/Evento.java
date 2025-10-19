@@ -25,7 +25,7 @@ public class Evento {
 	
 	private boolean cancelado;
 	
-	private double ganancias = 0;
+    private double ganancias = 0;
 
 	public Evento(String nombre, String tipoEvento, String tipoTiquetes, int cantidadTiquetesDisponibles, Venue venue, String fecha) {
 		super();
@@ -54,24 +54,19 @@ public class Evento {
 		return this.nombre;
 	}
 	
-	public List<Tiquete> getTiquetes() {
-		return tiquetes;
-	}
+    public List<Tiquete> getTiquetes() {
+        return tiquetes;
+    }
 
-	public Map<Integer, Tiquete> getTiquetesNoDisponibles() {
-		return tiquetesNoDisponibles;
-	}
+    public List<Localidad> getLocalidades() {
+        return this.localidades;
+    }
 
-	public void setTiquetesNoDisponibles(Map<Integer, Tiquete> tiquetesNoDisponibles) {
-		this.tiquetesNoDisponibles = tiquetesNoDisponibles;
-	}
-
-	public Map<String, Localidad> getLocalidades() {
-		return localidades;
-	
-		public List<Localidad> getLocalidades() {
-		return this.localidades;
-	}
+    public void addLocalidad(Localidad localidad) {
+        if (!this.localidades.contains(localidad)) {
+            this.localidades.add(localidad);
+        }
+    }
 
 	public Organizador getOrganizador() {
 		return organizador;
@@ -150,21 +145,39 @@ public class Evento {
 		this.cargoPorcentualServicio = cargoPorcentualServicio;
 	}
 
-	public double getCuotaAdicionalEmision() {
-		return this.tiquetes.get(0).getCuotaAdicionalEmision();
-	}
+    public double getCuotaAdicionalEmision() {
+        if (this.tiquetes == null || this.tiquetes.isEmpty()) {
+            return 0.0;
+        }
+        return this.tiquetes.get(0).getCuotaAdicionalEmision();
+    }
 
-	public double getGanancias() {
-		return ganancias;
-	}
+    public double getGanancias() {
+        return ganancias;
+    }
 
-	public void setGanancias1(double ganancias) {
-		this.ganancias = ganancias;
-	}
 
-	public void setGanancias(double ganancias) {
-		this.ganancias = ganancias;
-	}
+
+    public void setGanancias(double ganancias) {
+        this.ganancias = ganancias;
+    }
+
+    // Calcula y actualiza las ganancias del evento como
+    // la suma de (precioPagado - precioOriginal) sobre los tiquetes vendidos.
+    // precioPagado = calcularPrecioFinal(cargoPorcentual, cuotaEmision)
+    public double calcularGanancias() {
+        double total = 0.0;
+        double cuotaPorcentual = getCargoPorcentualServicio();
+        double cuotaEmision = getCuotaAdicionalEmision();
+        if (this.tiquetesVendidos != null) {
+            for (Tiquete t : this.tiquetesVendidos) {
+                double pagado = t.calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
+                total += (pagado - t.getPrecioOriginal());
+            }
+        }
+        this.ganancias = total;
+        return total;
+    }
 	
 	public String cancelar() {
 		this.cancelado = true;
@@ -176,11 +189,6 @@ public class Evento {
 		return this.nombre;
 	}
 	
-	public void marcarVendido(Tiquete tiquete) {
-		
-		this.tiquetesDisponibles.remove(tiquete.getId());
-		this.tiquetesNoDisponibles.put(tiquete.getId(), tiquete);
-		
-	}
+    // Nota: manejo de marcar vendido se definirá junto con inventario de tiquetes
 
 }
