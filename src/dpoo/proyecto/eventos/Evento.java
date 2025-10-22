@@ -190,5 +190,11 @@ public class Evento {
 	}
 	
     // Nota: manejo de marcar vendido se definirá junto con inventario de tiquetes
+	public void marcarVendido(Tiquete tiquete) {
+		
+		this.tiquetes.remove(tiquete.getId());
+		this.tiquetesVendidos.add(tiquete);
+		
+	}
 
 }
