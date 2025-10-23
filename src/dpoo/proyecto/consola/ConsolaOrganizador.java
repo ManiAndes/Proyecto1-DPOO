@@ -194,7 +194,7 @@ public class ConsolaOrganizador extends ConsolaBasica {
             }
             t.setEvento(evento);
             localidad.addTiquete(t);
-            evento.getTiquetes().add(t);
+            evento.addTiquete(t);;
         }
 
         // Actualizar contador total del evento
@@ -212,7 +212,7 @@ public class ConsolaOrganizador extends ConsolaBasica {
         }
         String nombreLocalidad = pedirCadena("Localidad (nombre exacto)").toUpperCase();
         Localidad objetivo = null;
-        for (Localidad l : evento.getLocalidades()) {
+        for (Localidad l : evento.getLocalidades().values()) {
             if (l.getNombreLocalidad().equalsIgnoreCase(nombreLocalidad)) {
                 objetivo = l;
                 break;

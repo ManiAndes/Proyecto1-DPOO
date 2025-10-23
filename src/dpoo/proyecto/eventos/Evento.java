@@ -151,7 +151,11 @@ public class Evento {
         return ganancias;
     }
 
-
+	public void addTiquete (Tiquete tiquete) {
+		if (tiquete != null) {
+            tiquetes.put(tiquete.getId(), tiquete);
+        }
+	}
 
     public void setGanancias(double ganancias) {
         this.ganancias = ganancias;

@@ -33,20 +33,14 @@ public class MasterTicket {
         this.solicitudesReembolso = new HashMap<Integer, SolicitudReembolso>();
 		this.costoPorEmision = 0.0;
 	}
-	
-	
 
 	public double getCostoPorEmision() {
 		return costoPorEmision;
 	}
 
-
-
 	public void setCostoPorEmision(double costoPorEmision) {
 		this.costoPorEmision = costoPorEmision;
 	}
-
-
 
 	public Map<String, UsuarioGenerico> getUsuarios() {
 		return usuarios;
@@ -127,8 +121,7 @@ public class MasterTicket {
 			
 			i++;
 			
-		}
-		
+		}	
 		
 	}
 	
@@ -138,7 +131,7 @@ public class MasterTicket {
 	
 	public void viewLocalidades(Evento evento) {
 		
-		Iterator<Localidad> it = evento.getLocalidades().iterator();
+		Iterator<Localidad> it = evento.getLocalidades().values().iterator();
 		
 		int i = 1;
 		
@@ -156,11 +149,6 @@ public class MasterTicket {
 		
 		
 	}
-	
-	
-	
-
-	
 	
 	public boolean cargarUsuarios() {
 		// TODO

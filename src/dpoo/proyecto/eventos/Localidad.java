@@ -12,6 +12,7 @@ public class Localidad {
 	private boolean esNumerada;
     private Evento evento;
     private Map<Integer, Tiquete> tiquetes = new HashMap<Integer, Tiquete>();
+    private Map<Integer, Tiquete> tiquetesVendidos = new HashMap<Integer, Tiquete>();
     private double descuento = 0.0; // porcentaje simple (0-100)
 	
 	public Localidad(String nombreLocalidad, double precioTiquetes, boolean esNumerada, Evento evento) {
@@ -21,7 +22,11 @@ public class Localidad {
 		this.evento = evento;
 	}
 
-	public String getNombreLocalidad() {
+	public Map<Integer, Tiquete> getTiquetesVendidos() {
+        return this.tiquetesVendidos;
+    }
+
+    public String getNombreLocalidad() {
 		return nombreLocalidad;
 	}
 
@@ -55,7 +60,11 @@ public class Localidad {
         }
     }
 
-	public void setNombreLocalidad(String nombreLocalidad) {
+	public void setTiquetesVendidos(Map<Integer, Tiquete> tiquetesVendidos) {
+        this.tiquetesVendidos = tiquetesVendidos;
+    }
+    
+    public void setNombreLocalidad(String nombreLocalidad) {
 		this.nombreLocalidad = nombreLocalidad;
 	}
 
@@ -82,5 +91,12 @@ public class Localidad {
     public void setDescuento(double descuento) {
         this.descuento = descuento;
     }
+
+    public void marcarVendido(Tiquete tiquete) {
+		
+		this.tiquetes.remove(tiquete.getId());
+		this.tiquetesVendidos.put(tiquete.getId(), tiquete);
+		
+	}
 
 }

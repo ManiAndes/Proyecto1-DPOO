@@ -60,18 +60,18 @@ public class Administrador extends UsuarioGenerico {
 		String nombre = evento.cancelar();
 		
 		
-		List<Tiquete> tiquetes = evento.getTiquetesVendidos();
+		Map<Integer, Tiquete> tiquetes = evento.getTiquetesVendidos();
 		
 		double cuotaPorcentual = evento.getCargoPorcentualServicio();
 		double cuotaEmision = evento.getCuotaAdicionalEmision();
 		
 
-		for (Tiquete tiquete: tiquetes) {
-			Usuario cliente = tiquete.getCliente();
+		for (Map.Entry<Integer, Tiquete> entry : tiquetes.entrySet()) {
+			Usuario cliente = entry.getValue().getCliente();
 			
-			double precio = tiquete.calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
+			double precio = entry.getValue().calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
 			
-			double reembolso = precio - tiquete.getPrecioOriginal();
+			double reembolso = precio - entry.getValue().getPrecioOriginal();
 			
 			if (tipoReembolso == 1) {
 				reembolso = precio - cuotaEmision;
