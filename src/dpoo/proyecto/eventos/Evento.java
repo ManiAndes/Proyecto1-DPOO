@@ -13,13 +13,13 @@ public class Evento {
 	private Map<Integer, Tiquete> tiquetesVendidos = new HashMap<Integer, Tiquete>();
 	private Map<String, Localidad> localidades = new HashMap<String, Localidad>();
 	private Organizador organizador;
+	private Venue venue;
 	
 	private double cargoPorcentualServicio;
 	private String nombre;
 	private String tipoEvento;
 	private String tipoTiquetes;
 	private int cantidadTiquetesDisponibles;
-	private Venue venue;
 	private String fecha;
 	private boolean cancelado;
     private double ganancias = 0;

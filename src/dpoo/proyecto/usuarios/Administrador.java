@@ -16,9 +16,6 @@ public class Administrador extends UsuarioGenerico {
 
 	private double CostoPorcentualServicio;
 
-
-	
-
 	public Administrador(String login, String password) {
 		super(login, password);
 	}

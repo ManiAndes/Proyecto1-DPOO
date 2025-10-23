@@ -171,10 +171,6 @@ public class ConsolaMasterTicket extends ConsolaBasica {
             running = consolaOrg.consolaOrganizador(opcion);
         }
     }
-		
-		
-		
-	
 	
 	public static void main(String[] args) {
 		

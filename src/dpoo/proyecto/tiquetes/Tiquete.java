@@ -94,9 +94,6 @@ public abstract class Tiquete {
 		return evento;
 	}
 
-
-
-
 	public void setEvento(Evento evento) {
 		this.evento = evento;
 	}
