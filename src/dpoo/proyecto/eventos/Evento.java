@@ -1,30 +1,25 @@
 package dpoo.proyecto.eventos;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.usuarios.Organizador;
 
 public class Evento {
 	
-	private List<Tiquete> tiquetes = new ArrayList<Tiquete>();
-	private List<Localidad> localidades = new ArrayList<Localidad>();
+	private Map<Integer, Tiquete> tiquetes = new HashMap<Integer, Tiquete>();
+	private Map<Integer, Tiquete> tiquetesVendidos = new HashMap<Integer, Tiquete>();
+	private Map<String, Localidad> localidades = new HashMap<String, Localidad>();
 	private Organizador organizador;
-	private List<Tiquete> tiquetesVendidos = new ArrayList<Tiquete>();
 	
 	private double cargoPorcentualServicio;
-
-
 	private String nombre;
 	private String tipoEvento;
 	private String tipoTiquetes;
 	private int cantidadTiquetesDisponibles;
 	private Venue venue;
 	private String fecha;
-	
 	private boolean cancelado;
-	
     private double ganancias = 0;
 
 	public Evento(String nombre, String tipoEvento, String tipoTiquetes, int cantidadTiquetesDisponibles, Venue venue, String fecha) {
@@ -54,17 +49,17 @@ public class Evento {
 		return this.nombre;
 	}
 	
-    public List<Tiquete> getTiquetes() {
+    public Map<Integer, Tiquete> getTiquetes() {
         return tiquetes;
     }
 
-    public List<Localidad> getLocalidades() {
+    public Map<String, Localidad> getLocalidades() {
         return this.localidades;
     }
 
     public void addLocalidad(Localidad localidad) {
-        if (!this.localidades.contains(localidad)) {
-            this.localidades.add(localidad);
+        if (this.localidades.get(localidad.getNombreLocalidad()) == null) {
+            this.localidades.put(localidad.getNombreLocalidad(), localidad);
         }
     }
 
@@ -92,11 +87,11 @@ public class Evento {
 		this.nombre = nombre;
 	}
 
-	public void setTiquetes(List<Tiquete> tiquetes) {
+	public void setTiquetes(Map<Integer, Tiquete> tiquetes) {
 		this.tiquetes = tiquetes;
 	}
 
-	public void setLocalidades(List<Localidad> localidades) {
+	public void setLocalidades(Map<String, Localidad> localidades) {
 		this.localidades = localidades;
 	}
 
@@ -129,11 +124,11 @@ public class Evento {
 		this.venue.addEvento(this);
 		this.venue.setOrganizador(organizador);
 	}
-	public List<Tiquete> getTiquetesVendidos() {
+	public Map<Integer, Tiquete> getTiquetesVendidos() {
 		return tiquetesVendidos;
 	}
 
-	public void setTiquetesVendidos(List<Tiquete> tiquetesVendidos) {
+	public void setTiquetesVendidos(Map<Integer, Tiquete> tiquetesVendidos) {
 		this.tiquetesVendidos = tiquetesVendidos;
 	}
 	
@@ -170,9 +165,10 @@ public class Evento {
         double cuotaPorcentual = getCargoPorcentualServicio();
         double cuotaEmision = getCuotaAdicionalEmision();
         if (this.tiquetesVendidos != null) {
-            for (Tiquete t : this.tiquetesVendidos) {
-                double pagado = t.calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
-                total += (pagado - t.getPrecioOriginal());
+            
+			for (Map.Entry<Integer, Tiquete> entry: this.tiquetesVendidos.entrySet()) {
+                double pagado = entry.getValue().calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
+                total += (pagado - entry.getValue().getPrecioOriginal());
             }
         }
         this.ganancias = total;
@@ -193,7 +189,7 @@ public class Evento {
 	public void marcarVendido(Tiquete tiquete) {
 		
 		this.tiquetes.remove(tiquete.getId());
-		this.tiquetesVendidos.add(tiquete);
+		this.tiquetesVendidos.put(tiquete.getId(), tiquete);
 		
 	}
 

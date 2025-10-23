@@ -39,7 +39,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	private UsuarioGenerico logInYAuth() {
 		
 		boolean running = true;
-		Map<String, UsuarioGenerico> usuarios = this.sistemaBoleteria.getUsuarios();
+		Map<String, UsuarioGenerico> usuarios = sistemaBoleteria.getUsuarios();
 		UsuarioGenerico usuarioDeseado = null;
 		
 		while (running) {
@@ -115,7 +115,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	
 	private void menuUsuario(Usuario usuario) {
 		try {
-			ConsolaUsuario consolaUsuario = new ConsolaUsuario(this.sistemaBoleteria, usuario);
+			ConsolaUsuario consolaUsuario = new ConsolaUsuario(sistemaBoleteria, usuario);
 			boolean running = true;
 			while (running) {
 				consolaUsuario.consolaUsuario();
@@ -136,7 +136,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	
 	private void menuAdmin(Administrador admin) {
 		
-		ConsolaAdmin consolaAdmin = new ConsolaAdmin(this.sistemaBoleteria, admin);
+		ConsolaAdmin consolaAdmin = new ConsolaAdmin(sistemaBoleteria, admin);
 		
 		boolean running = true;
 		
@@ -154,7 +154,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 	}
 
     private void menuOrganizador(Organizador org) {
-        ConsolaOrganizador consolaOrg = new ConsolaOrganizador(this.sistemaBoleteria, org);
+        ConsolaOrganizador consolaOrg = new ConsolaOrganizador(sistemaBoleteria, org);
         boolean running = true;
         while (running) {
             consolaOrg.showMenuOrganizador();
