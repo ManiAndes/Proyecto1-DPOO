@@ -94,6 +94,13 @@ public class Localidad {
         this.descuento = descuento;
     }
 
+    	public void marcarVendido(Tiquete tiquete) {
+		
+		this.tiquetes.remove(tiquete.getId());
+		this.tiquetesVendidos.put(tiquete.getId(), tiquete);
+		
+	}
+
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("nombreLocalidad", this.nombreLocalidad);
