@@ -6,6 +6,7 @@ import java.util.Random;
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.usuarios.Natural;
 import dpoo.proyecto.usuarios.Usuario;
+import org.json.JSONObject;
 
 public abstract class Tiquete {
 	private double precioOriginal;
@@ -145,6 +146,22 @@ public abstract class Tiquete {
 	public double calcularPrecioFinal(double servicio, double emision) {
 		double retorno = ((this.precioOriginal * servicio) + this.precioOriginal) + emision;
 		return retorno;
+	}
+
+	public JSONObject toJSON() {
+		JSONObject json = new JSONObject();
+		json.put("type", this.getClass().getSimpleName());
+		json.put("precioOriginal", this.precioOriginal);
+		json.put("cuotaAdicionalEmision", this.cuotaAdicionalEmision);
+		json.put("fecha", this.fecha);
+		json.put("hora", this.hora);
+		json.put("id", this.id);
+		json.put("maximoTiquetesPorTransaccion", this.maximoTiquetesPorTransaccion);
+		json.put("tipo", this.tipo);
+		json.put("usado", this.usado);
+		if (this.cliente != null) json.put("clienteLogin", this.cliente.getLogin());
+		if (this.evento != null) json.put("eventoNombre", this.evento.getNombre());
+		return json;
 	}
 
 }

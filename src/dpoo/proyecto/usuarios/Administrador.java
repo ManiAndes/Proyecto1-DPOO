@@ -9,6 +9,7 @@ import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.app.MasterTicket;
 import dpoo.proyecto.app.SolicitudReembolso;
 import dpoo.proyecto.eventos.Evento;
+import org.json.JSONObject;
 
 
 public class Administrador extends UsuarioGenerico {
@@ -50,9 +51,26 @@ public class Administrador extends UsuarioGenerico {
 			double saldoOriginal = cliente.getSaldoVirtual();
 			
 			cliente.setSaldoVirtual(precio + saldoOriginal);
-			
-			
-		}
+		
+		
+	}
+
+	public JSONObject toJSON() {
+		JSONObject json = super.toJSON();
+		json.put("costoPorcentualServicio", this.CostoPorcentualServicio);
+		return json;
+	}
+
+	public static Administrador fromJSON(JSONObject json) {
+		String login = json.getString("login");
+		String password = json.getString("password");
+		double saldo = json.optDouble("saldoVirtual", 0.0);
+		double cps = json.optDouble("costoPorcentualServicio", 0.0);
+		Administrador a = new Administrador(login, password);
+		a.setSaldoVirtual(saldo);
+		a.setCostoPorcentualEmision(cps);
+		return a;
+	}
     
     
     

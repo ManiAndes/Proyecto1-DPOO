@@ -1,5 +1,7 @@
 package dpoo.proyecto.usuarios;
 
+import org.json.JSONObject;
+
 public abstract class UsuarioGenerico {
 	
 	private String login;
@@ -35,6 +37,15 @@ public abstract class UsuarioGenerico {
 	}
 	public void setSaldoVirtual(double saldoVirtual) {
 		this.saldoVirtual = saldoVirtual;
+	}
+
+	public JSONObject toJSON() {
+		JSONObject json = new JSONObject();
+		json.put("type", this.getClass().getSimpleName());
+		json.put("login", this.login);
+		json.put("password", this.password);
+		json.put("saldoVirtual", this.saldoVirtual);
+		return json;
 	}
 
 }

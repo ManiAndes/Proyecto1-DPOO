@@ -6,16 +6,19 @@ import dpoo.proyecto.app.MasterTicket;
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.usuarios.*;
+import persistencia.CentralPersistencia;
 
 
 public class ConsolaMasterTicket extends ConsolaBasica {
 	
-	private static MasterTicket sistemaBoleteria;
+    private static MasterTicket sistemaBoleteria;
+    private static final CentralPersistencia cp = new CentralPersistencia();
 	
 	private void correrApp() {
 
-		try {
-			sistemaBoleteria = new MasterTicket();
+        try {
+            sistemaBoleteria = new MasterTicket();
+            cp.loadDefault(sistemaBoleteria);
 			// Cargar la persistencia y añadirla al objeto de MasterTicket para operar
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -25,13 +28,16 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 		while (true) {
         	UsuarioGenerico usuarioActual = logInYAuth();
 			// Mostrar los menus para el usuario respectivo
-			if (usuarioActual instanceof Administrador) {
-				menuAdmin((Administrador) usuarioActual);
-			} else if (usuarioActual instanceof Organizador) {
-				menuOrganizador((Organizador) usuarioActual);
-			} else if (usuarioActual instanceof Usuario) {
-				menuUsuario((Usuario) usuarioActual);
-			}
+            if (usuarioActual instanceof Administrador) {
+                menuAdmin((Administrador) usuarioActual);
+                cp.saveDefault(sistemaBoleteria);
+            } else if (usuarioActual instanceof Organizador) {
+                menuOrganizador((Organizador) usuarioActual);
+                cp.saveDefault(sistemaBoleteria);
+            } else if (usuarioActual instanceof Usuario) {
+                menuUsuario((Usuario) usuarioActual);
+                cp.saveDefault(sistemaBoleteria);
+            }
 		}
 		
 	}

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 import dpoo.proyecto.tiquetes.Tiquete;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public abstract class Usuario extends UsuarioGenerico {
 	
@@ -24,6 +26,20 @@ public abstract class Usuario extends UsuarioGenerico {
 	
 	public void setMisTiquetes(List<Tiquete> misTiquetes) {
 		this.misTiquetes = misTiquetes;
+	}
+
+	@Override
+	public JSONObject toJSON() {
+		JSONObject base = super.toJSON();
+		JSONArray arr = new JSONArray();
+		// Nota: serialización básica de tiquetes; las subclases de Tiquete deben implementar toJSON
+		for (Tiquete t : misTiquetes) {
+			if (t != null) {
+				arr.put(t.toJSON());
+			}
+		}
+		base.put("misTiquetes", arr);
+		return base;
 	}
 	
 }

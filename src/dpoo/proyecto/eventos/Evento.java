@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.usuarios.Organizador;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Evento {
 	
@@ -178,11 +180,57 @@ public class Evento {
         this.ganancias = total;
         return total;
     }
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("nombre", this.nombre);
+        json.put("tipoEvento", this.tipoEvento);
+        json.put("tipoTiquetes", this.tipoTiquetes);
+        json.put("cantidadTiquetesDisponibles", this.cantidadTiquetesDisponibles);
+        json.put("fecha", this.fecha);
+        json.put("ganancias", this.ganancias);
+        json.put("cancelado", this.cancelado);
+        json.put("cargoPorcentualServicio", this.cargoPorcentualServicio);
+        if (this.venue != null) json.put("venueName", this.venue.getNombre());
+        if (this.organizador != null) json.put("organizadorLogin", this.organizador.getLogin());
+        JSONArray locs = new JSONArray();
+        for (Localidad l : this.localidades) {
+            locs.put(l.toJSON());
+        }
+        json.put("localidades", locs);
+        JSONArray tiqs = new JSONArray();
+        for (Tiquete t : this.tiquetes) {
+            tiqs.put(t.toJSON());
+        }
+        json.put("tiquetes", tiqs);
+        JSONArray vendidos = new JSONArray();
+        for (Tiquete t : this.tiquetesVendidos) {
+            vendidos.put(t.toJSON());
+        }
+        json.put("tiquetesVendidos", vendidos);
+        return json;
+    }
+
+    public static Evento fromJSON(JSONObject json) {
+        String nombre = json.getString("nombre");
+        String tipoEvento = json.optString("tipoEvento", "");
+        String tipoTiquetes = json.optString("tipoTiquetes", "");
+        int cant = json.optInt("cantidadTiquetesDisponibles", 0);
+        Venue v = new Venue();
+        String fecha = json.optString("fecha", "");
+        Evento e = new Evento(nombre, tipoEvento, tipoTiquetes, cant, v, fecha);
+        e.setGanancias(json.optDouble("ganancias", 0.0));
+        e.setCargoPorcentualServicio(json.optDouble("cargoPorcentualServicio", 0.0));
+        if (json.optBoolean("cancelado", false)) {
+            e.cancelar();
+        }
+        return e;
+    }
 	
-	public String cancelar() {
-		this.cancelado = true;
-		return this.nombre;
-	}
+    public String cancelar() {
+        this.cancelado = true;
+        return this.nombre;
+    }
 	
 	public String habilitar() {
 		this.cancelado = false;
