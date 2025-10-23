@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.usuarios.Organizador;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Venue {
 	
@@ -58,6 +60,28 @@ public class Venue {
 
 	public void setOrganizador(Organizador organizador) {
 		this.organizador = organizador;
+	}
+
+	public JSONObject toJSON() {
+		JSONObject json = new JSONObject();
+		json.put("nombre", this.nombre);
+		json.put("capacidad", this.capacidad);
+		json.put("ubicacion", this.ubicacion);
+		if (this.organizador != null) json.put("organizadorLogin", this.organizador.getLogin());
+		JSONArray evs = new JSONArray();
+		for (Evento e : this.eventos) {
+			if (e != null && e.getNombre() != null) evs.put(e.getNombre());
+		}
+		json.put("eventos", evs);
+		return json;
+	}
+
+	public static Venue fromJSON(JSONObject json) {
+		Venue v = new Venue();
+		v.setNombre(json.getString("nombre"));
+		v.setCapacidad(json.optInt("capacidad", 0));
+		v.setUbicacion(json.optString("ubicacion", ""));
+		return v;
 	}
 
 }

@@ -4,6 +4,8 @@ import dpoo.proyecto.tiquetes.Tiquete;
 
 import java.util.Map;
 import java.util.HashMap;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Localidad {
 	
@@ -92,11 +94,27 @@ public class Localidad {
         this.descuento = descuento;
     }
 
-    public void marcarVendido(Tiquete tiquete) {
-		
-		this.tiquetes.remove(tiquete.getId());
-		this.tiquetesVendidos.put(tiquete.getId(), tiquete);
-		
-	}
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("nombreLocalidad", this.nombreLocalidad);
+        json.put("precioTiquetes", this.precioTiquetes);
+        json.put("esNumerada", this.esNumerada);
+        json.put("descuento", this.descuento);
+        JSONArray ids = new JSONArray();
+        for (Integer id : this.tiquetes.keySet()) {
+            ids.put(id);
+        }
+        json.put("tiqueteIds", ids);
+        return json;
+    }
+
+    public static Localidad fromJSON(JSONObject json, Evento evento) {
+        String nombre = json.getString("nombreLocalidad");
+        double precio = json.optDouble("precioTiquetes", 0.0);
+        boolean numerada = json.optBoolean("esNumerada", false);
+        Localidad l = new Localidad(nombre, precio, numerada, evento);
+        l.setDescuento(json.optDouble("descuento", 0.0));
+        return l;
+    }
 
 }

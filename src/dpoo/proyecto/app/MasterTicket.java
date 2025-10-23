@@ -5,6 +5,8 @@ import dpoo.proyecto.eventos.*;
 import dpoo.proyecto.tiquetes.*;
 
 import java.util.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class MasterTicket {
 	
@@ -163,6 +165,27 @@ public class MasterTicket {
 	public boolean cargarVenues() {
 		// TODO
 		return false;
+	}
+
+	public JSONObject toJSON() {
+		JSONObject json = new JSONObject();
+		json.put("costoPorEmision", this.costoPorEmision);
+		JSONArray u = new JSONArray();
+		for (Map.Entry<String, UsuarioGenerico> e : this.usuarios.entrySet()) {
+			u.put(e.getValue().toJSON());
+		}
+		json.put("usuarios", u);
+		JSONArray ev = new JSONArray();
+		for (Map.Entry<String, Evento> e : this.eventos.entrySet()) {
+			ev.put(e.getValue().toJSON());
+		}
+		json.put("eventos", ev);
+		JSONArray vv = new JSONArray();
+		for (Map.Entry<String, Venue> e : this.venues.entrySet()) {
+			vv.put(e.getValue().toJSON());
+		}
+		json.put("venues", vv);
+		return json;
 	}
 	
 }
