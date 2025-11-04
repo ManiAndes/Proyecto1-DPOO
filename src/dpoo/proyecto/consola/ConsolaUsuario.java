@@ -23,11 +23,11 @@ public class ConsolaUsuario extends ConsolaBasica {
 		
 		System.out.println(
 				"1 - Seleccionar evento y comprar\n" +
-				"2 - Ver saldo" + 
-				"3 - Ver mis eventos" +
-				"4 - Ver mis tiquetes" +
-				"5 - Transferir tiquete" +
-				"0 - Salir"
+				"2 - Ver saldo\n" + 
+				"3 - Ver mis eventos\n" +
+				"4 - Ver mis tiquetes\n" +
+				"5 - Transferir tiquete\n" +
+				"0 - Salir\n"
 				);
 	}
 	

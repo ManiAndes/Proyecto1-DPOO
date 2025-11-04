@@ -194,18 +194,18 @@ public class Evento {
         if (this.venue != null) json.put("venueName", this.venue.getNombre());
         if (this.organizador != null) json.put("organizadorLogin", this.organizador.getLogin());
         JSONArray locs = new JSONArray();
-        for (Localidad l : this.localidades) {
-            locs.put(l.toJSON());
+        for (Map.Entry<String, Localidad> pareja: this.localidades.entrySet()) {
+            locs.put(pareja.getValue().toJSON());
         }
         json.put("localidades", locs);
         JSONArray tiqs = new JSONArray();
-        for (Tiquete t : this.tiquetes) {
-            tiqs.put(t.toJSON());
+        for (Map.Entry<Integer, Tiquete> pareja: this.tiquetes.entrySet()) {
+            tiqs.put(pareja.getValue().toJSON());
         }
         json.put("tiquetes", tiqs);
         JSONArray vendidos = new JSONArray();
-        for (Tiquete t : this.tiquetesVendidos) {
-            vendidos.put(t.toJSON());
+        for (Map.Entry<Integer, Tiquete> pareja: this.tiquetes.entrySet()) {
+            vendidos.put(pareja.getValue().toJSON());
         }
         json.put("tiquetesVendidos", vendidos);
         return json;

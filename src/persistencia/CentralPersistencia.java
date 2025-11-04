@@ -1,6 +1,6 @@
 package persistencia;
 
-
+import dpoo.proyecto.app.MasterTicket;
 
 public class CentralPersistencia {
 	
@@ -19,6 +19,16 @@ public class CentralPersistencia {
 		}
         return null;
     	
+    }
+
+	public void loadDefault(MasterTicket sistemaBoleteria) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'loadDefault'");
+	}
+
+    public void saveDefault(MasterTicket sistemaBoleteria) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'saveDefault'");
     }
 	
 	
