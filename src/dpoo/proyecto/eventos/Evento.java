@@ -194,17 +194,17 @@ public class Evento {
         if (this.venue != null) json.put("venueName", this.venue.getNombre());
         if (this.organizador != null) json.put("organizadorLogin", this.organizador.getLogin());
         JSONArray locs = new JSONArray();
-        for (Localidad l : this.localidades) {
+        for (Localidad l : this.localidades.values()) {
             locs.put(l.toJSON());
         }
         json.put("localidades", locs);
         JSONArray tiqs = new JSONArray();
-        for (Tiquete t : this.tiquetes) {
+        for (Tiquete t : this.tiquetes.values()) {
             tiqs.put(t.toJSON());
         }
         json.put("tiquetes", tiqs);
         JSONArray vendidos = new JSONArray();
-        for (Tiquete t : this.tiquetesVendidos) {
+        for (Tiquete t : this.tiquetesVendidos.values()) {
             vendidos.put(t.toJSON());
         }
         json.put("tiquetesVendidos", vendidos);
