@@ -39,6 +39,10 @@ public abstract class UsuarioGenerico {
 		this.saldoVirtual = saldoVirtual;
 	}
 
+	public void addSaldoVirtual(double saldo) {
+		this.saldoVirtual += saldo;
+	}
+
 	public JSONObject toJSON() {
 		JSONObject json = new JSONObject();
 		json.put("type", this.getClass().getSimpleName());

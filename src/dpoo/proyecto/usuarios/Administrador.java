@@ -1,7 +1,5 @@
 package dpoo.proyecto.usuarios;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -43,12 +41,8 @@ public class Administrador extends UsuarioGenerico {
 	
 	private void reembolsar(Usuario cliente, double precio) {
 		
-	
-			
 			double saldoOriginal = cliente.getSaldoVirtual();
-			
 			cliente.setSaldoVirtual(precio + saldoOriginal);
-		
 		
 	}
 
@@ -69,30 +63,33 @@ public class Administrador extends UsuarioGenerico {
 		return a;
 	}
     
-    
-    
-    public void cancelarEvento(Evento evento, int tipoReembolso) {
+    public void cancelarEvento(Evento evento, int tipoReembolso, MasterTicket sistemaBoleteria) {
 		String nombre = evento.cancelar();
-		
+		sistemaBoleteria.eliminarEvento(this, nombre);
 		
 		Map<Integer, Tiquete> tiquetes = evento.getTiquetesVendidos();
 		
 		double cuotaPorcentual = evento.getCargoPorcentualServicio();
 		double cuotaEmision = evento.getCuotaAdicionalEmision();
-		
 
 		for (Map.Entry<Integer, Tiquete> entry : tiquetes.entrySet()) {
 			Usuario cliente = entry.getValue().getCliente();
 			
 			double precio = entry.getValue().calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
-			
-			double reembolso = precio - entry.getValue().getPrecioOriginal();
+			double reembolso;
 			
 			if (tipoReembolso == 1) {
 				reembolso = precio - cuotaEmision;
-    }
+
+			} else {
+				reembolso = entry.getValue().getPrecioOriginal();
 			}
+
+			cliente.addSaldoVirtual(reembolso);
+
 		}
+
+	}
 
     // === Aprobación de Venues ===
     public boolean aprobarVenue(MasterTicket sistema, String nombreVenue) {

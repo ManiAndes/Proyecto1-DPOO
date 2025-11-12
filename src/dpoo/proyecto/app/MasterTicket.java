@@ -88,19 +88,15 @@ public class MasterTicket {
         return s;
     }
 	
-	public Map<String, Evento> eliminarEvento(UsuarioGenerico admin, String nombreEvento){
+	public void eliminarEvento(UsuarioGenerico admin, String nombreEvento){
 		
 		
 		if (admin instanceof Administrador) {
 			
 			this.eventos.remove(nombreEvento);
-			Evento evento = this.eventos.get(nombreEvento);
-			
-			return this.eventos;
 			
 		}else {
 			System.out.println("No eres admin");
-			return null;
 		}
 	}
 	
@@ -115,9 +111,7 @@ public class MasterTicket {
 			
 			String i_ = Integer.toString(i);
 			
-			
 			String nombre = pareja.getKey();
-			
 			
 			System.out.println(i_ + ". "+nombre+"/n");
 			

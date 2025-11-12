@@ -181,10 +181,10 @@ public class ConsolaAdmin extends ConsolaBasica {
 			System.out.println("1. Reembolsar solamente sin costos emision");
 			System.out.println("2. Reembolsar solo precio base (Recomendado)");
 			System.out.println("3. Salir");
-			int tipoReembolso = Integer.parseInt(pedirCadena("Escoja el tipo de reembolso: "));
+			int tipoReembolso = Integer.parseInt(pedirCadena("Escoja el tipo de reembolso"));
 			
             this.sistemaBoleteria.eliminarEvento(this.admin, eventoSeleccionado.getNombre());
-            this.admin.cancelarEvento(eventoSeleccionado, tipoReembolso); //REEMBOLSO EVENTO
+            this.admin.cancelarEvento(eventoSeleccionado, tipoReembolso, sistemaBoleteria); //REEMBOLSO EVENTO
             
             if (!this.sistemaBoleteria.getEventos().containsKey(eventoSeleccion)) {
                 System.out.println("EVENTO ELIMINADO EXITOSAMENTE!");
