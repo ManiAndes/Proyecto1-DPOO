@@ -28,6 +28,12 @@ public abstract class Usuario extends UsuarioGenerico {
 		this.misTiquetes = misTiquetes;
 	}
 
+	public void agregarTiquete(Tiquete tiquete) {
+		if (tiquete != null) {
+			this.misTiquetes.add(tiquete);
+		}
+	}
+
 	@Override
 	public JSONObject toJSON() {
 		JSONObject base = super.toJSON();

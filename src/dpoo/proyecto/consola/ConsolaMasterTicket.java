@@ -93,7 +93,12 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 						nuevoUsuario = new Organizador(newLogIn, newContrasena);
 						
 					} else if (tipoUsuario.equals("a")) {
-						nuevoUsuario = new Administrador(newLogIn, newContrasena);
+                        boolean existeAdmin = usuarios.values().stream().anyMatch(u -> u instanceof Administrador);
+                        if (existeAdmin) {
+                            System.out.println("Ya existe un administrador registrado. No se pueden crear más.");
+                        } else {
+						    nuevoUsuario = new Administrador(newLogIn, newContrasena);
+                        }
 						
 					} else {
 						System.out.println("Opción inválida...");
@@ -131,8 +136,16 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 				}
 				if ("1".equals(opcion)) {
 					consolaUsuario.comprarEvento();
+				} else if ("2".equals(opcion)) {
+					consolaUsuario.verSaldo();
+				} else if ("3".equals(opcion)) {
+					consolaUsuario.verMisEventos();
+				} else if ("4".equals(opcion)) {
+					consolaUsuario.verMisTiquetes();
+				} else if ("5".equals(opcion)) {
+					consolaUsuario.transferirTiquete();
 				} else {
-					System.out.println("Opción no implementada en prototipo.");
+					System.out.println("Opción no válida.");
 				}
 			}
 		} catch (Exception e) {

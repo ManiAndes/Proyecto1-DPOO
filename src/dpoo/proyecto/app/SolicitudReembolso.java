@@ -14,6 +14,9 @@ public class SolicitudReembolso {
     private String motivo;
 
     private String estado; // PENDIENTE, APROBADA, RECHAZADA
+    private double montoSolicitado;
+    private double montoAprobado;
+    private String observacionAdmin;
 
     public SolicitudReembolso(int id, Tiquete tiquete, Usuario solicitante, String motivo) {
 
@@ -56,11 +59,38 @@ public class SolicitudReembolso {
         this.estado = estado;
     }
 
+    public double getMontoSolicitado() {
+        return montoSolicitado;
+    }
+
+    public void setMontoSolicitado(double montoSolicitado) {
+        this.montoSolicitado = montoSolicitado;
+    }
+
+    public double getMontoAprobado() {
+        return montoAprobado;
+    }
+
+    public void setMontoAprobado(double montoAprobado) {
+        this.montoAprobado = montoAprobado;
+    }
+
+    public String getObservacionAdmin() {
+        return observacionAdmin;
+    }
+
+    public void setObservacionAdmin(String observacionAdmin) {
+        this.observacionAdmin = observacionAdmin;
+    }
+
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("id", this.id);
         json.put("motivo", this.motivo);
         json.put("estado", this.estado);
+        json.put("montoSolicitado", this.montoSolicitado);
+        json.put("montoAprobado", this.montoAprobado);
+        json.put("observacionAdmin", this.observacionAdmin);
         if (this.tiquete != null) {
             json.put("tiqueteId", this.tiquete.getId());
             if (this.tiquete.getEvento() != null) {
@@ -79,7 +109,9 @@ public class SolicitudReembolso {
         String estado = json.optString("estado", "PENDIENTE");
         SolicitudReembolso s = new SolicitudReembolso(id, null, null, motivo);
         s.setEstado(estado);
+        s.setMontoSolicitado(json.optDouble("montoSolicitado", 0.0));
+        s.setMontoAprobado(json.optDouble("montoAprobado", 0.0));
+        s.setObservacionAdmin(json.optString("observacionAdmin", null));
         return s;
     }
 }
-

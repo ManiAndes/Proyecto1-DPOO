@@ -61,6 +61,12 @@ public class Localidad {
             tiquetes.put(tiquete.getId(), tiquete);
         }
     }
+    
+    public void addTiqueteVendido(Tiquete tiquete) {
+        if (tiquete != null) {
+            tiquetesVendidos.put(tiquete.getId(), tiquete);
+        }
+    }
 
 	public void setTiquetesVendidos(Map<Integer, Tiquete> tiquetesVendidos) {
         this.tiquetesVendidos = tiquetesVendidos;
@@ -107,11 +113,8 @@ public class Localidad {
         json.put("precioTiquetes", this.precioTiquetes);
         json.put("esNumerada", this.esNumerada);
         json.put("descuento", this.descuento);
-        JSONArray ids = new JSONArray();
-        for (Integer id : this.tiquetes.keySet()) {
-            ids.put(id);
-        }
-        json.put("tiqueteIds", ids);
+        json.put("tiquetesDisponibles", this.tiquetes.size());
+        json.put("tiquetesVendidos", this.tiquetesVendidos.size());
         return json;
     }
 

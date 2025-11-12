@@ -24,6 +24,10 @@ public class MasterTicket {
     private Map<String, Venue> venuesPendientes;
     // Solicitudes de reembolsos
     private Map<Integer, SolicitudReembolso> solicitudesReembolso;
+    private Map<Integer, SolicitudReembolso> solicitudesReembolsoProcesadas;
+    private Map<Integer, Tiquete> indiceTiquetes;
+    private int secuenciaTiquetes;
+    private int secuenciaSolicitudes;
 	
 
 	public MasterTicket() {
@@ -33,6 +37,10 @@ public class MasterTicket {
         this.venues = new HashMap<String, Venue>();
         this.venuesPendientes = new HashMap<String, Venue>();
         this.solicitudesReembolso = new HashMap<Integer, SolicitudReembolso>();
+        this.solicitudesReembolsoProcesadas = new HashMap<Integer, SolicitudReembolso>();
+        this.indiceTiquetes = new HashMap<Integer, Tiquete>();
+        this.secuenciaTiquetes = 1000;
+        this.secuenciaSolicitudes = 1;
 		this.costoPorEmision = 0.0;
 	}
 
@@ -62,30 +70,158 @@ public class MasterTicket {
         return solicitudesReembolso;
     }
 
+    public Map<Integer, SolicitudReembolso> getSolicitudesReembolsoProcesadas() {
+        return solicitudesReembolsoProcesadas;
+    }
+
 	public void setUsuarios(Map<String, UsuarioGenerico> usuarios) {
-		this.usuarios = usuarios;
+		this.usuarios = (usuarios != null) ? usuarios : new HashMap<>();
 	}
 
 	public void setEventos(Map<String, Evento> eventos) {
-		this.eventos = eventos;
+		this.eventos = (eventos != null) ? eventos : new HashMap<>();
 	}
 
     public void setVenues(Map<String, Venue> venues) {
-        this.venues = venues;
+        this.venues = venues != null ? venues : new HashMap<>();
+        refrescarVenuesPendientes();
     }
     public void setVenuesPendientes(Map<String, Venue> venuesPendientes) {
-        this.venuesPendientes = venuesPendientes;
+        this.venuesPendientes = venuesPendientes != null ? venuesPendientes : new HashMap<>();
+        refrescarVenuesPendientes();
     }
     public void setSolicitudesReembolso(Map<Integer, SolicitudReembolso> solicitudesReembolso) {
-        this.solicitudesReembolso = solicitudesReembolso;
+        this.solicitudesReembolso = solicitudesReembolso != null ? solicitudesReembolso : new HashMap<>();
+    }
+    public void setSolicitudesReembolsoProcesadas(Map<Integer, SolicitudReembolso> solicitudesReembolsoProcesadas) {
+        this.solicitudesReembolsoProcesadas = solicitudesReembolsoProcesadas != null ? solicitudesReembolsoProcesadas : new HashMap<>();
+    }
+
+    public Map<Integer, Tiquete> getIndiceTiquetes() {
+        return indiceTiquetes;
+    }
+
+    public void setIndiceTiquetes(Map<Integer, Tiquete> indiceTiquetes) {
+        this.indiceTiquetes = indiceTiquetes != null ? indiceTiquetes : new HashMap<>();
+    }
+
+    public int getSecuenciaTiquetes() {
+        return secuenciaTiquetes;
+    }
+
+    public void setSecuenciaTiquetes(int secuenciaTiquetes) {
+        this.secuenciaTiquetes = secuenciaTiquetes;
+    }
+
+    public int getSecuenciaSolicitudes() {
+        return secuenciaSolicitudes;
+    }
+
+    public void setSecuenciaSolicitudes(int secuenciaSolicitudes) {
+        this.secuenciaSolicitudes = secuenciaSolicitudes;
+    }
+
+    private void refrescarVenuesPendientes() {
+        Map<String, Venue> pend = new HashMap<>();
+        if (this.venues == null) {
+            this.venues = new HashMap<>();
+        }
+        for (Map.Entry<String, Venue> entry : this.venues.entrySet()) {
+            if (entry.getValue() != null && !entry.getValue().isAprobado()) {
+                pend.put(entry.getKey(), entry.getValue());
+            }
+        }
+        this.venuesPendientes = pend;
+    }
+
+    public synchronized int siguienteIdTiquete() {
+        return ++secuenciaTiquetes;
+    }
+
+    public synchronized int siguienteIdSolicitud() {
+        return ++secuenciaSolicitudes;
+    }
+
+    public void registrarTiquete(Tiquete tiquete) {
+        if (tiquete != null) {
+            indiceTiquetes.put(tiquete.getId(), tiquete);
+            if (tiquete.getId() > secuenciaTiquetes) {
+                secuenciaTiquetes = tiquete.getId();
+            }
+        }
+    }
+
+    public Tiquete buscarTiquete(int id) {
+        return indiceTiquetes.get(id);
     }
 
     // Utilidad para crear solicitudes de reembolso (prototipo)
     public SolicitudReembolso crearSolicitudReembolso(Tiquete tiquete, Usuario solicitante, String motivo) {
-        int id = (int) (Math.random() * 100000);
+        if (tiquete == null || solicitante == null) return null;
+        int id = siguienteIdSolicitud();
         SolicitudReembolso s = new SolicitudReembolso(id, tiquete, solicitante, motivo);
+        double cuotaPorcentual = tiquete.getEvento() != null ? tiquete.getEvento().getCargoPorcentualServicio() : 0.0;
+        double cuotaEmision = tiquete.getCuotaAdicionalEmision();
+        double pagado = tiquete.getMontoPagado() > 0
+                ? tiquete.getMontoPagado()
+                : tiquete.calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
+        s.setMontoSolicitado(pagado);
         this.solicitudesReembolso.put(id, s);
         return s;
+    }
+
+    public boolean aprobarVenue(String nombre) {
+        if (nombre == null) return false;
+        String key = nombre.toUpperCase();
+        Venue v = this.venues.get(key);
+        if (v == null) {
+            v = this.venuesPendientes.get(key);
+        }
+        if (v != null) {
+            v.setAprobado(true);
+            this.venues.put(key, v);
+            refrescarVenuesPendientes();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean rechazarVenue(String nombre) {
+        if (nombre == null) return false;
+        String key = nombre.toUpperCase();
+        Venue actual = this.venues.get(key);
+        if (actual != null && !actual.isAprobado()) {
+            this.venues.remove(key);
+            refrescarVenuesPendientes();
+            return true;
+        }
+        if (this.venuesPendientes.remove(key) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public void registrarEventoCancelado(Evento evento) {
+        marcarEventoCancelado(evento);
+    }
+
+    public void registrarSolicitudProcesada(SolicitudReembolso solicitud) {
+        if (solicitud != null) {
+            this.solicitudesReembolso.remove(solicitud.getId());
+            this.solicitudesReembolsoProcesadas.put(solicitud.getId(), solicitud);
+        }
+    }
+    
+    public List<SolicitudReembolso> listarSolicitudesPendientes() {
+        List<SolicitudReembolso> lista = new ArrayList<>(solicitudesReembolso.values());
+        lista.sort(Comparator.comparingInt(SolicitudReembolso::getId));
+        return lista;
+    }
+
+    public List<SolicitudReembolso> listarSolicitudesProcesadas() {
+        List<SolicitudReembolso> lista = new ArrayList<>(solicitudesReembolsoProcesadas.values());
+        lista.sort(Comparator.comparingInt(SolicitudReembolso::getId));
+        return lista;
     }
 	
 	public void eliminarEvento(UsuarioGenerico admin, String nombreEvento){
@@ -93,7 +229,9 @@ public class MasterTicket {
 		
 		if (admin instanceof Administrador) {
 			
-			this.eventos.remove(nombreEvento);
+			if (nombreEvento != null) {
+                this.eventos.remove(nombreEvento.toUpperCase());
+            }
 			
 		}else {
 			System.out.println("No eres admin");
@@ -113,7 +251,7 @@ public class MasterTicket {
 			
 			String nombre = pareja.getKey();
 			
-			System.out.println(i_ + ". "+nombre+"/n");
+			System.out.println(i_ + ". "+nombre);
 			
 			i++;
 			
@@ -122,7 +260,8 @@ public class MasterTicket {
 	}
 	
 	public Evento selectorEvento(String nombreEvento) {
-		return this.eventos.get(nombreEvento);
+        if (nombreEvento == null) return null;
+		return this.eventos.get(nombreEvento.toUpperCase());
 	}
 	
 	public void viewLocalidades(Evento evento) {
@@ -164,6 +303,8 @@ public class MasterTicket {
 	public JSONObject toJSON() {
 		JSONObject json = new JSONObject();
 		json.put("costoPorEmision", this.costoPorEmision);
+        json.put("secuenciaTiquetes", this.secuenciaTiquetes);
+        json.put("secuenciaSolicitudes", this.secuenciaSolicitudes);
 
 		JSONArray u = new JSONArray();
 		for (UsuarioGenerico usuario : this.usuarios.values()) {
@@ -177,7 +318,7 @@ public class MasterTicket {
 		}
         json.put("eventos", ev);
 
-		JSONArray vv = new JSONArray();
+        JSONArray vv = new JSONArray();
 		for (Venue venue : this.venues.values()) {
 			vv.put(venue.toJSON());
 		}
@@ -194,8 +335,83 @@ public class MasterTicket {
             solicitudes.put(s.toJSON());
         }
         json.put("solicitudesReembolso", solicitudes);
+        JSONArray solicitudesProc = new JSONArray();
+        for (SolicitudReembolso s : this.solicitudesReembolsoProcesadas.values()) {
+            solicitudesProc.put(s.toJSON());
+        }
+        json.put("solicitudesReembolsoProcesadas", solicitudesProc);
 
 		return json;
 	}
+    
+    public void proponerVenue(Venue venue) {
+        if (venue == null || venue.getNombre() == null) return;
+        venue.setAprobado(false);
+        String key = venue.getNombre().toUpperCase();
+        venue.setNombre(key);
+        this.venues.put(key, venue);
+        refrescarVenuesPendientes();
+    }
+
+    public void marcarEventoCancelado(Evento evento) {
+        if (evento == null || evento.getNombre() == null) return;
+        evento.setCancelado(true);
+        this.eventos.put(evento.getNombre(), evento);
+    }
+
+    public void inicializarDemo() {
+        this.usuarios.clear();
+        this.eventos.clear();
+        this.venues.clear();
+        this.venuesPendientes.clear();
+        this.solicitudesReembolso.clear();
+        this.solicitudesReembolsoProcesadas.clear();
+        this.indiceTiquetes.clear();
+        this.secuenciaTiquetes = 1000;
+        this.secuenciaSolicitudes = 1;
+        this.costoPorEmision = 5000;
+
+        Administrador admin = new Administrador("admin1", "1234");
+        this.usuarios.put(admin.getLogin(), admin);
+
+        Organizador organizadorDemo = new Organizador("organizador1", "org123");
+        organizadorDemo.setSaldoVirtual(0);
+        this.usuarios.put(organizadorDemo.getLogin(), organizadorDemo);
+
+        Natural compradorDemo = new Natural("cliente1", "cliente123");
+        compradorDemo.setSaldoVirtual(300000);
+        this.usuarios.put(compradorDemo.getLogin(), compradorDemo);
+
+        Venue venueDemo = new Venue();
+        venueDemo.setNombre("ARENA_DEMO");
+        venueDemo.setCapacidad(500);
+        venueDemo.setUbicacion("Ciudad Demo");
+        venueDemo.setOrganizador(organizadorDemo);
+        venueDemo.setAprobado(true);
+        this.venues.put(venueDemo.getNombre(), venueDemo);
+
+        Evento eventoDemo = new Evento("CONCIERTO_DEMO", "CONCIERTO", "GENERAL", 0, venueDemo, "2024-12-01");
+        eventoDemo.setOrganizador(organizadorDemo);
+        eventoDemo.setCargoPorcentualServicio(0.1);
+        venueDemo.addEvento(eventoDemo);
+        organizadorDemo.addEvento(eventoDemo);
+
+        Localidad localidadGeneral = new Localidad("GENERAL", 120000, false, eventoDemo);
+        eventoDemo.addLocalidad(localidadGeneral);
+
+        for (int i = 0; i < 10; i++) {
+            TiqueteGeneral tiquete = new TiqueteGeneral(localidadGeneral.getPrecioTiquetes(), this.costoPorEmision,
+                    eventoDemo.getFecha(), "20:00", 4, "GENERAL");
+            tiquete.setEvento(eventoDemo);
+            tiquete.setLocalidad(localidadGeneral.getNombreLocalidad());
+            tiquete.setId(siguienteIdTiquete());
+            localidadGeneral.addTiquete(tiquete);
+            eventoDemo.addTiquete(tiquete);
+            registrarTiquete(tiquete);
+        }
+        eventoDemo.setCantidadTiquetesDisponibles(localidadGeneral.getTiquetes().size());
+        this.eventos.put(eventoDemo.getNombre(), eventoDemo);
+        refrescarVenuesPendientes();
+    }
 	
 }

@@ -18,6 +18,11 @@ public abstract class Tiquete {
 	private int maximoTiquetesPorTransaccion;
 	private String tipo;
 	private boolean usado;
+	private boolean reembolsado;
+	private boolean transferible = true;
+	private double montoPagado;
+	private String estado = "ACTIVO";
+	private String localidad;
 	
 	private Usuario cliente;
 	
@@ -128,6 +133,60 @@ public abstract class Tiquete {
 		this.usado = usado;
 	}
 	
+	public boolean isReembolsado() {
+		return reembolsado;
+	}
+
+	public void setReembolsado(boolean reembolsado) {
+		this.reembolsado = reembolsado;
+		if (reembolsado) {
+			this.estado = "REEMBOLSADO";
+		}
+	}
+
+	public boolean isTransferible() {
+		return transferible;
+	}
+
+	public void setTransferible(boolean transferible) {
+		this.transferible = transferible;
+	}
+
+	public double getMontoPagado() {
+		return montoPagado;
+	}
+
+	public void setMontoPagado(double montoPagado) {
+		this.montoPagado = montoPagado;
+	}
+
+	public String getEstado() {
+		return estado;
+	}
+
+	public void setEstado(String estado) {
+		if (estado != null) {
+			this.estado = estado;
+		}
+	}
+
+	public String getLocalidad() {
+		return localidad;
+	}
+
+	public void setLocalidad(String localidad) {
+		this.localidad = localidad;
+	}
+
+	public void marcarTransferido() {
+		this.estado = "TRANSFERIDO";
+	}
+
+	public void marcarUsado() {
+		this.usado = true;
+		this.estado = "USADO";
+	}
+	
 	
 	public double getprecioOriginalConCostos(double costoEmision, double costoServicio) {
 		double costoTiquete = ((this.precioOriginal * costoEmision) + this.precioOriginal) + costoEmision;
@@ -145,6 +204,10 @@ public abstract class Tiquete {
 		return retorno;
 	}
 
+	public void registrarPago(double servicio, double emision) {
+		this.montoPagado = calcularPrecioFinal(servicio, emision);
+	}
+
 	public JSONObject toJSON() {
 		JSONObject json = new JSONObject();
 		json.put("type", this.getClass().getSimpleName());
@@ -156,6 +219,11 @@ public abstract class Tiquete {
 		json.put("maximoTiquetesPorTransaccion", this.maximoTiquetesPorTransaccion);
 		json.put("tipo", this.tipo);
 		json.put("usado", this.usado);
+		json.put("reembolsado", this.reembolsado);
+		json.put("transferible", this.transferible);
+		json.put("montoPagado", this.montoPagado);
+		json.put("estado", this.estado);
+		json.put("localidad", this.localidad);
 		if (this.cliente != null) json.put("clienteLogin", this.cliente.getLogin());
 		if (this.evento != null) json.put("eventoNombre", this.evento.getNombre());
 		return json;

@@ -19,11 +19,6 @@ public class Administrador extends UsuarioGenerico {
 	}
 	
 
-	public boolean aprobacionVenue() {
-		// TODO
-		return false;
-	}
-	
 	public double getCostoPorcentualEmision() {
 		return CostoPorcentualServicio;
 	}
@@ -34,11 +29,6 @@ public class Administrador extends UsuarioGenerico {
 	}
 
 
-	public boolean aprobacionReembolso() {
-		// TODO
-		return false;
-	}
-	
 	private void reembolsar(Usuario cliente, double precio) {
 		
 			double saldoOriginal = cliente.getSaldoVirtual();
@@ -64,49 +54,50 @@ public class Administrador extends UsuarioGenerico {
 	}
     
     public void cancelarEvento(Evento evento, int tipoReembolso, MasterTicket sistemaBoleteria) {
-		String nombre = evento.cancelar();
-		sistemaBoleteria.eliminarEvento(this, nombre);
-		
+		if (evento == null) return;
+		evento.cancelar();
 		Map<Integer, Tiquete> tiquetes = evento.getTiquetesVendidos();
-		
 		double cuotaPorcentual = evento.getCargoPorcentualServicio();
 		double cuotaEmision = evento.getCuotaAdicionalEmision();
 
 		for (Map.Entry<Integer, Tiquete> entry : tiquetes.entrySet()) {
-			Usuario cliente = entry.getValue().getCliente();
-			
-			double precio = entry.getValue().calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
+			Tiquete tiquete = entry.getValue();
+			if (tiquete == null || tiquete.isReembolsado()) {
+				continue;
+			}
+			Usuario cliente = (Usuario) tiquete.getCliente();
+			double pagado = tiquete.getMontoPagado() > 0
+					? tiquete.getMontoPagado()
+					: tiquete.calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
 			double reembolso;
 			
 			if (tipoReembolso == 1) {
-				reembolso = precio - cuotaEmision;
+				reembolso = Math.max(0, pagado - tiquete.getCuotaAdicionalEmision());
 
 			} else {
-				reembolso = entry.getValue().getPrecioOriginal();
+				reembolso = tiquete.getPrecioOriginal();
 			}
 
-			cliente.addSaldoVirtual(reembolso);
-
+			if (cliente != null) {
+				cliente.addSaldoVirtual(reembolso);
+			}
+			tiquete.setReembolsado(true);
+			tiquete.setEstado("REEMBOLSADO");
 		}
+
+		sistemaBoleteria.marcarEventoCancelado(evento);
 
 	}
 
     // === Aprobación de Venues ===
     public boolean aprobarVenue(MasterTicket sistema, String nombreVenue) {
-        if (sistema.getVenuesPendientes().containsKey(nombreVenue)) {
-            sistema.getVenues().put(nombreVenue, sistema.getVenuesPendientes().get(nombreVenue));
-            sistema.getVenuesPendientes().remove(nombreVenue);
-            return true;
-        }
-        return false;
+        if (sistema == null) return false;
+        return sistema.aprobarVenue(nombreVenue);
     }
 
     public boolean rechazarVenue(MasterTicket sistema, String nombreVenue) {
-        if (sistema.getVenuesPendientes().containsKey(nombreVenue)) {
-            sistema.getVenuesPendientes().remove(nombreVenue);
-            return true;
-        }
-        return false;
+        if (sistema == null) return false;
+        return sistema.rechazarVenue(nombreVenue);
     }
 
     // === Procesamiento de solicitudes de reembolso ===
@@ -115,20 +106,33 @@ public class Administrador extends UsuarioGenerico {
         if (s == null || !"PENDIENTE".equals(s.getEstado())) return false;
 
         Tiquete t = s.getTiquete();
+        if (t == null) return false;
         Evento e = t.getEvento();
-        double cuotaPorcentual = e.getCargoPorcentualServicio();
-        double cuotaEmision = e.getCuotaAdicionalEmision();
-        double pagado = t.calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
+        double cuotaPorcentual = e != null ? e.getCargoPorcentualServicio() : 0.0;
+        double cuotaEmision = t.getCuotaAdicionalEmision();
+        double pagado = t.getMontoPagado() > 0
+                ? t.getMontoPagado()
+                : t.calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
 
-        double reembolso = pagado - t.getPrecioOriginal();
-        if (tipoReembolso == 1) { // Reembolsar total sin emisión
-            reembolso = pagado - cuotaEmision;
-        } else if (tipoReembolso == 2) { // Solo precio base
-            reembolso = t.getPrecioOriginal();
+        double reembolso = t.getPrecioOriginal();
+        if (tipoReembolso == 1) {
+            reembolso = Math.max(0, pagado - cuotaEmision);
+        } else if (tipoReembolso == 3) {
+            reembolso = pagado;
         }
 
-        reembolsar(s.getSolicitante(), reembolso);
+        Usuario solicitante = s.getSolicitante();
+        if (solicitante != null) {
+            reembolsar(solicitante, reembolso);
+        }
         s.setEstado("APROBADA");
+        s.setMontoAprobado(reembolso);
+        s.setObservacionAdmin("Aprobada por " + getLogin());
+        t.setReembolsado(true);
+        t.setEstado("REEMBOLSADO");
+        if (sistema != null) {
+            sistema.registrarSolicitudProcesada(s);
+        }
         return true;
     }
 
@@ -136,6 +140,10 @@ public class Administrador extends UsuarioGenerico {
         SolicitudReembolso s = sistema.getSolicitudesReembolso().get(idSolicitud);
         if (s == null || !"PENDIENTE".equals(s.getEstado())) return false;
         s.setEstado("RECHAZADA");
+        s.setObservacionAdmin("Rechazada por " + getLogin());
+        if (sistema != null) {
+            sistema.registrarSolicitudProcesada(s);
+        }
         return true;
     }
 			

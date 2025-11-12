@@ -32,159 +32,218 @@ public class ConsolaUsuario extends ConsolaBasica {
 	}
 	
 	private void mostrarEvento(Evento evento) {
-		
-		System.out.println("Evento: " + evento.getNombre() + "\n");
-		System.out.println("Tipo: " + evento.getTipoEvento() + "\n");
-		System.out.println("Fecha: " + evento.getFecha() + "\n");
-		System.out.println("Venue: " + evento.getVenue() + "\n");
-		
+		System.out.println("Evento: " + evento.getNombre());
+		System.out.println("Tipo: " + evento.getTipoEvento());
+		System.out.println("Fecha: " + evento.getFecha());
+		System.out.println("Venue: " + (evento.getVenue() != null ? evento.getVenue().getNombre() : "N/A"));
+		System.out.println("Cancelado: " + (evento.isCancelado() ? "SI" : "NO"));
 	}
 	
 	private void mostrarLocalidad(Localidad localidad) {
-		
-		System.out.println("Localidad: " + localidad.getNombreLocalidad() + "\n");
-		System.out.println("Tipo: " + localidad.getPrecioTiquetes() + "\n");
-		boolean esNumerada = localidad.getEsNumerada();
-		
-		if (esNumerada) {
-			System.out.println("Es Numerada: SI");
-		} else {
-			System.out.println("Es Numerada: NO");
-		}
-		
+		System.out.println("Localidad: " + localidad.getNombreLocalidad());
+		System.out.println("Precio base: " + localidad.getPrecioTiquetes());
+		System.out.println("Es Numerada: " + (localidad.getEsNumerada() ? "SI" : "NO"));
+		System.out.println("Tiquetes disponibles: " + localidad.getTiquetesDisponibles().size());
 	}
 	
-	private Map<Integer, Tiquete> seleccionarTiquetes(Localidad localidad, int cantidadTiquetes) {
-		
-		Map<Integer, Tiquete> tiquetesSeleccionados = new HashMap<Integer, Tiquete>();
-		List<Tiquete> tiquetesDisponibles = new ArrayList<Tiquete>(localidad.getTiquetesDisponibles().values());
-		
-		if (cantidadTiquetes <= tiquetesDisponibles.size()) {
-			
-			int i = 0;
-			while (i < cantidadTiquetes) {
-				
-				int cId = tiquetesDisponibles.get(i).getId();
-				Tiquete cTiquete = tiquetesDisponibles.get(i);
-				
-				tiquetesSeleccionados.put(cId, cTiquete);
-				
-				localidad.marcarVendido(cTiquete);
-				localidad.getEvento().marcarVendido(cTiquete);
-				
-			}
-			
+	private List<Tiquete> seleccionarTiquetes(Localidad localidad, int cantidadTiquetes) {
+		List<Tiquete> seleccionados = new ArrayList<>();
+		List<Tiquete> disponibles = new ArrayList<>(localidad.getTiquetesDisponibles().values());
+		if (cantidadTiquetes > disponibles.size()) {
+            return seleccionados;
+        }
+		for (int i = 0; i < cantidadTiquetes; i++) {
+			seleccionados.add(disponibles.get(i));
 		}
-		
-		return tiquetesSeleccionados;
+		return seleccionados;
+	}
+	
+	private Evento seleccionarEvento() {
+		Map<String, Evento> eventos = sistemaBoleteria.getEventos();
+		if (eventos.isEmpty()) {
+			System.out.println("No hay eventos registrados.");
+			return null;
+		}
+		System.out.println("=== EVENTOS DISPONIBLES ===");
+		for (Evento evento : eventos.values()) {
+			mostrarEvento(evento);
+			System.out.println("------------------");
+		}
+		while (true) {
+			String nombreEvento = pedirCadena("Escriba el nombre del EVENTO deseado o 0 para salir").toUpperCase();
+			if ("0".equals(nombreEvento)) return null;
+			Evento evento = eventos.get(nombreEvento);
+			if (evento != null) {
+				return evento;
+			}
+			System.out.println("Evento no encontrado.");
+		}
+	}
+	
+	private Localidad seleccionarLocalidad(Evento evento) {
+		if (evento.getLocalidades().isEmpty()) {
+			System.out.println("El evento no tiene localidades configuradas.");
+			return null;
+		}
+		System.out.println("=== LOCALIDADES ===");
+		for (Localidad localidad : evento.getLocalidades().values()) {
+			mostrarLocalidad(localidad);
+			System.out.println("------------------");
+		}
+		while (true) {
+			String nombreLocalidad = pedirCadena("Escriba el nombre de la LOCALIDAD deseada o 0 para volver").toUpperCase();
+			if ("0".equals(nombreLocalidad)) return null;
+			Localidad localidad = evento.getLocalidades().get(nombreLocalidad);
+			if (localidad != null) {
+				if (localidad.getTiquetesDisponibles().isEmpty()) {
+					System.out.println("No hay tiquetes disponibles en esta localidad.");
+					return null;
+				}
+				return localidad;
+			}
+			System.out.println("Localidad no encontrada.");
+		}
+	}
+	
+	private double calcularTotal(Evento evento, List<Tiquete> tiquetes) {
+		double total = 0.0;
+		double servicio = evento.getCargoPorcentualServicio();
+		for (Tiquete t : tiquetes) {
+			double emisionAplicable = t.getCuotaAdicionalEmision() > 0
+					? t.getCuotaAdicionalEmision()
+					: sistemaBoleteria.getCostoPorEmision();
+			double precioFinal = t.calcularPrecioFinal(servicio, emisionAplicable);
+			total += precioFinal;
+		}
+		return total;
+	}
+	
+	private void registrarVenta(Usuario usuario, Evento evento, Localidad localidad, List<Tiquete> tiquetes, double servicio, double emisionGlobal) {
+		for (Tiquete tiquete : tiquetes) {
+			double emisionAplicable = tiquete.getCuotaAdicionalEmision() > 0 ? tiquete.getCuotaAdicionalEmision() : emisionGlobal;
+			tiquete.setCuotaAdicionalEmision(emisionAplicable);
+			double precioFinal = tiquete.calcularPrecioFinal(servicio, emisionAplicable);
+			tiquete.setCliente(usuario);
+			tiquete.setMontoPagado(precioFinal);
+			tiquete.setEstado("ACTIVO");
+			tiquete.setReembolsado(false);
+			localidad.marcarVendido(tiquete);
+			evento.marcarVendido(tiquete);
+			usuario.agregarTiquete(tiquete);
+		}
+	}
+	
+	public void verSaldo() {
+		System.out.println("Saldo disponible: " + usuario.getSaldoVirtual());
+	}
+	
+	public void verMisEventos() {
+		Set<String> eventos = new HashSet<>();
+		for (Tiquete tiquete : usuario.getMisTiquetes()) {
+			if (tiquete.getEvento() != null) {
+				eventos.add(tiquete.getEvento().getNombre());
+			}
+		}
+		if (eventos.isEmpty()) {
+			System.out.println("No tienes eventos asociados.");
+			return;
+		}
+		System.out.println("=== MIS EVENTOS ===");
+		for (String nombre : eventos) {
+			System.out.println("- " + nombre);
+		}
+	}
+	
+	public void verMisTiquetes() {
+		if (usuario.getMisTiquetes().isEmpty()) {
+			System.out.println("No tienes tiquetes.");
+			return;
+		}
+		System.out.println("=== MIS TIQUETES ===");
+		for (Tiquete tiquete : usuario.getMisTiquetes()) {
+			String evento = tiquete.getEvento() != null ? tiquete.getEvento().getNombre() : "N/A";
+			System.out.println("ID: " + tiquete.getId() + " | Evento: " + evento + " | Estado: " + tiquete.getEstado());
+		}
+	}
+	
+	public void transferirTiquete() {
+		System.out.println("La transferencia de tiquetes estará disponible próximamente.");
 	}
 	
 	public void comprarEvento() {
 		
 		boolean seguirComprando = true;
 		while (seguirComprando) {
-			
-			// Seleccionar un evento a comprar
-			Map<String, Evento> eventos = sistemaBoleteria.getEventos();
-			for (Evento cEvento : eventos.values()) {
-				mostrarEvento(cEvento);
-			}
-			
-			Evento eventoSeleccionado = null;
-			boolean eventoValido = false;
-			while (eventoValido == false) {
-				
-				String nombreEvento = pedirCadena("Escriba el nombre del EVENTO deseado o 0 para salir").toUpperCase();
-				
-				if (nombreEvento.equals("0")) {
-					seguirComprando = false;
-					break;
-				}
-				
-				eventoSeleccionado = eventos.get(nombreEvento);
-				
-				if (eventoSeleccionado != null) {
-					eventoValido = true;
-				}
-			}
-			
-			if (seguirComprando == false) {
+			Evento eventoSeleccionado = seleccionarEvento();
+			if (eventoSeleccionado == null) {
 				break;
 			}
-			
-			System.out.println("Evento seleccionado...\n");
-			mostrarEvento(eventoSeleccionado);
-			
-			// Seleccionar una localidad del evento
-			Map<String, Localidad> localidades = eventoSeleccionado.getLocalidades();
-			for (Localidad localidad : localidades.values()) {
-				
-				mostrarLocalidad(localidad);
-				
+			if (eventoSeleccionado.isCancelado()) {
+				System.out.println("El evento está cancelado. No se pueden comprar tiquetes.");
+				continue;
 			}
-			
-			Localidad localidadSeleccionada = null;
-			boolean localidadValida = false;
-			while (localidadValida == false) {
-				
-				String nombreLocalidad = pedirCadena("Escriba el nombre de la LOCALIDAD deseado o 0 para salir").toUpperCase();
-				
-				if (nombreLocalidad.equals("0")) {
-					seguirComprando = false;
-					break;
-				}
-				
-				localidadSeleccionada = localidades.get(nombreLocalidad);
-				
-				if (localidadSeleccionada != null) {
-					localidadValida = true;
-				}
+
+			Localidad localidadSeleccionada = seleccionarLocalidad(eventoSeleccionado);
+			if (localidadSeleccionada == null) {
+				continue;
 			}
-			
-			if (seguirComprando == false) {
-				break;
+
+			int disponibles = localidadSeleccionada.getTiquetesDisponibles().size();
+			int maximo = 0;
+			if (!localidadSeleccionada.getTiquetesDisponibles().isEmpty()) {
+				Tiquete muestra = localidadSeleccionada.getTiquetesDisponibles().values().iterator().next();
+				maximo = muestra.getMaximoTiquetesPorTransaccion();
 			}
-			
-			System.out.println("Localidad seleccionada...\n");
-			mostrarLocalidad(localidadSeleccionada);
-			
-			// Seleccionar los tiquetes a comprar de la localidad en cuestión
-			boolean compraValida = false;
-			while (compraValida == false) {
-				
-				String cantidadTiquetesStr = pedirCadena("Escriba el nombre de la LOCALIDAD deseado o 0 para salir");
-				
-				if (cantidadTiquetesStr.equals("0")) {
-					seguirComprando = false;
-					break;
+			if (maximo <= 0 || maximo > disponibles) {
+				maximo = disponibles;
+			}
+
+			int cantidad = 0;
+			while (cantidad <= 0) {
+				String cantidadStr = pedirCadena("Cantidad de tiquetes (1 - " + maximo + ") o 0 para cancelar");
+				try {
+					cantidad = Integer.parseInt(cantidadStr);
+				} catch (NumberFormatException e) {
+					System.out.println("Cantidad inválida.");
+					continue;
 				}
-				
-				int cantidadTiquetes = -1;
-				try{
-					cantidadTiquetes = (Integer.parseInt(cantidadTiquetesStr));
-					
-				} catch (Exception e) {
-					System.out.println("Cantidad incorrecta...");
-					
+				if (cantidad == 0) {
+					return;
 				}
-				
-				Map<Integer, Tiquete> tiquetesSeleccionados = null;
-				if (cantidadTiquetes != -1) {
-					tiquetesSeleccionados = seleccionarTiquetes(localidadSeleccionada, cantidadTiquetes);
-					
-				}
-				
-				if (tiquetesSeleccionados != null) {
-					compraValida = true;
+				if (cantidad < 1 || cantidad > maximo) {
+					System.out.println("Cantidad fuera del límite permitido.");
+					cantidad = 0;
 				}
 			}
-			
-			// pasar los tiquetes al usuario
-			
-			if (seguirComprando == false) {
-				break;
+
+			List<Tiquete> tiquetesSeleccionados = seleccionarTiquetes(localidadSeleccionada, cantidad);
+			if (tiquetesSeleccionados.size() != cantidad) {
+				System.out.println("No se pudo completar la selección de tiquetes.");
+				continue;
 			}
-			
+
+			double total = calcularTotal(eventoSeleccionado, tiquetesSeleccionados);
+			double servicio = eventoSeleccionado.getCargoPorcentualServicio();
+			double emision = sistemaBoleteria.getCostoPorEmision();
+			System.out.println("Total a pagar: " + total);
+			double saldoOriginal = usuario.getSaldoVirtual();
+			double saldoAplicado = Math.min(saldoOriginal, total);
+			double pagoExterno = total - saldoAplicado;
+			usuario.setSaldoVirtual(saldoOriginal - saldoAplicado);
+			System.out.println("Saldo virtual usado: " + saldoAplicado);
+			if (pagoExterno > 0) {
+				System.out.println("Pago con método externo aprobado: " + pagoExterno);
+			} else {
+				System.out.println("Pago cubierto completamente con saldo virtual.");
+			}
+
+			registrarVenta(usuario, eventoSeleccionado, localidadSeleccionada, tiquetesSeleccionados, servicio, emision);
+			System.out.println("Compra realizada con éxito. Tiquetes agregados a tu cuenta.");
+
+			String continuar = pedirCadena("¿Desea comprar otro evento? (s/n)");
+			if (!"s".equalsIgnoreCase(continuar)) {
+				seguirComprando = false;
+			}
 		}
 	}
 

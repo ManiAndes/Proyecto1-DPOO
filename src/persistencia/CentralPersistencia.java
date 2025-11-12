@@ -52,12 +52,21 @@ public class CentralPersistencia {
     // Carga el estado desde datos/masterticket.json dentro del objeto recibido
     public void loadDefault(MasterTicket sistema) {
         try {
+            ensureDefaultDir();
+            if (sistema == null) return;
             Path pth = defaultPath();
-            if (!Files.exists(pth) || sistema == null) return;
             IPersistenciaMasterticket p = getPersistenciaMasterticket(JSON);
             if (p == null) return;
+            if (!Files.exists(pth)) {
+                sistema.inicializarDemo();
+                saveDefault(sistema);
+                return;
+            }
             MasterTicket cargado = p.cargarMasterTicket(pth.toString());
-            if (cargado != null) {
+            if (cargado == null) {
+                sistema.inicializarDemo();
+                saveDefault(sistema);
+            } else {
                 copiarEstado(sistema, cargado);
             }
         } catch (Exception e) {
@@ -73,6 +82,10 @@ public class CentralPersistencia {
             destino.setVenues(fuente.getVenues());
             destino.setVenuesPendientes(fuente.getVenuesPendientes());
             destino.setSolicitudesReembolso(fuente.getSolicitudesReembolso());
+            destino.setSolicitudesReembolsoProcesadas(fuente.getSolicitudesReembolsoProcesadas());
+            destino.setIndiceTiquetes(fuente.getIndiceTiquetes());
+            destino.setSecuenciaTiquetes(fuente.getSecuenciaTiquetes());
+            destino.setSecuenciaSolicitudes(fuente.getSecuenciaSolicitudes());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -20,6 +20,9 @@ import dpoo.proyecto.eventos.Venue;
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.tiquetes.TiqueteGeneral;
 import dpoo.proyecto.tiquetes.TiqueteNumerado;
+import dpoo.proyecto.tiquetes.TiqueteMultipleEntrada;
+import dpoo.proyecto.tiquetes.TiqueteMultipleEvento;
+import dpoo.proyecto.tiquetes.PaqueteDeluxe;
 import dpoo.proyecto.usuarios.Administrador;
 import dpoo.proyecto.usuarios.Natural;
 import dpoo.proyecto.usuarios.Organizador;
@@ -62,6 +65,8 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
             JSONObject root = new JSONObject(content);
             MasterTicket m = new MasterTicket();
             m.setCostoPorEmision(root.optDouble("costoPorEmision", 0.0));
+            m.setSecuenciaTiquetes(root.optInt("secuenciaTiquetes", 1000));
+            m.setSecuenciaSolicitudes(root.optInt("secuenciaSolicitudes", 1));
 
             // Usuarios
             Map<String, UsuarioGenerico> usuarios = new HashMap<>();
@@ -81,6 +86,7 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
 
             // Venues
             Map<String, Venue> venues = new HashMap<>();
+            Map<String, Venue> pendientes = new HashMap<>();
             JSONArray jv = root.optJSONArray("venues");
             if (jv != null) {
                 for (int i = 0; i < jv.length(); i++) {
@@ -95,29 +101,29 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
                     venues.put(key, v);
                 }
             }
-            m.setVenues(venues);
-
-            // Venues pendientes
-            Map<String, Venue> venuesPendientes = new HashMap<>();
             JSONArray jvp = root.optJSONArray("venuesPendientes");
             if (jvp != null) {
                 for (int i = 0; i < jvp.length(); i++) {
                     JSONObject vo = jvp.optJSONObject(i);
                     if (vo == null) continue;
                     Venue v = Venue.fromJSON(vo);
+                    v.setAprobado(false);
                     String orgLogin = vo.optString("organizadorLogin", null);
                     if (orgLogin != null && usuarios.get(orgLogin) instanceof Organizador) {
                         v.setOrganizador((Organizador) usuarios.get(orgLogin));
                     }
                     String key = safeUpper(v.getNombre());
-                    venuesPendientes.put(key, v);
+                    venues.put(key, v);
+                    pendientes.put(key, v);
                 }
             }
-            m.setVenuesPendientes(venuesPendientes);
+            m.setVenues(venues);
+            m.setVenuesPendientes(pendientes);
 
             // Eventos (con localidades y tiquetes)
             Map<String, Evento> eventos = new HashMap<>();
             Map<Integer, Tiquete> indiceTiquetes = new HashMap<>();
+            int maxId = m.getSecuenciaTiquetes();
             JSONArray je = root.optJSONArray("eventos");
             if (je != null) {
                 for (int i = 0; i < je.length(); i++) {
@@ -158,10 +164,19 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
                             t.setEvento(e);
                             String cli = to.optString("clienteLogin", null);
                             if (cli != null && usuarios.get(cli) instanceof Usuario) {
-                                t.setCliente((Usuario) usuarios.get(cli));
+                                Usuario u = (Usuario) usuarios.get(cli);
+                                t.setCliente(u);
+                                u.agregarTiquete(t);
                             }
                             e.addTiquete(t);
+                            Localidad loc = lFromTiquete(e, t);
+                            if (loc != null) {
+                                loc.addTiquete(t);
+                            }
                             indiceTiquetes.put(t.getId(), t);
+                            if (t.getId() > maxId) {
+                                maxId = t.getId();
+                            }
                         }
                     }
 
@@ -177,20 +192,33 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
                             t.setEvento(e);
                             String cli = to.optString("clienteLogin", null);
                             if (cli != null && usuarios.get(cli) instanceof Usuario) {
-                                t.setCliente((Usuario) usuarios.get(cli));
+                                Usuario u = (Usuario) usuarios.get(cli);
+                                t.setCliente(u);
+                                u.agregarTiquete(t);
                             }
                             vendidos.put(t.getId(), t);
+                            Localidad loc = lFromTiquete(e, t);
+                            if (loc != null) {
+                                loc.addTiqueteVendido(t);
+                            }
                             indiceTiquetes.put(t.getId(), t);
+                            if (t.getId() > maxId) {
+                                maxId = t.getId();
+                            }
                         }
                     }
 
+                    e.setCantidadTiquetesDisponibles(e.getTiquetes().size());
                     eventos.put(safeUpper(e.getNombre()), e);
                 }
             }
             m.setEventos(eventos);
+            m.setIndiceTiquetes(indiceTiquetes);
+            m.setSecuenciaTiquetes(Math.max(m.getSecuenciaTiquetes(), maxId));
 
             // Solicitudes de reembolso
             Map<Integer, SolicitudReembolso> solicitudesMap = new HashMap<>();
+            Map<Integer, SolicitudReembolso> solicitudesProcesadas = new HashMap<>();
             JSONArray js = root.optJSONArray("solicitudesReembolso");
             if (js != null) {
                 for (int i = 0; i < js.length(); i++) {
@@ -212,6 +240,27 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
                 }
             }
             m.setSolicitudesReembolso(solicitudesMap);
+            JSONArray jsProc = root.optJSONArray("solicitudesReembolsoProcesadas");
+            if (jsProc != null) {
+                for (int i = 0; i < jsProc.length(); i++) {
+                    JSONObject so = jsProc.optJSONObject(i);
+                    if (so == null) continue;
+                    SolicitudReembolso sr = SolicitudReembolso.fromJSON(so);
+                    int tiqueteId = so.optInt("tiqueteId", -1);
+                    if (tiqueteId != -1) {
+                        Tiquete t = indiceTiquetes.get(tiqueteId);
+                        if (t != null) {
+                            sr.setTiquete(t);
+                        }
+                    }
+                    String solicitanteLogin = so.optString("solicitanteLogin", null);
+                    if (solicitanteLogin != null && usuarios.get(solicitanteLogin) instanceof Usuario) {
+                        sr.setSolicitante((Usuario) usuarios.get(solicitanteLogin));
+                    }
+                    solicitudesProcesadas.put(sr.getId(), sr);
+                }
+            }
+            m.setSolicitudesReembolsoProcesadas(solicitudesProcesadas);
 
             return m;
         } catch (IOException ioe) {
@@ -244,21 +293,38 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
         if (json == null) return null;
         String type = json.optString("type", "TiqueteGeneral");
         Tiquete t;
-        if ("TiqueteNumerado".equals(type)) {
-            t = TiqueteNumerado.fromJSON(json);
-        } else {
-            // Reconstruccion basica de TiqueteGeneral
-            double precio = json.optDouble("precioOriginal", 0.0);
-            double emision = json.optDouble("cuotaAdicionalEmision", 0.0);
-            String fecha = json.optString("fecha", "");
-            String hora = json.optString("hora", "");
-            int max = json.optInt("maximoTiquetesPorTransaccion", 0);
-            String tipo = json.optString("tipo", "");
-            t = new TiqueteGeneral(precio, emision, fecha, hora, max, tipo);
+        switch (type) {
+            case "TiqueteNumerado":
+                t = TiqueteNumerado.fromJSON(json);
+                break;
+            case "TiqueteMultipleEntrada":
+                t = TiqueteMultipleEntrada.fromJSON(json);
+                break;
+            case "TiqueteMultipleEvento":
+                t = TiqueteMultipleEvento.fromJSON(json);
+                break;
+            case "PaqueteDeluxe":
+                t = PaqueteDeluxe.fromJSON(json);
+                break;
+            case "TiqueteGeneral":
+            default:
+                t = TiqueteGeneral.fromJSON(json);
+                break;
         }
-        // Completar campos comunes
         t.setId(json.optInt("id", t.getId()));
         t.setUsado(json.optBoolean("usado", false));
+        t.setReembolsado(json.optBoolean("reembolsado", false));
+        t.setTransferible(json.optBoolean("transferible", true));
+        t.setMontoPagado(json.optDouble("montoPagado", 0.0));
+        t.setEstado(json.optString("estado", "ACTIVO"));
+        t.setLocalidad(json.optString("localidad", null));
         return t;
+    }
+
+    private static Localidad lFromTiquete(Evento evento, Tiquete tiquete) {
+        if (evento == null || tiquete == null || tiquete.getLocalidad() == null) {
+            return null;
+        }
+        return evento.getLocalidades().get(tiquete.getLocalidad());
     }
 }

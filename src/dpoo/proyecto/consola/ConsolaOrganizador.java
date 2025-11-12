@@ -10,6 +10,9 @@ import dpoo.proyecto.eventos.Venue;
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.tiquetes.TiqueteGeneral;
 import dpoo.proyecto.tiquetes.TiqueteNumerado;
+import dpoo.proyecto.tiquetes.TiqueteMultipleEntrada;
+import dpoo.proyecto.tiquetes.TiqueteMultipleEvento;
+import dpoo.proyecto.tiquetes.PaqueteDeluxe;
 import dpoo.proyecto.usuarios.Organizador;
 
 public class ConsolaOrganizador extends ConsolaBasica {
@@ -29,6 +32,9 @@ public class ConsolaOrganizador extends ConsolaBasica {
         System.out.println("3. Crear Localidad para un Evento");
         System.out.println("4. Mis Eventos");
         System.out.println("5. Establecer oferta (descuento) en Localidad");
+        System.out.println("6. Crear Paquete de Entradas");
+        System.out.println("7. Crear Paquete Multi-Evento");
+        System.out.println("8. Crear Paquete Deluxe");
         System.out.println("0. Salir");
     }
 
@@ -49,6 +55,15 @@ public class ConsolaOrganizador extends ConsolaBasica {
                     return true;
                 case "5":
                     ofertarLocalidadFlow();
+                    return true;
+                case "6":
+                    crearPaqueteEntradasFlow();
+                    return true;
+                case "7":
+                    crearPaqueteEventosFlow();
+                    return true;
+                case "8":
+                    crearPaqueteDeluxeFlow();
                     return true;
                 case "0":
                 default:
@@ -91,18 +106,17 @@ public class ConsolaOrganizador extends ConsolaBasica {
         v.setCapacidad(capacidad);
         v.setUbicacion(ubicacion);
         v.setOrganizador(organizador);
+        v.setAprobado(false);
 
-        Map<String, Venue> venues = sistemaBoleteria.getVenues();
-        if (venues.get(nombre) != null) {
+        if (sistemaBoleteria.getVenues().get(nombre) != null) {
             System.out.println("Ya existe un venue aprobado con ese nombre.");
             return;
         }
-        Map<String, Venue> pendientes = sistemaBoleteria.getVenuesPendientes();
-        if (pendientes.get(nombre) != null) {
+        if (sistemaBoleteria.getVenuesPendientes().get(nombre) != null) {
             System.out.println("Ya hay un venue pendiente con ese nombre.");
             return;
         }
-        pendientes.put(nombre, v);
+        sistemaBoleteria.proponerVenue(v);
         System.out.println("Venue sugerido. Queda pendiente de aprobación del administrador.");
     }
 
@@ -122,6 +136,10 @@ public class ConsolaOrganizador extends ConsolaBasica {
         Venue venue = sistemaBoleteria.getVenues().get(venueNombre);
         if (venue == null) {
             System.out.println("Venue no aprobado o inexistente. Pide aprobación o elige otro.");
+            return;
+        }
+        if (!venue.isAprobado()) {
+            System.out.println("El venue aún no ha sido aprobado por el administrador.");
             return;
         }
 
@@ -193,8 +211,11 @@ public class ConsolaOrganizador extends ConsolaBasica {
                 t = new TiqueteGeneral(precio, emision, fecha, "20:00", maxPorTx, tipo);
             }
             t.setEvento(evento);
+            t.setLocalidad(localidad.getNombreLocalidad());
+            t.setId(sistemaBoleteria.siguienteIdTiquete());
             localidad.addTiquete(t);
-            evento.addTiquete(t);;
+            evento.addTiquete(t);
+            sistemaBoleteria.registrarTiquete(t);
         }
 
         // Actualizar contador total del evento
@@ -230,5 +251,153 @@ public class ConsolaOrganizador extends ConsolaBasica {
         } catch (Exception e) {
             System.out.println("Descuento inválido.");
         }
+    }
+
+    private void crearPaqueteEntradasFlow() {
+        String nombreEvento = pedirCadena("Evento destino").toUpperCase();
+        Evento evento = sistemaBoleteria.getEventos().get(nombreEvento);
+        if (!validarEventoPropio(evento)) return;
+
+        String localidad = pedirCadena("Localidad asociada").toUpperCase();
+        Localidad loc = evento.getLocalidades().get(localidad);
+        if (loc == null) {
+            System.out.println("Localidad no encontrada.");
+            return;
+        }
+
+        int entradas;
+        double precio;
+        int maximo;
+        try {
+            entradas = Integer.parseInt(pedirCadena("Cantidad de entradas dentro del paquete"));
+            precio = Double.parseDouble(pedirCadena("Precio total del paquete"));
+            maximo = Integer.parseInt(pedirCadena("Máximo paquetes por transacción"));
+        } catch (NumberFormatException e) {
+            System.out.println("Valores numéricos inválidos.");
+            return;
+        }
+
+        TiqueteMultipleEntrada paquete = new TiqueteMultipleEntrada(precio, sistemaBoleteria.getCostoPorEmision(),
+                evento.getFecha(), "20:00", maximo, "PAQUETE_ENTRADAS", evento.getNombre(), localidad, entradas);
+        completarRegistroTiquete(paquete, evento, loc);
+        System.out.println("Paquete de entradas creado.");
+    }
+
+    private void crearPaqueteEventosFlow() {
+        int cantidadEventos;
+        try {
+            cantidadEventos = Integer.parseInt(pedirCadena("¿Cuántos eventos componen el paquete?"));
+        } catch (NumberFormatException e) {
+            System.out.println("Número inválido.");
+            return;
+        }
+        if (cantidadEventos < 1) {
+            System.out.println("Cantidad inválida.");
+            return;
+        }
+        List<String> eventosIncluidos = new java.util.ArrayList<>();
+        Evento eventoPrincipal = null;
+        for (int i = 0; i < cantidadEventos; i++) {
+            String nombreEvento = pedirCadena("Nombre del evento #" + (i + 1)).toUpperCase();
+            Evento evento = sistemaBoleteria.getEventos().get(nombreEvento);
+            if (!validarEventoPropio(evento)) {
+                return;
+            }
+            eventosIncluidos.add(evento.getNombre());
+            if (eventoPrincipal == null) {
+                eventoPrincipal = evento;
+            }
+        }
+        double precio;
+        int maximo;
+        try {
+            precio = Double.parseDouble(pedirCadena("Precio total del paquete multi-evento"));
+            maximo = Integer.parseInt(pedirCadena("Máximo paquetes por transacción"));
+        } catch (NumberFormatException e) {
+            System.out.println("Valores numéricos inválidos.");
+            return;
+        }
+        if (eventoPrincipal == null) {
+            System.out.println("No hay eventos válidos para crear el paquete.");
+            return;
+        }
+        TiqueteMultipleEvento paquete = new TiqueteMultipleEvento(precio, sistemaBoleteria.getCostoPorEmision(),
+                eventoPrincipal.getFecha(), "20:00", maximo, "PAQUETE_EVENTOS", eventosIncluidos);
+        Localidad localidadPaquetes = obtenerOCrearLocalidadEspecial(eventoPrincipal, "PAQUETES");
+        completarRegistroTiquete(paquete, eventoPrincipal, localidadPaquetes);
+        System.out.println("Paquete multi-evento creado.");
+    }
+
+    private void crearPaqueteDeluxeFlow() {
+        String nombreEvento = pedirCadena("Evento para Paquete Deluxe").toUpperCase();
+        Evento evento = sistemaBoleteria.getEventos().get(nombreEvento);
+        if (!validarEventoPropio(evento)) return;
+
+        double precio;
+        int maximo;
+        int beneficiCount;
+        try {
+            precio = Double.parseDouble(pedirCadena("Precio del Paquete Deluxe"));
+            maximo = Integer.parseInt(pedirCadena("Máximo paquetes por transacción"));
+            beneficiCount = Integer.parseInt(pedirCadena("Número de beneficios adicionales"));
+        } catch (NumberFormatException e) {
+            System.out.println("Valores numéricos inválidos.");
+            return;
+        }
+        java.util.List<String> beneficios = new java.util.ArrayList<>();
+        for (int i = 0; i < beneficiCount; i++) {
+            beneficios.add(pedirCadena("Beneficio #" + (i + 1)));
+        }
+        int cortesiasCount;
+        try {
+            cortesiasCount = Integer.parseInt(pedirCadena("Número de cortesías"));
+        } catch (NumberFormatException e) {
+            System.out.println("Valores numéricos inválidos.");
+            return;
+        }
+        java.util.List<String> cortesias = new java.util.ArrayList<>();
+        for (int i = 0; i < cortesiasCount; i++) {
+            cortesias.add(pedirCadena("Cortesía #" + (i + 1)));
+        }
+
+        PaqueteDeluxe paquete = new PaqueteDeluxe(precio, sistemaBoleteria.getCostoPorEmision(),
+                evento.getFecha(), "20:00", maximo, "PAQUETE_DELUXE", "Deluxe " + evento.getNombre(),
+                beneficios, cortesias);
+        Localidad localidadPaquetes = obtenerOCrearLocalidadEspecial(evento, "DELUXE");
+        completarRegistroTiquete(paquete, evento, localidadPaquetes);
+        System.out.println("Paquete Deluxe creado.");
+    }
+
+    private boolean validarEventoPropio(Evento evento) {
+        if (evento == null) {
+            System.out.println("Evento no encontrado.");
+            return false;
+        }
+        if (!organizador.getEventos().contains(evento)) {
+            System.out.println("Solo puedes operar sobre tus eventos.");
+            return false;
+        }
+        return true;
+    }
+
+    private void completarRegistroTiquete(Tiquete tiquete, Evento evento, Localidad localidad) {
+        if (tiquete == null || evento == null || localidad == null) return;
+        tiquete.setEvento(evento);
+        tiquete.setLocalidad(localidad.getNombreLocalidad());
+        tiquete.setId(sistemaBoleteria.siguienteIdTiquete());
+        localidad.addTiquete(tiquete);
+        evento.addTiquete(tiquete);
+        evento.setCantidadTiquetesDisponibles(evento.getCantidadTiquetesDisponibles() + 1);
+        sistemaBoleteria.registrarTiquete(tiquete);
+    }
+
+    private Localidad obtenerOCrearLocalidadEspecial(Evento evento, String nombreBase) {
+        String nombre = (nombreBase + "_" + evento.getNombre()).toUpperCase();
+        Localidad localidad = evento.getLocalidades().get(nombre);
+        if (localidad == null) {
+            localidad = new Localidad(nombre, 0, false, evento);
+            evento.addLocalidad(localidad);
+        }
+        return localidad;
     }
 }

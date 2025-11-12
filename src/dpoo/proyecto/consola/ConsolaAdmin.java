@@ -6,6 +6,7 @@ import dpoo.proyecto.app.MasterTicket;
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.eventos.Venue;
 import dpoo.proyecto.usuarios.Administrador;
+import dpoo.proyecto.app.SolicitudReembolso;
 
 
 public class ConsolaAdmin extends ConsolaBasica {
@@ -19,7 +20,7 @@ public class ConsolaAdmin extends ConsolaBasica {
 		this.sistemaBoleteria = sistemaBoleteria;
 		this.admin = admin;
 	}
-	
+
 	public void showMenuAdmin() {
 		System.out.println("===BIENVENIDO "+this.admin.getLogin()+" AL MENU DE ADMINS===");
 		System.out.println("SELECCIONE UNA OPCION: ");
@@ -28,6 +29,7 @@ public class ConsolaAdmin extends ConsolaBasica {
 		System.out.println("3. VER FINANZAS");
 		System.out.println("4. VER SOLICITUDES DE VENUES");
 		System.out.println("5. VER SOLICITUDES DE REEMBOLSOS");
+		System.out.println("0. Salir");
 	}
 
 	
@@ -56,7 +58,7 @@ public class ConsolaAdmin extends ConsolaBasica {
 			}else if (opcion.equals("4")) {
 				notError = verSolicitudesVenues();
 			}else if (opcion.equals("5")) {
-				
+				notError = gestionarReembolsos();
 			}
 				
 				
@@ -183,17 +185,8 @@ public class ConsolaAdmin extends ConsolaBasica {
 			System.out.println("3. Salir");
 			int tipoReembolso = Integer.parseInt(pedirCadena("Escoja el tipo de reembolso"));
 			
-            this.sistemaBoleteria.eliminarEvento(this.admin, eventoSeleccionado.getNombre());
             this.admin.cancelarEvento(eventoSeleccionado, tipoReembolso, sistemaBoleteria); //REEMBOLSO EVENTO
-            
-            if (!this.sistemaBoleteria.getEventos().containsKey(eventoSeleccion)) {
-                System.out.println("EVENTO ELIMINADO EXITOSAMENTE!");
-            }else {
-                System.out.println("Ups! Algo fallo...");
-                return false;
-            }
-			
-			
+            System.out.println("Evento cancelado y reembolsos procesados.");
 
 		}else if(opcion.equals("2")) {
 			
@@ -213,24 +206,57 @@ public class ConsolaAdmin extends ConsolaBasica {
 		return true;
 		
 	}
+
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	public boolean gestionarReembolsos() {
+		Map<Integer, SolicitudReembolso> pendientes = this.sistemaBoleteria.getSolicitudesReembolso();
+		if (pendientes.isEmpty()) {
+			System.out.println("No hay solicitudes de reembolso pendientes.");
+			return true;
+		}
+		System.out.println("=== SOLICITUDES PENDIENTES ===");
+		for (SolicitudReembolso solicitud : this.sistemaBoleteria.listarSolicitudesPendientes()) {
+			String evento = solicitud.getTiquete() != null && solicitud.getTiquete().getEvento() != null
+					? solicitud.getTiquete().getEvento().getNombre()
+					: "N/A";
+			String solicitante = solicitud.getSolicitante() != null ? solicitud.getSolicitante().getLogin() : "N/A";
+			System.out.println("ID: " + solicitud.getId() + " | Evento: " + evento + " | Usuario: " + solicitante + " | Estado: " + solicitud.getEstado());
+		}
+		String idStr = pedirCadena("Ingrese ID de la solicitud a gestionar (0 para volver)");
+		if ("0".equals(idStr)) return true;
+		int idSolicitud;
+		try {
+			idSolicitud = Integer.parseInt(idStr);
+		} catch (NumberFormatException e) {
+			System.out.println("ID inválido.");
+			return true;
+		}
+		SolicitudReembolso solicitud = pendientes.get(idSolicitud);
+		if (solicitud == null) {
+			System.out.println("Solicitud no encontrada o ya procesada.");
+			return true;
+		}
+		String accion = pedirCadena("Aprobar (a) / Rechazar (r)");
+		boolean resultado = false;
+		if ("a".equalsIgnoreCase(accion)) {
+			System.out.println("1. Reembolso sin costo de emisión (cancelación por irregularidad)");
+			System.out.println("2. Reembolso precio base (cancelación por organizador)");
+			System.out.println("3. Reembolso total pagado");
+			int tipo;
+			try {
+				tipo = Integer.parseInt(pedirCadena("Seleccione tipo de reembolso"));
+			} catch (NumberFormatException e) {
+				System.out.println("Tipo inválido.");
+				return true;
+			}
+			resultado = this.admin.aprobarReembolso(this.sistemaBoleteria, idSolicitud, tipo);
+		} else if ("r".equalsIgnoreCase(accion)) {
+			resultado = this.admin.rechazarReembolso(this.sistemaBoleteria, idSolicitud);
+		} else {
+			System.out.println("Acción no válida.");
+		}
+		System.out.println(resultado ? "Solicitud procesada." : "No se pudo procesar la solicitud.");
+		return resultado;
+	}
 
 }

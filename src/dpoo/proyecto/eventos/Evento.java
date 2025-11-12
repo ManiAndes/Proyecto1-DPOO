@@ -143,10 +143,21 @@ public class Evento {
 	}
 
     public double getCuotaAdicionalEmision() {
-        if (this.tiquetes == null || this.tiquetes.isEmpty()) {
-            return 0.0;
+        if (this.tiquetes != null && !this.tiquetes.isEmpty()) {
+            for (Tiquete t : this.tiquetes.values()) {
+                if (t != null) {
+                    return t.getCuotaAdicionalEmision();
+                }
+            }
         }
-        return this.tiquetes.get(0).getCuotaAdicionalEmision();
+        if (this.tiquetesVendidos != null && !this.tiquetesVendidos.isEmpty()) {
+            for (Tiquete t : this.tiquetesVendidos.values()) {
+                if (t != null) {
+                    return t.getCuotaAdicionalEmision();
+                }
+            }
+        }
+        return 0.0;
     }
 
     public double getGanancias() {
@@ -199,13 +210,13 @@ public class Evento {
         }
         json.put("localidades", locs);
         JSONArray tiqs = new JSONArray();
-        for (Map.Entry<Integer, Tiquete> pareja: this.tiquetes.entrySet()) {
-            tiqs.put(pareja.getValue().toJSON());
+        for (Tiquete t : this.tiquetes.values()) {
+            tiqs.put(t.toJSON());
         }
         json.put("tiquetes", tiqs);
         JSONArray vendidos = new JSONArray();
-        for (Map.Entry<Integer, Tiquete> pareja: this.tiquetes.entrySet()) {
-            vendidos.put(pareja.getValue().toJSON());
+        for (Tiquete t : this.tiquetesVendidos.values()) {
+            vendidos.put(t.toJSON());
         }
         json.put("tiquetesVendidos", vendidos);
         return json;
@@ -221,9 +232,7 @@ public class Evento {
         Evento e = new Evento(nombre, tipoEvento, tipoTiquetes, cant, v, fecha);
         e.setGanancias(json.optDouble("ganancias", 0.0));
         e.setCargoPorcentualServicio(json.optDouble("cargoPorcentualServicio", 0.0));
-        if (json.optBoolean("cancelado", false)) {
-            e.cancelar();
-        }
+        e.setCancelado(json.optBoolean("cancelado", false));
         return e;
     }
 	
@@ -236,13 +245,36 @@ public class Evento {
 		this.cancelado = false;
 		return this.nombre;
 	}
+
+    public boolean isCancelado() {
+        return cancelado;
+    }
+
+    public void setCancelado(boolean cancelado) {
+        this.cancelado = cancelado;
+    }
+
+    public void reducirDisponibilidad(int cantidad) {
+        this.cantidadTiquetesDisponibles = Math.max(0, this.cantidadTiquetesDisponibles - cantidad);
+    }
+
+    public void incrementarDisponibilidad(int cantidad) {
+        this.cantidadTiquetesDisponibles += Math.max(0, cantidad);
+    }
 	
     // Nota: manejo de marcar vendido se definirá junto con inventario de tiquetes
 	public void marcarVendido(Tiquete tiquete) {
 		
 		this.tiquetes.remove(tiquete.getId());
 		this.tiquetesVendidos.put(tiquete.getId(), tiquete);
+        reducirDisponibilidad(1);
 		
 	}
+
+    public void marcarReembolsado(Tiquete tiquete) {
+        if (tiquete != null) {
+            tiquetesVendidos.put(tiquete.getId(), tiquete);
+        }
+    }
 
 }

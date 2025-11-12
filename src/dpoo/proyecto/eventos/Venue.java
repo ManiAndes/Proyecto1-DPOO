@@ -15,6 +15,7 @@ public class Venue {
 	private String ubicacion;
 	private List<Evento> eventos = new ArrayList<>();
 	private Organizador organizador;
+	private boolean aprobado;
 	
 	public void addEvento(Evento evento) {
 		if (this.eventos.contains(evento) == false) {
@@ -61,12 +62,21 @@ public class Venue {
 	public void setOrganizador(Organizador organizador) {
 		this.organizador = organizador;
 	}
+	
+	public boolean isAprobado() {
+		return aprobado;
+	}
+
+	public void setAprobado(boolean aprobado) {
+		this.aprobado = aprobado;
+	}
 
 	public JSONObject toJSON() {
 		JSONObject json = new JSONObject();
 		json.put("nombre", this.nombre);
 		json.put("capacidad", this.capacidad);
 		json.put("ubicacion", this.ubicacion);
+		json.put("aprobado", this.aprobado);
 		if (this.organizador != null) json.put("organizadorLogin", this.organizador.getLogin());
 		JSONArray evs = new JSONArray();
 		for (Evento e : this.eventos) {
@@ -81,6 +91,7 @@ public class Venue {
 		v.setNombre(json.getString("nombre"));
 		v.setCapacidad(json.optInt("capacidad", 0));
 		v.setUbicacion(json.optString("ubicacion", ""));
+		v.setAprobado(json.optBoolean("aprobado", true));
 		return v;
 	}
 
