@@ -170,21 +170,37 @@ public class MasterTicket {
 	public JSONObject toJSON() {
 		JSONObject json = new JSONObject();
 		json.put("costoPorEmision", this.costoPorEmision);
+
 		JSONArray u = new JSONArray();
-		for (Map.Entry<String, UsuarioGenerico> e : this.usuarios.entrySet()) {
-			u.put(e.getValue().toJSON());
+		for (UsuarioGenerico usuario : this.usuarios.values()) {
+			u.put(usuario.toJSON());
 		}
-		json.put("usuarios", u);
+        json.put("usuarios", u);
+
 		JSONArray ev = new JSONArray();
-		for (Map.Entry<String, Evento> e : this.eventos.entrySet()) {
-			ev.put(e.getValue().toJSON());
+		for (Evento evento : this.eventos.values()) {
+			ev.put(evento.toJSON());
 		}
-		json.put("eventos", ev);
+        json.put("eventos", ev);
+
 		JSONArray vv = new JSONArray();
-		for (Map.Entry<String, Venue> e : this.venues.entrySet()) {
-			vv.put(e.getValue().toJSON());
+		for (Venue venue : this.venues.values()) {
+			vv.put(venue.toJSON());
 		}
-		json.put("venues", vv);
+        json.put("venues", vv);
+
+        JSONArray vvPend = new JSONArray();
+        for (Venue venuePendiente : this.venuesPendientes.values()) {
+            vvPend.put(venuePendiente.toJSON());
+        }
+        json.put("venuesPendientes", vvPend);
+
+        JSONArray solicitudes = new JSONArray();
+        for (SolicitudReembolso s : this.solicitudesReembolso.values()) {
+            solicitudes.put(s.toJSON());
+        }
+        json.put("solicitudesReembolso", solicitudes);
+
 		return json;
 	}
 	

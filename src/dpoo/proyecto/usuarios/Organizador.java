@@ -8,6 +8,7 @@ import dpoo.proyecto.eventos.Localidad;
 import dpoo.proyecto.eventos.Venue;
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.app.MasterTicket;
+import org.json.JSONObject;
 
 public class Organizador extends Usuario {
     
@@ -55,4 +56,12 @@ public class Organizador extends Usuario {
         return l;
     }
 
+    public static Organizador fromJSON(JSONObject json) {
+        String login = json.getString("login");
+        String password = json.getString("password");
+        double saldo = json.optDouble("saldoVirtual", 0.0);
+        Organizador o = new Organizador(login, password);
+        o.setSaldoVirtual(saldo);
+        return o;
+    }
 }
