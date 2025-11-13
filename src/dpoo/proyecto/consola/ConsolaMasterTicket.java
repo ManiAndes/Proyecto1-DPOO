@@ -78,7 +78,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			} else if (opcionLogIn.equals("2")) {
 				String newLogIn = pedirCadena("Igrese un nombre de usuario");
 				String newContrasena = pedirCadena("Ingrese una contraseña");
-				String tipoUsuario = pedirCadena("Tipo de usuario deseado...\nn - Natural\no - Organizador\na - Administrador");
+				String tipoUsuario = pedirCadena("Tipo de usuario deseado...\nn - Natural\no - Organizador").toLowerCase();
 				
 				if (usuarios.get(newLogIn) == null) {
 					
@@ -89,14 +89,6 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 						
 					} else if (tipoUsuario.equals("o")) {
 						nuevoUsuario = new Organizador(newLogIn, newContrasena);
-						
-					} else if (tipoUsuario.equals("a")) {
-                        boolean existeAdmin = usuarios.values().stream().anyMatch(u -> u instanceof Administrador);
-                        if (existeAdmin) {
-                            System.out.println("Ya existe un administrador registrado. No se pueden crear más.");
-                        } else {
-						    nuevoUsuario = new Administrador(newLogIn, newContrasena);
-                        }
 						
 					} else {
 						System.out.println("Opción inválida...");

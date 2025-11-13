@@ -214,13 +214,6 @@
       "misTiquetes": []
     },
     {
-      "password": "cONTRASE�A",
-      "saldoVirtual": 0,
-      "type": "Organizador",
-      "login": "Alejo}",
-      "misTiquetes": []
-    },
-    {
       "password": "org123",
       "saldoVirtual": 0,
       "type": "Organizador",
@@ -233,6 +226,13 @@
       "costoPorcentualServicio": 0,
       "type": "Administrador",
       "login": "admin1"
+    },
+    {
+      "password": "cONTRASENA",
+      "saldoVirtual": 0,
+      "type": "Organizador",
+      "login": "Alejo",
+      "misTiquetes": []
     },
     {
       "password": "fortnite",
@@ -277,6 +277,13 @@
           "montoPagado": 137000
         }
       ]
+    },
+    {
+      "password": "fortnite2",
+      "saldoVirtual": 0,
+      "type": "Organizador",
+      "login": "mani2",
+      "misTiquetes": []
     }
   ],
   "venuesPendientes": [],
