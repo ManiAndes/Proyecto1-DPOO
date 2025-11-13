@@ -201,7 +201,6 @@
   "venues": [{
     "ubicacion": "Ciudad Demo",
     "aprobado": true,
-    "organizadorLogin": "organizador1",
     "eventos": ["CONCIERTO_DEMO"],
     "nombre": "ARENA_DEMO",
     "capacidad": 500
@@ -212,6 +211,13 @@
       "saldoVirtual": 300000,
       "type": "Natural",
       "login": "cliente1",
+      "misTiquetes": []
+    },
+    {
+      "password": "cONTRASE�A",
+      "saldoVirtual": 0,
+      "type": "Organizador",
+      "login": "Alejo}",
       "misTiquetes": []
     },
     {
