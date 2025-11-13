@@ -3,7 +3,6 @@ package dpoo.proyecto.eventos;
 import java.util.List;
 import java.util.ArrayList;
 
-import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.usuarios.Organizador;
 import org.json.JSONArray;
 import org.json.JSONObject;

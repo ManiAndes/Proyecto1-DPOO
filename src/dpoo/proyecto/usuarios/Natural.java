@@ -1,6 +1,5 @@
 package dpoo.proyecto.usuarios;
 
-import dpoo.proyecto.tiquetes.Tiquete;
 import org.json.JSONObject;
 
 public class Natural extends Usuario {

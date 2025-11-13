@@ -1,5 +1,5 @@
 open module masterticket.app {
-    requires org.json;
+    requires transitive org.json;
 
     exports dpoo.proyecto.app;
     exports dpoo.proyecto.consola;

@@ -3,8 +3,6 @@ package dpoo.proyecto.consola;
 import java.util.Map;
 
 import dpoo.proyecto.app.MasterTicket;
-import dpoo.proyecto.eventos.Evento;
-import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.usuarios.*;
 import persistencia.CentralPersistencia;
 

@@ -6,7 +6,6 @@ import java.util.List;
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.eventos.Localidad;
 import dpoo.proyecto.eventos.Venue;
-import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.app.MasterTicket;
 import org.json.JSONObject;
 

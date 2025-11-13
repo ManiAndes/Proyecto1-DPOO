@@ -1,10 +1,8 @@
 package dpoo.proyecto.tiquetes;
 
-import java.util.List;
 import java.util.Random;
 
 import dpoo.proyecto.eventos.Evento;
-import dpoo.proyecto.usuarios.Natural;
 import dpoo.proyecto.usuarios.Usuario;
 import org.json.JSONObject;
 
@@ -109,17 +107,18 @@ public abstract class Tiquete {
         this.id = random.nextInt(99999); 
     }
 	
-	
-	
 	public int getMaximoTiquetesPorTransaccion() {
 		return maximoTiquetesPorTransaccion;
 	}
+	
 	public void setMaximoTiquetesPorTransaccion(int maximoTiquetesPorTransaccion) {
 		this.maximoTiquetesPorTransaccion = maximoTiquetesPorTransaccion;
 	}
+
 	public String getTipo() {
 		return tipo;
 	}
+
 	public void setTipo(String tipo) {
 		this.tipo = tipo;
 	}
@@ -127,7 +126,6 @@ public abstract class Tiquete {
 	public boolean isUsado() {
 		return usado;
 	}
-
 
 	public void setUsado(boolean usado) {
 		this.usado = usado;
@@ -224,9 +222,16 @@ public abstract class Tiquete {
 		json.put("montoPagado", this.montoPagado);
 		json.put("estado", this.estado);
 		json.put("localidad", this.localidad);
-		if (this.cliente != null) json.put("clienteLogin", this.cliente.getLogin());
-		if (this.evento != null) json.put("eventoNombre", this.evento.getNombre());
+		
+		if (this.cliente != null) {
+			json.put("clienteLogin", this.cliente.getLogin());
+		}
+		if (this.evento != null) {
+			json.put("eventoNombre", this.evento.getNombre());
+		}
+		
 		return json;
+
 	}
 
 }
