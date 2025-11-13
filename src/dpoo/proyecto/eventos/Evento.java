@@ -193,6 +193,7 @@ public class Evento {
     }
 
     public JSONObject toJSON() {
+        
         JSONObject json = new JSONObject();
         json.put("nombre", this.nombre);
         json.put("tipoEvento", this.tipoEvento);
@@ -204,21 +205,28 @@ public class Evento {
         json.put("cargoPorcentualServicio", this.cargoPorcentualServicio);
         if (this.venue != null) json.put("venueName", this.venue.getNombre());
         if (this.organizador != null) json.put("organizadorLogin", this.organizador.getLogin());
+        
+        
         JSONArray locs = new JSONArray();
         for (Map.Entry<String, Localidad> pareja: this.localidades.entrySet()) {
             locs.put(pareja.getValue().toJSON());
         }
         json.put("localidades", locs);
+        
+
         JSONArray tiqs = new JSONArray();
         for (Tiquete t : this.tiquetes.values()) {
             tiqs.put(t.toJSON());
         }
         json.put("tiquetes", tiqs);
+        
+
         JSONArray vendidos = new JSONArray();
         for (Tiquete t : this.tiquetesVendidos.values()) {
             vendidos.put(t.toJSON());
         }
         json.put("tiquetesVendidos", vendidos);
+        
         return json;
     }
 

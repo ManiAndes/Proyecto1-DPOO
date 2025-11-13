@@ -351,7 +351,8 @@ public class MasterTicket {
         refrescarVenuesPendientes();
     }
 
-    	public JSONObject toJSON() {
+    public JSONObject toJSON() {
+
 		JSONObject json = new JSONObject();
 		json.put("costoPorEmision", this.costoPorEmision);
         json.put("secuenciaTiquetes", this.secuenciaTiquetes);
