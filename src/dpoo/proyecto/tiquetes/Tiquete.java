@@ -47,9 +47,6 @@ public abstract class Tiquete {
 		this.tipo = tipo;
 		
 	}
-	
-	
-	
 
 	public Usuario getCliente() {
 		return cliente;

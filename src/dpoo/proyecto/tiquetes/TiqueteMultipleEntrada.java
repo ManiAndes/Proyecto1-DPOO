@@ -19,9 +19,11 @@ public class TiqueteMultipleEntrada extends EntradaMultiple {
 		this.eventoPrincipal = eventoPrincipal;
 		this.localidadAsociada = localidadAsociada;
 		this.entradasIncluidas = entradasIncluidas;
+		
 		for (int i = 1; i <= entradasIncluidas; i++) {
 			registrarComponente(localidadAsociada + " - ENTRADA " + i);
 		}
+		
 	}
 
 	public String getLocalidadAsociada() {
