@@ -2,6 +2,7 @@ package dpoo.proyecto.app;
 
 import dpoo.proyecto.usuarios.*;
 import dpoo.proyecto.eventos.*;
+import dpoo.proyecto.marketplace.MarketplaceReventa;
 import dpoo.proyecto.tiquetes.*;
 
 import java.util.*;
@@ -28,6 +29,7 @@ public class MasterTicket {
     private Map<Integer, Tiquete> indiceTiquetes;
     private int secuenciaTiquetes;
     private int secuenciaSolicitudes;
+    private MarketplaceReventa marketplaceReventa;
 	
 
 	public MasterTicket() {
@@ -42,6 +44,7 @@ public class MasterTicket {
         this.secuenciaTiquetes = 1000;
         this.secuenciaSolicitudes = 1;
 		this.costoPorEmision = 0.0;
+        this.marketplaceReventa = new MarketplaceReventa();
 	}
 
 	public double getCostoPorEmision() {
@@ -119,6 +122,14 @@ public class MasterTicket {
 
     public void setSecuenciaSolicitudes(int secuenciaSolicitudes) {
         this.secuenciaSolicitudes = secuenciaSolicitudes;
+    }
+
+    public MarketplaceReventa getMarketplaceReventa() {
+        return marketplaceReventa;
+    }
+
+    public void setMarketplaceReventa(MarketplaceReventa marketplaceReventa) {
+        this.marketplaceReventa = marketplaceReventa != null ? marketplaceReventa : new MarketplaceReventa();
     }
 
     private void refrescarVenuesPendientes() {
@@ -307,6 +318,7 @@ public class MasterTicket {
         this.secuenciaTiquetes = 1000;
         this.secuenciaSolicitudes = 1;
         this.costoPorEmision = 5000;
+        this.marketplaceReventa = new MarketplaceReventa();
 
         Administrador admin = new Administrador("admin1", "1234");
         this.usuarios.put(admin.getLogin(), admin);

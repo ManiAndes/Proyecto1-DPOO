@@ -7,6 +7,7 @@ import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.eventos.Localidad;
 import dpoo.proyecto.eventos.Venue;
 import dpoo.proyecto.app.MasterTicket;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Organizador extends Usuario {
@@ -61,6 +62,14 @@ public class Organizador extends Usuario {
         double saldo = json.optDouble("saldoVirtual", 0.0);
         Organizador o = new Organizador(login, password);
         o.setSaldoVirtual(saldo);
+        JSONArray enVenta = json.optJSONArray("tiquetesEnReventa");
+        if (enVenta != null) {
+            List<Integer> ids = new ArrayList<>();
+            for (int i = 0; i < enVenta.length(); i++) {
+                ids.add(enVenta.optInt(i));
+            }
+            o.setTiquetesEnReventa(ids);
+        }
         return o;
     }
 }

@@ -1,12 +1,16 @@
 package dpoo.proyecto.consola;
 
+import java.util.List;
 import java.util.Map;
 
 import dpoo.proyecto.app.MasterTicket;
+import dpoo.proyecto.app.SolicitudReembolso;
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.eventos.Venue;
+import dpoo.proyecto.marketplace.MarketplaceReventa;
+import dpoo.proyecto.marketplace.OfertaReventa;
+import dpoo.proyecto.marketplace.RegistroReventa;
 import dpoo.proyecto.usuarios.Administrador;
-import dpoo.proyecto.app.SolicitudReembolso;
 
 
 public class ConsolaAdmin extends ConsolaBasica {
@@ -29,6 +33,8 @@ public class ConsolaAdmin extends ConsolaBasica {
 		System.out.println("3. VER FINANZAS");
 		System.out.println("4. VER SOLICITUDES DE VENUES");
 		System.out.println("5. VER SOLICITUDES DE REEMBOLSOS");
+		System.out.println("6. Ver log de Marketplace");
+		System.out.println("7. Gestionar ofertas del Marketplace");
 		System.out.println("0. Salir");
 	}
 
@@ -57,6 +63,10 @@ public class ConsolaAdmin extends ConsolaBasica {
 
 				} else if (opcion.equals("5")) {
 					notError = gestionarReembolsos();
+				} else if (opcion.equals("6")) {
+					notError = verLogMarketplace();
+				} else if (opcion.equals("7")) {
+					notError = gestionarMarketplace();
 
 				}
 				
@@ -248,6 +258,53 @@ public class ConsolaAdmin extends ConsolaBasica {
 		}
 		System.out.println(resultado ? "Solicitud procesada." : "No se pudo procesar la solicitud.");
 		return resultado;
+	}
+
+	public boolean verLogMarketplace() {
+		MarketplaceReventa marketplace = this.sistemaBoleteria.getMarketplaceReventa();
+		if (marketplace == null) {
+			System.out.println("Marketplace no disponible.");
+			return true;
+		}
+		List<RegistroReventa> registros = marketplace.getRegistros();
+		if (registros.isEmpty()) {
+			System.out.println("El log aún no tiene registros.");
+			return true;
+		}
+		System.out.println("=== LOG DE MARKETPLACE ===");
+		for (RegistroReventa registro : registros) {
+			System.out.println(registro.formatear());
+		}
+		return true;
+	}
+
+	public boolean gestionarMarketplace() {
+		MarketplaceReventa marketplace = this.sistemaBoleteria.getMarketplaceReventa();
+		if (marketplace == null) {
+			System.out.println("Marketplace no disponible.");
+			return true;
+		}
+		List<OfertaReventa> ofertas = marketplace.listarOfertasActivas();
+		if (ofertas.isEmpty()) {
+			System.out.println("No hay ofertas activas en el Marketplace.");
+			return true;
+		}
+		System.out.println("=== OFERTAS ACTIVAS ===");
+		for (OfertaReventa oferta : ofertas) {
+			System.out.println(oferta.descripcionBasica());
+		}
+		String idStr = pedirCadena("ID de la oferta a eliminar (0 para volver)");
+		if ("0".equals(idStr)) {
+			return true;
+		}
+		try {
+			int ofertaId = Integer.parseInt(idStr);
+			boolean ok = marketplace.eliminarOfertaComoAdmin(ofertaId, this.admin, "Removida por administrador");
+			System.out.println(ok ? "Oferta eliminada correctamente." : "La oferta no pudo ser eliminada.");
+		} catch (NumberFormatException e) {
+			System.out.println("ID inválido.");
+		}
+		return true;
 	}
 
 }
