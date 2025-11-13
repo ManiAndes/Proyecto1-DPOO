@@ -39,6 +39,10 @@ public class ConsolaOrganizador extends ConsolaBasica {
     }
 
     public boolean consolaOrganizador(String opcion) {
+        if (!organizador.isAprobado()) {
+            System.out.println("Tu cuenta aún no ha sido aprobada por el administrador.");
+            return false;
+        }
         try {
             switch (opcion) {
                 case "1":

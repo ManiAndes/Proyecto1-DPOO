@@ -3,6 +3,7 @@ package persistencia;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import dpoo.proyecto.app.MasterTicket;
 
@@ -86,6 +87,17 @@ public class CentralPersistencia {
             destino.setIndiceTiquetes(fuente.getIndiceTiquetes());
             destino.setSecuenciaTiquetes(fuente.getSecuenciaTiquetes());
             destino.setSecuenciaSolicitudes(fuente.getSecuenciaSolicitudes());
+            destino.setOfertasReventa(fuente.getOfertasReventa());
+            destino.setContraofertas(fuente.getContraofertas());
+            destino.setTransaccionesReventa(fuente.getTransaccionesReventaMap());
+            destino.setAuditoriaMarketplace(fuente.getAuditoriaMarketplace());
+            destino.setAuditoriaOrden(new ArrayList<>(fuente.getAuditoriaOrden()));
+            destino.setIndiceOfertaPorTiquete(fuente.getIndiceOfertaPorTiquete());
+            destino.setSecuenciaOfertas(fuente.getSecuenciaOfertas());
+            destino.setSecuenciaContraofertas(fuente.getSecuenciaContraofertas());
+            destino.setSecuenciaTransacciones(fuente.getSecuenciaTransacciones());
+            destino.setSecuenciaLogMarketplace(fuente.getSecuenciaLogMarketplace());
+            destino.setOrganizadoresPendientes(fuente.getOrganizadoresPendientes());
         } catch (Exception e) {
             e.printStackTrace();
         }

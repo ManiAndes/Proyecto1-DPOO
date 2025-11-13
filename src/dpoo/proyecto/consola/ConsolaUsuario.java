@@ -3,6 +3,9 @@ package dpoo.proyecto.consola;
 import java.util.*;
 
 import dpoo.proyecto.app.MasterTicket;
+import dpoo.proyecto.app.Contraoferta;
+import dpoo.proyecto.app.OfertaReventa;
+import dpoo.proyecto.app.TransaccionReventa;
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.eventos.Localidad;
 import dpoo.proyecto.tiquetes.Tiquete;
@@ -27,6 +30,11 @@ public class ConsolaUsuario extends ConsolaBasica {
 				"3 - Ver mis eventos\n" +
 				"4 - Ver mis tiquetes\n" +
 				"5 - Transferir tiquete\n" +
+                "6 - Publicar oferta de reventa\n" +
+                "7 - Ver ofertas del Marketplace\n" +
+                "8 - Mis ofertas publicadas\n" +
+                "9 - Gestionar contraofertas recibidas\n" +
+                "10 - Ver mis contraofertas\n" +
 				"0 - Salir\n"
 				);
 	}
@@ -246,5 +254,194 @@ public class ConsolaUsuario extends ConsolaBasica {
 			}
 		}
 	}
+
+    public void publicarOfertaReventa() {
+        if (usuario.getMisTiquetes().isEmpty()) {
+            System.out.println("No tienes tiquetes para publicar.");
+            return;
+        }
+        mostrarTiquetesDisponibles();
+        String idsTexto = pedirCadena("IDs de tiquetes separados por coma");
+        List<Integer> ids = parsearIds(idsTexto);
+        if (ids.isEmpty()) {
+            System.out.println("No ingresaste IDs válidos.");
+            return;
+        }
+        String precioTexto = pedirCadena("Precio deseado");
+        double precio;
+        try {
+            precio = Double.parseDouble(precioTexto);
+        } catch (NumberFormatException e) {
+            System.out.println("Precio inválido.");
+            return;
+        }
+        OfertaReventa oferta = this.sistemaBoleteria.crearOfertaReventa(usuario.getLogin(), ids, precio);
+        if (oferta == null) {
+            System.out.println("No se pudo crear la oferta. Verifica que los tiquetes sean válidos.");
+        } else {
+            System.out.println("Oferta creada con ID " + oferta.getId());
+        }
+    }
+
+    public void verOfertasMarketplace() {
+        List<OfertaReventa> ofertas = this.sistemaBoleteria.listarOfertasActivas();
+        if (ofertas.isEmpty()) {
+            System.out.println("No hay ofertas disponibles.");
+            return;
+        }
+        for (OfertaReventa oferta : ofertas) {
+            imprimirOferta(oferta);
+        }
+        String opcion = pedirCadena("1 Comprar / 2 Contraofertar / 0 Volver");
+        if ("1".equals(opcion)) {
+            procesarCompraOferta();
+        } else if ("2".equals(opcion)) {
+            crearContraoferta();
+        }
+    }
+
+    public void gestionarMisOfertas() {
+        List<OfertaReventa> misOfertas = this.sistemaBoleteria.listarOfertasDe(usuario.getLogin());
+        if (misOfertas.isEmpty()) {
+            System.out.println("No tienes ofertas registradas.");
+            return;
+        }
+        for (OfertaReventa oferta : misOfertas) {
+            imprimirOferta(oferta);
+        }
+        String opcion = pedirCadena("ID de oferta a retirar (0 para volver)");
+        if ("0".equals(opcion)) {
+            return;
+        }
+        try {
+            int id = Integer.parseInt(opcion);
+            boolean ok = this.sistemaBoleteria.retirarOferta(id, usuario.getLogin());
+            System.out.println(ok ? "Oferta retirada." : "No fue posible retirar la oferta.");
+        } catch (NumberFormatException e) {
+            System.out.println("ID inválido.");
+        }
+    }
+
+    public void gestionarContraofertasRecibidas() {
+        List<Contraoferta> pendientes = this.sistemaBoleteria
+                .contraofertasPendientesParaVendedor(usuario.getLogin());
+        if (pendientes.isEmpty()) {
+            System.out.println("No tienes contraofertas pendientes.");
+            return;
+        }
+        for (Contraoferta contra : pendientes) {
+            OfertaReventa oferta = this.sistemaBoleteria.obtenerOferta(contra.getIdOferta());
+            System.out.println("Contraoferta#" + contra.getId() + " Oferta#" + contra.getIdOferta()
+                    + " Comprador: " + contra.getIdComprador()
+                    + " Precio: " + contra.getPrecioPropuesto());
+            if (oferta != null) {
+                imprimirOferta(oferta);
+            }
+        }
+        String idTexto = pedirCadena("ID de contraoferta a gestionar (0 para volver)");
+        if ("0".equals(idTexto)) {
+            return;
+        }
+        try {
+            int idContra = Integer.parseInt(idTexto);
+            String accion = pedirCadena("Aceptar (a) o Rechazar (r)");
+            boolean aceptar = "a".equalsIgnoreCase(accion);
+            boolean ok = this.sistemaBoleteria.responderContraoferta(idContra, usuario.getLogin(), aceptar);
+            if (ok) {
+                System.out.println(aceptar ? "Contraoferta aceptada." : "Contraoferta rechazada.");
+            } else {
+                System.out.println("No se pudo procesar la contraoferta.");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("ID inválido.");
+        }
+    }
+
+    public void verMisContraofertas() {
+        List<Contraoferta> mias = this.sistemaBoleteria.contraofertasDeComprador(usuario.getLogin());
+        if (mias.isEmpty()) {
+            System.out.println("No has registrado contraofertas.");
+            return;
+        }
+        for (Contraoferta contra : mias) {
+            System.out.println("Contraoferta#" + contra.getId()
+                    + " Oferta#" + contra.getIdOferta()
+                    + " Precio: " + contra.getPrecioPropuesto()
+                    + " Estado: " + contra.getEstado());
+        }
+    }
+
+    private void procesarCompraOferta() {
+        String idTexto = pedirCadena("ID de la oferta que deseas comprar");
+        try {
+            int idOferta = Integer.parseInt(idTexto);
+            double saldoAntes = usuario.getSaldoVirtual();
+            TransaccionReventa tx = this.sistemaBoleteria.comprarOferta(idOferta, usuario.getLogin());
+            if (tx == null) {
+                System.out.println("No fue posible completar la compra.");
+                return;
+            }
+            double saldoUsado = saldoAntes - usuario.getSaldoVirtual();
+            double pagoExterno = Math.max(0, tx.getPrecioFinal() - saldoUsado);
+            System.out.println("Compra exitosa. Precio final: " + tx.getPrecioFinal());
+            System.out.println("Saldo usado: " + Math.max(0, saldoUsado));
+            if (pagoExterno > 0) {
+                System.out.println("Pago externo asumido: " + pagoExterno);
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("ID inválido.");
+        }
+    }
+
+    private void crearContraoferta() {
+        String idTexto = pedirCadena("ID de la oferta sobre la que deseas negociar");
+        try {
+            int idOferta = Integer.parseInt(idTexto);
+            String precioTexto = pedirCadena("Precio propuesto");
+            double precio = Double.parseDouble(precioTexto);
+            Contraoferta contra = this.sistemaBoleteria.crearContraoferta(idOferta, usuario.getLogin(), precio);
+            System.out.println(contra != null ? "Contraoferta registrada." : "No se pudo registrar la contraoferta.");
+        } catch (NumberFormatException e) {
+            System.out.println("Datos inválidos.");
+        }
+    }
+
+    private void mostrarTiquetesDisponibles() {
+        System.out.println("=== Tiquetes disponibles ===");
+        for (Tiquete t : usuario.getMisTiquetes()) {
+            String evento = t.getEvento() != null ? t.getEvento().getNombre() : "N/A";
+            System.out.println("ID " + t.getId() + " Evento: " + evento + " Estado: " + t.getEstado());
+        }
+    }
+
+    private List<Integer> parsearIds(String texto) {
+        List<Integer> ids = new ArrayList<>();
+        if (texto == null || texto.isBlank()) {
+            return ids;
+        }
+        String[] partes = texto.split(",");
+        for (String parte : partes) {
+            try {
+                ids.add(Integer.parseInt(parte.trim()));
+            } catch (NumberFormatException e) {
+                // Ignora IDs inválidos
+            }
+        }
+        return ids;
+    }
+
+    private void imprimirOferta(OfertaReventa oferta) {
+        StringBuilder detalle = new StringBuilder();
+        for (Integer id : oferta.getTiqueteIds()) {
+            Tiquete t = this.sistemaBoleteria.buscarTiquete(id);
+            String evento = t != null && t.getEvento() != null ? t.getEvento().getNombre() : "N/A";
+            detalle.append("#").append(id).append("(").append(evento).append(") ");
+        }
+        System.out.println("Oferta#" + oferta.getId()
+                + " Vendedor: " + oferta.getIdVendedor()
+                + " Precio: " + oferta.getPrecioPedido()
+                + " Estado: " + oferta.getEstado()
+                + " Tiquetes: " + detalle);
+    }
 
 }

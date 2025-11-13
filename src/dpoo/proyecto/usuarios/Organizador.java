@@ -12,6 +12,7 @@ import org.json.JSONObject;
 public class Organizador extends Usuario {
     
     private List<Evento> eventos = new ArrayList<Evento>();
+    private boolean aprobado = true;
 
     public Organizador(String login, String password) {
         super(login, password);
@@ -21,6 +22,14 @@ public class Organizador extends Usuario {
 
     public List<Evento> getEventos() {
         return eventos;
+    }
+
+    public boolean isAprobado() {
+        return aprobado;
+    }
+
+    public void setAprobado(boolean aprobado) {
+        this.aprobado = aprobado;
     }
 
     public void addEvento(Evento evento) {
@@ -55,12 +64,20 @@ public class Organizador extends Usuario {
         return l;
     }
 
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
+        json.put("aprobado", this.aprobado);
+        return json;
+    }
+
     public static Organizador fromJSON(JSONObject json) {
         String login = json.getString("login");
         String password = json.getString("password");
         double saldo = json.optDouble("saldoVirtual", 0.0);
         Organizador o = new Organizador(login, password);
         o.setSaldoVirtual(saldo);
+        o.setAprobado(json.optBoolean("aprobado", true));
         return o;
     }
 }
