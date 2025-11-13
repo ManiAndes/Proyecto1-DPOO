@@ -11,7 +11,7 @@ public class CentralPersistencia {
     public static final String JSON = "JSON";
 
     // Carpeta y archivo por defecto para persistencia
-    public static final String DEFAULT_DIR = "datos";
+    public static final String DEFAULT_DIR = "Proyecto1-DPOO/datos";
     public static final String DEFAULT_FILE = "masterticket.json";
 
     public static IPersistenciaMasterticket getPersistenciaMasterticket(String tipoArchivo) {
