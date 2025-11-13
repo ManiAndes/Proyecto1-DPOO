@@ -15,7 +15,7 @@ public class MasterTicket {
 	// Mapa de los usuarios registrados
 	private Map<String, UsuarioGenerico> usuarios;
 	
-	// Mapa de todos los eventos (activos?)
+	// Mapa de todos los eventos
 	private Map<String, Evento> eventos;
 	
     // Mapa de todos los venues
@@ -134,11 +134,11 @@ public class MasterTicket {
         this.venuesPendientes = pend;
     }
 
-    public synchronized int siguienteIdTiquete() {
+    public int siguienteIdTiquete() {
         return ++secuenciaTiquetes;
     }
 
-    public synchronized int siguienteIdSolicitud() {
+    public int siguienteIdSolicitud() {
         return ++secuenciaSolicitudes;
     }
 
@@ -244,19 +244,15 @@ public class MasterTicket {
 		
 		int i = 1;
 	
-		
 		for (Map.Entry<String, Evento> pareja : this.eventos.entrySet()) {
 			
 			String i_ = Integer.toString(i);
-			
 			String nombre = pareja.getKey();
-			
 			System.out.println(i_ + ". "+nombre);
 			
 			i++;
 			
 		}	
-		
 	}
 	
 	public Evento selectorEvento(String nombreEvento) {
@@ -281,67 +277,6 @@ public class MasterTicket {
 			
 			i++;
 		}
-		
-		
-	}
-	
-	public boolean cargarUsuarios() {
-		// TODO
-		return false;
-	}
-	
-	public boolean cargarEventos() {
-		// TODO
-		return false;
-	}
-	
-	public boolean cargarVenues() {
-		// TODO
-		return false;
-	}
-
-	public JSONObject toJSON() {
-		JSONObject json = new JSONObject();
-		json.put("costoPorEmision", this.costoPorEmision);
-        json.put("secuenciaTiquetes", this.secuenciaTiquetes);
-        json.put("secuenciaSolicitudes", this.secuenciaSolicitudes);
-
-		JSONArray u = new JSONArray();
-		for (UsuarioGenerico usuario : this.usuarios.values()) {
-			u.put(usuario.toJSON());
-		}
-        json.put("usuarios", u);
-
-		JSONArray ev = new JSONArray();
-		for (Evento evento : this.eventos.values()) {
-			ev.put(evento.toJSON());
-		}
-        json.put("eventos", ev);
-
-        JSONArray vv = new JSONArray();
-		for (Venue venue : this.venues.values()) {
-			vv.put(venue.toJSON());
-		}
-        json.put("venues", vv);
-
-        JSONArray vvPend = new JSONArray();
-        for (Venue venuePendiente : this.venuesPendientes.values()) {
-            vvPend.put(venuePendiente.toJSON());
-        }
-        json.put("venuesPendientes", vvPend);
-
-        JSONArray solicitudes = new JSONArray();
-        for (SolicitudReembolso s : this.solicitudesReembolso.values()) {
-            solicitudes.put(s.toJSON());
-        }
-        json.put("solicitudesReembolso", solicitudes);
-        JSONArray solicitudesProc = new JSONArray();
-        for (SolicitudReembolso s : this.solicitudesReembolsoProcesadas.values()) {
-            solicitudesProc.put(s.toJSON());
-        }
-        json.put("solicitudesReembolsoProcesadas", solicitudesProc);
-
-		return json;
 	}
     
     public void proponerVenue(Venue venue) {
@@ -354,7 +289,9 @@ public class MasterTicket {
     }
 
     public void marcarEventoCancelado(Evento evento) {
-        if (evento == null || evento.getNombre() == null) return;
+        if (evento == null || evento.getNombre() == null) {
+            return;
+        }
         evento.setCancelado(true);
         this.eventos.put(evento.getNombre(), evento);
     }
@@ -413,5 +350,49 @@ public class MasterTicket {
         this.eventos.put(eventoDemo.getNombre(), eventoDemo);
         refrescarVenuesPendientes();
     }
+
+    	public JSONObject toJSON() {
+		JSONObject json = new JSONObject();
+		json.put("costoPorEmision", this.costoPorEmision);
+        json.put("secuenciaTiquetes", this.secuenciaTiquetes);
+        json.put("secuenciaSolicitudes", this.secuenciaSolicitudes);
+
+		JSONArray u = new JSONArray();
+		for (UsuarioGenerico usuario : this.usuarios.values()) {
+			u.put(usuario.toJSON());
+		}
+        json.put("usuarios", u);
+
+		JSONArray ev = new JSONArray();
+		for (Evento evento : this.eventos.values()) {
+			ev.put(evento.toJSON());
+		}
+        json.put("eventos", ev);
+
+        JSONArray vv = new JSONArray();
+		for (Venue venue : this.venues.values()) {
+			vv.put(venue.toJSON());
+		}
+        json.put("venues", vv);
+
+        JSONArray vvPend = new JSONArray();
+        for (Venue venuePendiente : this.venuesPendientes.values()) {
+            vvPend.put(venuePendiente.toJSON());
+        }
+        json.put("venuesPendientes", vvPend);
+
+        JSONArray solicitudes = new JSONArray();
+        for (SolicitudReembolso s : this.solicitudesReembolso.values()) {
+            solicitudes.put(s.toJSON());
+        }
+        json.put("solicitudesReembolso", solicitudes);
+        JSONArray solicitudesProc = new JSONArray();
+        for (SolicitudReembolso s : this.solicitudesReembolsoProcesadas.values()) {
+            solicitudesProc.put(s.toJSON());
+        }
+        json.put("solicitudesReembolsoProcesadas", solicitudesProc);
+
+		return json;
+	}
 	
 }
