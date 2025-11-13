@@ -48,7 +48,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 		
 		while (running) {
 			
-			String menu = "1 - Login y contraseña\n2 - Crear usuario";
+			String menu = "1 - Login y contraseña\n2 - Crear usuario\n0 - Cerrar programa";
 			System.out.println(menu);
 			String opcionLogIn = pedirCadena("Seleccione la opción");
 			
@@ -111,6 +111,10 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 						
 					}
 				}
+			} else if (opcionLogIn.equals("0")) {
+
+				System.exit(0);
+
 			} else {
 				System.out.println("Opción inválida...");
 				
