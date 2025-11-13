@@ -14,7 +14,7 @@ public class Localidad {
     private Evento evento;
     private Map<Integer, Tiquete> tiquetes = new HashMap<Integer, Tiquete>();
     private Map<Integer, Tiquete> tiquetesVendidos = new HashMap<Integer, Tiquete>();
-    private double descuento = 0.0; // porcentaje simple (0-100)
+    private double descuento = 0.0;
 	
 	public Localidad(String nombreLocalidad, double precioTiquetes, boolean esNumerada, Evento evento) {
 		this.nombreLocalidad = nombreLocalidad;

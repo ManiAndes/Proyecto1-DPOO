@@ -40,35 +40,30 @@ public class ConsolaAdmin extends ConsolaBasica {
 		while (!notError) {
 			
 			notError = true;
-			
 			try {
-				
-				
+
 				if (opcion.equals("1")) {
 					notError = gestionarEventos();
 					
-					
-				}else if(opcion.equals("2")) {
+				} else if(opcion.equals("2")) {
 					notError = establecerCostoEmision();
 					
-				}else if(opcion.equals("3")){
+				} else if(opcion.equals("3")){
 					
 					notError = verFinanzas();
 					
-			}else if (opcion.equals("4")) {
-				notError = verSolicitudesVenues();
-			}else if (opcion.equals("5")) {
-				notError = gestionarReembolsos();
-			}
+				} else if (opcion.equals("4")) {
+					notError = verSolicitudesVenues();
+
+				} else if (opcion.equals("5")) {
+					notError = gestionarReembolsos();
+
+				}
 				
-				
-				
-			}catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		
-		
 	}
 	
 	public boolean verFinanzas() {
@@ -113,10 +108,6 @@ public class ConsolaAdmin extends ConsolaBasica {
         System.out.println("TOTAL: " + total);
         return true;
     }
-	
-	public boolean verFinanzasFecha() {
-		return true;
-	}
 
 	public boolean verSolicitudesVenues() {
 	
