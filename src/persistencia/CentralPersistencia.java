@@ -32,7 +32,6 @@ public class CentralPersistencia {
         try {
             Files.createDirectories(Paths.get(DEFAULT_DIR));
         } catch (Exception e) {
-            // Silent: do not block app on dir creation errors
         }
     }
 
@@ -53,22 +52,33 @@ public class CentralPersistencia {
     public void loadDefault(MasterTicket sistema) {
         try {
             ensureDefaultDir();
-            if (sistema == null) return;
+            if (sistema == null) {
+                return;
+            } 
+
             Path pth = defaultPath();
             IPersistenciaMasterticket p = getPersistenciaMasterticket(JSON);
-            if (p == null) return;
-            if (!Files.exists(pth)) {
+            
+            if (p == null) {
+                return;
+            }
+
+            if (! Files.exists(pth)) {
                 sistema.inicializarDemo();
                 saveDefault(sistema);
                 return;
             }
+            
             MasterTicket cargado = p.cargarMasterTicket(pth.toString());
+            
             if (cargado == null) {
                 sistema.inicializarDemo();
                 saveDefault(sistema);
+
             } else {
                 copiarEstado(sistema, cargado);
             }
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
