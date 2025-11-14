@@ -96,6 +96,7 @@ public class CentralPersistencia {
             destino.setIndiceTiquetes(fuente.getIndiceTiquetes());
             destino.setSecuenciaTiquetes(fuente.getSecuenciaTiquetes());
             destino.setSecuenciaSolicitudes(fuente.getSecuenciaSolicitudes());
+            destino.setMarketplaceReventa(fuente.getMarketplaceReventa());
         } catch (Exception e) {
             e.printStackTrace();
         }

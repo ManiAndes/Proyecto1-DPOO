@@ -10,6 +10,7 @@ import org.json.JSONObject;
 public abstract class Usuario extends UsuarioGenerico {
 	
 	private List<Tiquete> misTiquetes = new ArrayList<Tiquete>();
+	private List<Integer> tiquetesEnReventa = new ArrayList<Integer>();
 	
 	public Usuario(String login, String password) {
 		super(login, password);
@@ -33,6 +34,34 @@ public abstract class Usuario extends UsuarioGenerico {
 			this.misTiquetes.add(tiquete);
 		}
 	}
+	
+	public void removerTiquete(Tiquete tiquete) {
+		if (tiquete != null) {
+			this.misTiquetes.remove(tiquete);
+		}
+	}
+
+	public List<Integer> getTiquetesEnReventa() {
+		return tiquetesEnReventa;
+	}
+
+	public void setTiquetesEnReventa(List<Integer> tiquetesEnReventa) {
+		this.tiquetesEnReventa = tiquetesEnReventa != null ? tiquetesEnReventa : new ArrayList<>();
+	}
+
+	public void registrarTiqueteEnReventa(int tiqueteId) {
+		if (!this.tiquetesEnReventa.contains(tiqueteId)) {
+			this.tiquetesEnReventa.add(tiqueteId);
+		}
+	}
+
+	public void removerTiqueteEnReventa(int tiqueteId) {
+		this.tiquetesEnReventa.remove(Integer.valueOf(tiqueteId));
+	}
+
+	public boolean estaTiqueteEnReventa(int tiqueteId) {
+		return this.tiquetesEnReventa.contains(tiqueteId);
+	}
 
 	@Override
 	public JSONObject toJSON() {
@@ -45,6 +74,11 @@ public abstract class Usuario extends UsuarioGenerico {
 			}
 		}
 		base.put("misTiquetes", arr);
+		JSONArray enVenta = new JSONArray();
+		for (Integer id : tiquetesEnReventa) {
+			enVenta.put(id);
+		}
+		base.put("tiquetesEnReventa", enVenta);
 		return base;
 	}
 	

@@ -57,18 +57,16 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 				String logIn = pedirCadena("Log In");
 				String contrasena = pedirCadena("Contraseña");
 				
-				try {
-					if (usuarios.get(logIn).getPassword().equals(contrasena)) {
-						
-						usuarioDeseado = usuarios.get(logIn);
-						running = false;
-						
-					} else {
-						System.out.println("Contraseña o login incorrecto...");
-					}
-				}catch (Exception e){
-					e.printStackTrace();
-					System.out.println("Contraseña o login incorrecto...");
+				UsuarioGenerico candidato = usuarios.get(logIn);
+				if (candidato == null) {
+					System.out.println("El usuario no existe.");
+					continue;
+				}
+				if (candidato.getPassword().equals(contrasena)) {
+					usuarioDeseado = candidato;
+					running = false;
+				} else {
+					System.out.println("Contraseña incorrecta.");
 				}
 				
 				
@@ -78,7 +76,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			} else if (opcionLogIn.equals("2")) {
 				String newLogIn = pedirCadena("Igrese un nombre de usuario");
 				String newContrasena = pedirCadena("Ingrese una contraseña");
-				String tipoUsuario = pedirCadena("Tipo de usuario deseado...\nn - Natural\no - Organizador").toLowerCase();
+				String tipoUsuario = pedirCadena("Tipo de usuario deseado...\nn - Natural\no - Organizador\n");
 				
 				if (usuarios.get(newLogIn) == null) {
 					
@@ -138,6 +136,8 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 					consolaUsuario.verMisTiquetes();
 				} else if ("5".equals(opcion)) {
 					consolaUsuario.transferirTiquete();
+				} else if ("6".equals(opcion)) {
+					consolaUsuario.gestionarMarketplace();
 				} else {
 					System.out.println("Opción no válida.");
 				}
