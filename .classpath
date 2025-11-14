@@ -5,6 +5,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="lib"/>
 	<classpathentry kind="lib" path="/Users/danielrincon/Desktop/SISTEMAS PA/TERCER SEMESTRE/Proyecto1-DPOO/lib/org.json-1.6-20240205.jar">
