@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JavaSE-24">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="lib"/>
-	<classpathentry kind="lib" path="/Users/danielrincon/Desktop/SISTEMAS PA/TERCER SEMESTRE/Proyecto1-DPOO/lib/org.json-1.6-20240205.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="output" path="bin"/>
+  <!-- Use a generic JRE container; Java 21/17/whatever you have installed -->
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  
+  <!-- Your source code -->
+  <classpathentry kind="src" path="src"/>
+
+  <!-- JSON library, now referenced *relative* to the project -->
+  <classpathentry kind="lib" path="lib/org.json-1.6-20240205.jar"/>
+
+  <!-- Compiled classes output -->
+  <classpathentry kind="output" path="bin"/>
 </classpath>
+
