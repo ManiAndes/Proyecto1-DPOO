@@ -181,6 +181,11 @@ public class MarketplaceReventa {
         return ofertas.get(ofertaId);
     }
 
+    public synchronized OfertaReventa buscarOfertaPorTiquete(int tiqueteId) {
+        Integer ofertaId = ofertaPorTiquete.get(tiqueteId);
+        return ofertaId != null ? ofertas.get(ofertaId) : null;
+    }
+
     public synchronized List<RegistroReventa> getRegistros() {
         return new ArrayList<>(registros);
     }

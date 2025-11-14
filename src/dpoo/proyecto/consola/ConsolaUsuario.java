@@ -351,8 +351,13 @@ public class ConsolaUsuario extends ConsolaBasica {
 		if ("0".equals(idStr)) {
 			return;
 		}
-		int ofertaId = Integer.parseInt(idStr);
-		ResultadoCompraMarketplace resultado = marketplace().comprarOferta(ofertaId, usuario);
+		int entrada = Integer.parseInt(idStr);
+		OfertaReventa oferta = resolverOfertaPorEntrada(entrada);
+		if (oferta == null) {
+			System.out.println("La oferta no existe.");
+			return;
+		}
+		ResultadoCompraMarketplace resultado = marketplace().comprarOferta(oferta.getId(), usuario);
 		imprimirResultadoCompra(resultado);
 	}
 
@@ -362,9 +367,14 @@ public class ConsolaUsuario extends ConsolaBasica {
 		if ("0".equals(idStr)) {
 			return;
 		}
-		int ofertaId = Integer.parseInt(idStr);
+		int entrada = Integer.parseInt(idStr);
+		OfertaReventa oferta = resolverOfertaPorEntrada(entrada);
+		if (oferta == null) {
+			System.out.println("La oferta no existe.");
+			return;
+		}
 		double monto = Double.parseDouble(pedirCadena("Valor de la contraoferta"));
-		ContraofertaReventa contra = marketplace().crearContraoferta(ofertaId, usuario, monto);
+		ContraofertaReventa contra = marketplace().crearContraoferta(oferta.getId(), usuario, monto);
 		System.out.println("Contraoferta #" + contra.getId() + " registrada.");
 	}
 
@@ -387,8 +397,13 @@ public class ConsolaUsuario extends ConsolaBasica {
 		if ("0".equals(idStr)) {
 			return;
 		}
-		int ofertaId = Integer.parseInt(idStr);
-		boolean ok = marketplace().cancelarOferta(ofertaId, usuario);
+		int entrada = Integer.parseInt(idStr);
+		OfertaReventa oferta = resolverOfertaPorEntrada(entrada);
+		if (oferta == null || oferta.getVendedor() == null || !oferta.getVendedor().equals(usuario)) {
+			System.out.println("Oferta inválida.");
+			return;
+		}
+		boolean ok = marketplace().cancelarOferta(oferta.getId(), usuario);
 		System.out.println(ok ? "Oferta cancelada." : "No se pudo cancelar la oferta.");
 	}
 
@@ -408,8 +423,8 @@ public class ConsolaUsuario extends ConsolaBasica {
 		for (OfertaReventa oferta : conPendientes) {
 			System.out.println(oferta.descripcionBasica());
 		}
-		int ofertaId = Integer.parseInt(pedirCadena("ID de la oferta a gestionar"));
-		OfertaReventa ofertaSeleccionada = marketplace().buscarOferta(ofertaId);
+		int entrada = Integer.parseInt(pedirCadena("ID de la oferta a gestionar"));
+		OfertaReventa ofertaSeleccionada = resolverOfertaPorEntrada(entrada);
 		if (ofertaSeleccionada == null || ofertaSeleccionada.getVendedor() == null
 				|| !ofertaSeleccionada.getVendedor().equals(usuario)) {
 			System.out.println("Oferta inválida.");
@@ -427,10 +442,10 @@ public class ConsolaUsuario extends ConsolaBasica {
 		int contraId = Integer.parseInt(pedirCadena("ID de la contraoferta"));
 		String accion = pedirCadena("Aceptar (a) o rechazar (r)?");
 		if ("a".equalsIgnoreCase(accion)) {
-			ResultadoCompraMarketplace resultado = marketplace().aceptarContraoferta(ofertaId, contraId, usuario);
+			ResultadoCompraMarketplace resultado = marketplace().aceptarContraoferta(ofertaSeleccionada.getId(), contraId, usuario);
 			imprimirResultadoCompra(resultado);
 		} else if ("r".equalsIgnoreCase(accion)) {
-			marketplace().rechazarContraoferta(ofertaId, contraId, usuario);
+			marketplace().rechazarContraoferta(ofertaSeleccionada.getId(), contraId, usuario);
 			System.out.println("Contraoferta rechazada.");
 		} else {
 			System.out.println("Acción inválida.");
@@ -475,6 +490,18 @@ public class ConsolaUsuario extends ConsolaBasica {
 		} else {
 			System.out.println("No fue necesario pago externo.");
 		}
+	}
+
+	private OfertaReventa resolverOfertaPorEntrada(int valor) {
+		if (valor <= 0) {
+			return null;
+		}
+		MarketplaceReventa mp = marketplace();
+		OfertaReventa oferta = mp.buscarOferta(valor);
+		if (oferta == null) {
+			oferta = mp.buscarOfertaPorTiquete(valor);
+		}
+		return oferta;
 	}
 
 }
