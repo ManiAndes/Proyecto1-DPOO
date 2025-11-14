@@ -31,7 +31,7 @@ public class MarketplaceReventa {
         this.secuenciaContraofertas = 1;
     }
 
-    public synchronized OfertaReventa publicarOferta(Usuario vendedor, Tiquete tiquete, double precio) {
+    public OfertaReventa publicarOferta(Usuario vendedor, Tiquete tiquete, double precio) {
         if (vendedor == null || tiquete == null) {
             throw new IllegalArgumentException("Vendedor y tiquete son obligatorios.");
         }
@@ -51,7 +51,7 @@ public class MarketplaceReventa {
         return oferta;
     }
 
-    public synchronized boolean cancelarOferta(int ofertaId, Usuario vendedor) {
+    public boolean cancelarOferta(int ofertaId, Usuario vendedor) {
         OfertaReventa oferta = ofertas.get(ofertaId);
         if (oferta == null) {
             throw new IllegalArgumentException("La oferta no existe.");
@@ -68,7 +68,7 @@ public class MarketplaceReventa {
         return true;
     }
 
-    public synchronized boolean eliminarOfertaComoAdmin(int ofertaId, UsuarioGenerico administrador, String motivo) {
+    public boolean eliminarOfertaComoAdmin(int ofertaId, UsuarioGenerico administrador, String motivo) {
         OfertaReventa oferta = ofertas.get(ofertaId);
         if (oferta == null) {
             throw new IllegalArgumentException("La oferta no existe.");
@@ -86,7 +86,7 @@ public class MarketplaceReventa {
         return true;
     }
 
-    public synchronized ResultadoCompraMarketplace comprarOferta(int ofertaId, Usuario comprador) {
+    public ResultadoCompraMarketplace comprarOferta(int ofertaId, Usuario comprador) {
         OfertaReventa oferta = validarOfertaActiva(ofertaId);
         if (comprador == null) {
             throw new IllegalArgumentException("Comprador requerido.");
@@ -97,7 +97,7 @@ public class MarketplaceReventa {
         return completarVenta(oferta, comprador, oferta.getPrecioBase(), "COMPRA_DIRECTA");
     }
 
-    public synchronized ContraofertaReventa crearContraoferta(int ofertaId, Usuario comprador, double monto) {
+    public ContraofertaReventa crearContraoferta(int ofertaId, Usuario comprador, double monto) {
         OfertaReventa oferta = validarOfertaActiva(ofertaId);
         if (comprador == null) {
             throw new IllegalArgumentException("Comprador requerido para contraofertar.");
@@ -116,7 +116,7 @@ public class MarketplaceReventa {
         return contraoferta;
     }
 
-    public synchronized ResultadoCompraMarketplace aceptarContraoferta(int ofertaId, int contraofertaId, Usuario vendedor) {
+    public ResultadoCompraMarketplace aceptarContraoferta(int ofertaId, int contraofertaId, Usuario vendedor) {
         OfertaReventa oferta = validarOfertaActiva(ofertaId);
         if (vendedor == null || oferta.getVendedor() == null || !oferta.getVendedor().equals(vendedor)) {
             throw new IllegalArgumentException("Solo el vendedor puede aceptar contraofertas.");
@@ -138,7 +138,7 @@ public class MarketplaceReventa {
         return resultado;
     }
 
-    public synchronized boolean rechazarContraoferta(int ofertaId, int contraofertaId, Usuario vendedor) {
+    public boolean rechazarContraoferta(int ofertaId, int contraofertaId, Usuario vendedor) {
         OfertaReventa oferta = validarOfertaActiva(ofertaId);
         if (vendedor == null || oferta.getVendedor() == null || !oferta.getVendedor().equals(vendedor)) {
             throw new IllegalArgumentException("Solo el vendedor puede rechazar contraofertas.");
@@ -156,7 +156,7 @@ public class MarketplaceReventa {
         return true;
     }
 
-    public synchronized List<OfertaReventa> listarOfertasActivas() {
+    public List<OfertaReventa> listarOfertasActivas() {
         List<OfertaReventa> activas = new ArrayList<>();
         for (OfertaReventa oferta : ofertas.values()) {
             if (oferta.estaActiva()) {
@@ -166,7 +166,7 @@ public class MarketplaceReventa {
         return activas;
     }
 
-    public synchronized List<OfertaReventa> listarOfertasPorUsuario(Usuario usuario) {
+    public List<OfertaReventa> listarOfertasPorUsuario(Usuario usuario) {
         List<OfertaReventa> propias = new ArrayList<>();
         if (usuario == null) {
             return propias;
@@ -179,24 +179,24 @@ public class MarketplaceReventa {
         return propias;
     }
 
-    public synchronized List<OfertaReventa> listarOfertasParaAdmin() {
+    public List<OfertaReventa> listarOfertasParaAdmin() {
         return new ArrayList<>(ofertas.values());
     }
 
-    public synchronized List<OfertaReventa> listarTodasLasOfertas() {
+    public List<OfertaReventa> listarTodasLasOfertas() {
         return new ArrayList<>(ofertas.values());
     }
 
-    public synchronized OfertaReventa buscarOferta(int ofertaId) {
+    public OfertaReventa buscarOferta(int ofertaId) {
         return ofertas.get(ofertaId);
     }
 
-    public synchronized OfertaReventa buscarOfertaPorTiquete(int tiqueteId) {
+    public OfertaReventa buscarOfertaPorTiquete(int tiqueteId) {
         Integer ofertaId = ofertaPorTiquete.get(tiqueteId);
         return ofertaId != null ? ofertas.get(ofertaId) : null;
     }
 
-    public synchronized List<RegistroReventa> getRegistros() {
+    public List<RegistroReventa> getRegistros() {
         return new ArrayList<>(registros);
     }
 

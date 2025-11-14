@@ -9,7 +9,7 @@ open module masterticket.app {
     exports dpoo.proyecto.usuarios;
     exports persistencia;
 
-    requires org.junit.jupiter.api;      // ← permite compilar los tests
+    requires org.junit.jupiter.api;
     requires org.junit.jupiter.engine;
 
     exports dpoo.proyecto.app;

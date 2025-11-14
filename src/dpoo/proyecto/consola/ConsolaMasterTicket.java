@@ -74,8 +74,6 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 				}
 				
 				
-				
-			
 			// Crear un nuevo usuario específico REGISTRO
 				} else if (opcionLogIn.equals("2")) {
 					String newLogIn = pedirCadena("Ingrese un nombre de usuario").trim();
