@@ -7,6 +7,8 @@ import dpoo.proyecto.usuarios.*;
 import persistencia.CentralPersistencia;
 
 
+
+
 public class ConsolaMasterTicket extends ConsolaBasica {
 	
     private static MasterTicket sistemaBoleteria;
