@@ -137,6 +137,8 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 				} else if ("5".equals(opcion)) {
 					consolaUsuario.transferirTiquete();
 				} else if ("6".equals(opcion)) {
+					consolaUsuario.solicitarReembolso();
+				} else if ("7".equals(opcion)) {
 					consolaUsuario.gestionarMarketplace();
 				} else {
 					System.out.println("Opción no válida.");

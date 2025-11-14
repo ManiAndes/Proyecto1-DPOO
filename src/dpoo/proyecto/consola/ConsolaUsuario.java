@@ -3,6 +3,7 @@ package dpoo.proyecto.consola;
 import java.util.*;
 
 import dpoo.proyecto.app.MasterTicket;
+import dpoo.proyecto.app.SolicitudReembolso;
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.eventos.Localidad;
 import dpoo.proyecto.marketplace.ContraofertaReventa;
@@ -32,7 +33,8 @@ public class ConsolaUsuario extends ConsolaBasica {
 				"3 - Ver mis eventos\n" +
 				"4 - Ver mis tiquetes\n" +
 				"5 - Transferir tiquete\n" +
-				"6 - Marketplace de reventa\n" +
+				"6 - Solicitar reembolso\n" +
+				"7 - Marketplace de reventa\n" +
 				"0 - Salir\n"
 				);
 	}
@@ -174,6 +176,59 @@ public class ConsolaUsuario extends ConsolaBasica {
 	
 	public void transferirTiquete() {
 		System.out.println("La transferencia de tiquetes estará disponible próximamente.");
+	}
+
+	public void solicitarReembolso() {
+		List<Tiquete> elegibles = tiquetesElegiblesParaReembolso();
+		if (elegibles.isEmpty()) {
+			System.out.println("No tienes tiquetes elegibles para solicitar reembolso.");
+			return;
+		}
+		System.out.println("=== TIQUETES ELEGIBLES PARA REEMBOLSO ===");
+		for (Tiquete t : elegibles) {
+			String evento = t.getEvento() != null ? t.getEvento().getNombre() : "N/A";
+			System.out.println("ID: " + t.getId() + " | Evento: " + evento + " | Estado: " + t.getEstado());
+		}
+		String idStr = pedirCadena("Ingrese el ID del tiquete (0 para cancelar)");
+		if ("0".equals(idStr)) {
+			return;
+		}
+		int idTiquete;
+		try {
+			idTiquete = Integer.parseInt(idStr);
+		} catch (NumberFormatException e) {
+			System.out.println("ID inválido.");
+			return;
+		}
+		Tiquete seleccionado = null;
+		for (Tiquete t : elegibles) {
+			if (t.getId() == idTiquete) {
+				seleccionado = t;
+				break;
+			}
+		}
+		if (seleccionado == null) {
+			System.out.println("El tiquete no es elegible o no existe.");
+			return;
+		}
+		if (tieneSolicitudPendiente(seleccionado)) {
+			System.out.println("Ya existe una solicitud pendiente para este tiquete.");
+			return;
+		}
+		String motivo = pedirCadena("Explique el motivo del reembolso");
+		if (motivo == null || motivo.isBlank()) {
+			motivo = "SIN_DESCRIPCION";
+		}
+		try {
+			SolicitudReembolso solicitud = sistemaBoleteria.crearSolicitudReembolso(seleccionado, usuario, motivo);
+			if (solicitud != null) {
+				System.out.println("Solicitud #" + solicitud.getId() + " enviada. Un administrador la revisará.");
+			} else {
+				System.out.println("No se pudo registrar la solicitud.");
+			}
+		} catch (Exception e) {
+			System.out.println("No se pudo registrar la solicitud: " + e.getMessage());
+		}
 	}
 	
 	public void comprarEvento() {
@@ -474,6 +529,39 @@ public class ConsolaUsuario extends ConsolaBasica {
 			elegibles.add(t);
 		}
 		return elegibles;
+	}
+
+	private List<Tiquete> tiquetesElegiblesParaReembolso() {
+		List<Tiquete> elegibles = new ArrayList<>();
+		for (Tiquete t : usuario.getMisTiquetes()) {
+			if (t == null) {
+				continue;
+			}
+			if (t.isReembolsado() || t.isUsado()) {
+				continue;
+			}
+			if ("EN_REVENTA".equalsIgnoreCase(t.getEstado()) || usuario.estaTiqueteEnReventa(t.getId())) {
+				continue;
+			}
+			if (tieneSolicitudPendiente(t)) {
+				continue;
+			}
+			elegibles.add(t);
+		}
+		return elegibles;
+	}
+
+	private boolean tieneSolicitudPendiente(Tiquete tiquete) {
+		if (tiquete == null) {
+			return false;
+		}
+		for (SolicitudReembolso solicitud : sistemaBoleteria.getSolicitudesReembolso().values()) {
+			if (solicitud != null && solicitud.getTiquete() != null
+					&& solicitud.getTiquete().getId() == tiquete.getId()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void imprimirResultadoCompra(ResultadoCompraMarketplace resultado) {
