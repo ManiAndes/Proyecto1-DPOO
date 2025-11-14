@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import dpoo.proyecto.tiquetes.PaqueteDeluxe;
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.usuarios.Administrador;
@@ -118,14 +121,14 @@ public class MarketplaceReventa {
         if (vendedor == null || oferta.getVendedor() == null || !oferta.getVendedor().equals(vendedor)) {
             throw new IllegalArgumentException("Solo el vendedor puede aceptar contraofertas.");
         }
-        ContraofertaReventa contraoferta = buscarContraoferta(oferta, contraofertaId);
+        ContraofertaReventa contraoferta = oferta.getContraoferta(contraofertaId);
         if (!ContraofertaReventa.PENDIENTE.equals(contraoferta.getEstado())) {
             throw new IllegalArgumentException("La contraoferta seleccionada ya fue resuelta.");
         }
         ResultadoCompraMarketplace resultado = completarVenta(oferta, contraoferta.getComprador(),
                 contraoferta.getMonto(), "CONTRAOFERTA");
         contraoferta.setEstado(ContraofertaReventa.ACEPTADA);
-        for (ContraofertaReventa c : oferta.getContraofertas()) {
+        for (ContraofertaReventa c : oferta.getContraofertas().values()) {
             if (c.getId() != contraofertaId && ContraofertaReventa.PENDIENTE.equals(c.getEstado())) {
                 c.setEstado(ContraofertaReventa.RECHAZADA);
             }
@@ -140,7 +143,10 @@ public class MarketplaceReventa {
         if (vendedor == null || oferta.getVendedor() == null || !oferta.getVendedor().equals(vendedor)) {
             throw new IllegalArgumentException("Solo el vendedor puede rechazar contraofertas.");
         }
-        ContraofertaReventa contraoferta = buscarContraoferta(oferta, contraofertaId);
+        ContraofertaReventa contraoferta = oferta.getContraoferta(contraofertaId);
+        if (contraoferta == null) {
+            throw new IllegalArgumentException("Contraoferta inexistente.");
+        }
         if (!ContraofertaReventa.PENDIENTE.equals(contraoferta.getEstado())) {
             throw new IllegalArgumentException("La contraoferta ya fue gestionada.");
         }
@@ -166,11 +172,15 @@ public class MarketplaceReventa {
             return propias;
         }
         for (OfertaReventa oferta : ofertas.values()) {
-            if (oferta.getVendedor() != null && oferta.getVendedor().equals(usuario)) {
+            if (oferta.getVendedor() != null && oferta.getVendedor().equals(usuario) && oferta.estaActiva()) {
                 propias.add(oferta);
             }
         }
         return propias;
+    }
+
+    public synchronized List<OfertaReventa> listarOfertasParaAdmin() {
+        return new ArrayList<>(ofertas.values());
     }
 
     public synchronized List<OfertaReventa> listarTodasLasOfertas() {
@@ -271,16 +281,80 @@ public class MarketplaceReventa {
         return oferta;
     }
 
-    private ContraofertaReventa buscarContraoferta(OfertaReventa oferta, int contraofertaId) {
-        for (ContraofertaReventa c : oferta.getContraofertas()) {
-            if (c.getId() == contraofertaId) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException("Contraoferta inexistente.");
-    }
-
     private void registrar(String mensaje) {
         this.registros.add(new RegistroReventa(mensaje));
+    }
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("secuenciaOfertas", this.secuenciaOfertas);
+        json.put("secuenciaContraofertas", this.secuenciaContraofertas);
+        JSONArray arrOfertas = new JSONArray();
+        for (OfertaReventa oferta : this.ofertas.values()) {
+            arrOfertas.put(oferta.toJSON());
+        }
+        json.put("ofertas", arrOfertas);
+        JSONArray arrRegistros = new JSONArray();
+        for (RegistroReventa registro : this.registros) {
+            arrRegistros.put(registro.toJSON());
+        }
+        json.put("registros", arrRegistros);
+        return json;
+    }
+
+    public static MarketplaceReventa fromJSON(JSONObject json, Map<Integer, Tiquete> tiquetes,
+            Map<String, UsuarioGenerico> usuarios) {
+        MarketplaceReventa marketplace = new MarketplaceReventa();
+        if (json == null) {
+            return marketplace;
+        }
+        if (tiquetes == null) {
+            tiquetes = new HashMap<>();
+        }
+        if (usuarios == null) {
+            usuarios = new HashMap<>();
+        }
+        marketplace.secuenciaOfertas = json.optInt("secuenciaOfertas", 1);
+        marketplace.secuenciaContraofertas = json.optInt("secuenciaContraofertas", 1);
+        JSONArray arrRegistros = json.optJSONArray("registros");
+        if (arrRegistros != null) {
+            for (int i = 0; i < arrRegistros.length(); i++) {
+                JSONObject registroJson = arrRegistros.optJSONObject(i);
+                RegistroReventa registro = RegistroReventa.fromJSON(registroJson);
+                if (registro != null) {
+                    marketplace.registros.add(registro);
+                }
+            }
+        }
+        JSONArray arrOfertas = json.optJSONArray("ofertas");
+        Map<String, Usuario> mapaUsuarios = new HashMap<>();
+        for (Map.Entry<String, UsuarioGenerico> entry : usuarios.entrySet()) {
+            if (entry.getValue() instanceof Usuario) {
+                mapaUsuarios.put(entry.getKey(), (Usuario) entry.getValue());
+            }
+        }
+        if (arrOfertas != null) {
+            for (int i = 0; i < arrOfertas.length(); i++) {
+                JSONObject ofertaJson = arrOfertas.optJSONObject(i);
+                if (ofertaJson == null) continue;
+                int tiqueteId = ofertaJson.optInt("tiqueteId", -1);
+                String vendedorLogin = ofertaJson.optString("vendedorLogin", null);
+
+                Tiquete tiquete = tiquetes.get(tiqueteId);
+                Usuario vendedor = vendedorLogin != null ? mapaUsuarios.get(vendedorLogin) : null;
+                if (tiquete == null || vendedor == null) {
+                    continue;
+                }
+                OfertaReventa oferta = OfertaReventa.fromJSON(ofertaJson, tiquete, vendedor, mapaUsuarios);
+                if (oferta == null) continue;
+                marketplace.ofertas.put(oferta.getId(), oferta);
+                if (oferta.estaActiva()) {
+                    marketplace.ofertaPorTiquete.put(tiquete.getId(), oferta.getId());
+                    vendedor.registrarTiqueteEnReventa(tiquete.getId());
+                    tiquete.setEstado("EN_REVENTA");
+                }
+            }
+        }
+        return marketplace;
     }
 }

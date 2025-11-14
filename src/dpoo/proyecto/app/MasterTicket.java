@@ -404,8 +404,11 @@ public class MasterTicket {
             solicitudesProc.put(s.toJSON());
         }
         json.put("solicitudesReembolsoProcesadas", solicitudesProc);
+        if (this.marketplaceReventa != null) {
+            json.put("marketplace", this.marketplaceReventa.toJSON());
+        }
 
-		return json;
-	}
+        return json;
+    }
 	
 }

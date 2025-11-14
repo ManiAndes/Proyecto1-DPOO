@@ -17,6 +17,7 @@ import dpoo.proyecto.app.SolicitudReembolso;
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.eventos.Localidad;
 import dpoo.proyecto.eventos.Venue;
+import dpoo.proyecto.marketplace.MarketplaceReventa;
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.tiquetes.TiqueteGeneral;
 import dpoo.proyecto.tiquetes.TiqueteNumerado;
@@ -261,6 +262,9 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
                 }
             }
             m.setSolicitudesReembolsoProcesadas(solicitudesProcesadas);
+            JSONObject marketplaceJson = root.optJSONObject("marketplace");
+            MarketplaceReventa marketplace = MarketplaceReventa.fromJSON(marketplaceJson, indiceTiquetes, usuarios);
+            m.setMarketplaceReventa(marketplace);
 
             return m;
         } catch (IOException ioe) {

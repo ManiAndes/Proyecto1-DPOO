@@ -3,6 +3,8 @@ package dpoo.proyecto.marketplace;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.json.JSONObject;
+
 import dpoo.proyecto.usuarios.Usuario;
 
 public class ContraofertaReventa {
@@ -20,11 +22,15 @@ public class ContraofertaReventa {
     private String estado;
 
     public ContraofertaReventa(int id, Usuario comprador, double monto) {
+        this(id, comprador, monto, LocalDateTime.now(), PENDIENTE);
+    }
+
+    public ContraofertaReventa(int id, Usuario comprador, double monto, LocalDateTime fechaCreacion, String estado) {
         this.id = id;
         this.comprador = comprador;
         this.monto = monto;
-        this.fechaCreacion = LocalDateTime.now();
-        this.estado = PENDIENTE;
+        this.fechaCreacion = fechaCreacion != null ? fechaCreacion : LocalDateTime.now();
+        this.estado = estado != null ? estado : PENDIENTE;
     }
 
     public int getId() {
@@ -56,5 +62,31 @@ public class ContraofertaReventa {
     public String descripcionCorta() {
         String compradorLogin = comprador != null ? comprador.getLogin() : "N/A";
         return "[" + id + "] " + compradorLogin + " -> " + monto + " (" + estado + ") " + FORMATTER.format(fechaCreacion);
+    }
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("id", id);
+        json.put("monto", monto);
+        json.put("fechaCreacion", FORMATTER.format(fechaCreacion));
+        json.put("estado", estado);
+        if (comprador != null) {
+            json.put("compradorLogin", comprador.getLogin());
+        }
+        return json;
+    }
+
+    public static ContraofertaReventa fromJSON(JSONObject json, Usuario comprador) {
+        if (json == null) {
+            return null;
+        }
+        int id = json.optInt("id", 0);
+        double monto = json.optDouble("monto", 0.0);
+        String fechaStr = json.optString("fechaCreacion", "");
+        LocalDateTime fecha = fechaStr.isEmpty()
+                ? LocalDateTime.now()
+                : LocalDateTime.parse(fechaStr, FORMATTER);
+        String estado = json.optString("estado", PENDIENTE);
+        return new ContraofertaReventa(id, comprador, monto, fecha, estado);
     }
 }

@@ -5,6 +5,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.tiquetes.Tiquete;
@@ -19,7 +24,7 @@ public class OfertaReventa {
     private final Usuario vendedor;
     private final double precioBase;
     private final LocalDateTime fechaCreacion;
-    private final List<ContraofertaReventa> contraofertas;
+    private final Map<Integer, ContraofertaReventa> contraofertas;
 
     private boolean activa;
     private Usuario compradorFinal;
@@ -27,13 +32,18 @@ public class OfertaReventa {
     private String motivoCierre;
 
     public OfertaReventa(int id, Tiquete tiquete, Usuario vendedor, double precioBase) {
+        this(id, tiquete, vendedor, precioBase, LocalDateTime.now(), true);
+    }
+
+    public OfertaReventa(int id, Tiquete tiquete, Usuario vendedor, double precioBase,
+            LocalDateTime fechaCreacion, boolean activa) {
         this.id = id;
         this.tiquete = tiquete;
         this.vendedor = vendedor;
         this.precioBase = precioBase;
-        this.fechaCreacion = LocalDateTime.now();
-        this.contraofertas = new ArrayList<>();
-        this.activa = true;
+        this.fechaCreacion = fechaCreacion != null ? fechaCreacion : LocalDateTime.now();
+        this.contraofertas = new TreeMap<>();
+        this.activa = activa;
     }
 
     public int getId() {
@@ -86,17 +96,21 @@ public class OfertaReventa {
 
     public void agregarContraoferta(ContraofertaReventa contraoferta) {
         if (contraoferta != null) {
-            this.contraofertas.add(contraoferta);
+            this.contraofertas.put(contraoferta.getId(), contraoferta);
         }
     }
 
-    public List<ContraofertaReventa> getContraofertas() {
-        return Collections.unmodifiableList(contraofertas);
+    public ContraofertaReventa getContraoferta(int id) {
+        return this.contraofertas.get(id);
+    }
+
+    public Map<Integer, ContraofertaReventa> getContraofertas() {
+        return Collections.unmodifiableMap(contraofertas);
     }
 
     public List<ContraofertaReventa> getContraofertasPendientes() {
         List<ContraofertaReventa> pendientes = new ArrayList<>();
-        for (ContraofertaReventa c : contraofertas) {
+        for (ContraofertaReventa c : contraofertas.values()) {
             if (ContraofertaReventa.PENDIENTE.equals(c.getEstado())) {
                 pendientes.add(c);
             }
@@ -113,5 +127,69 @@ public class OfertaReventa {
                 + " - Vend: " + (vendedor != null ? vendedor.getLogin() : "N/A")
                 + " - Creada: " + FORMATTER.format(fechaCreacion)
                 + (activa ? " - ACTIVA" : " - INACTIVA");
+    }
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("id", id);
+        json.put("tiqueteId", tiquete != null ? tiquete.getId() : -1);
+        json.put("precioBase", precioBase);
+        json.put("fechaCreacion", FORMATTER.format(fechaCreacion));
+        json.put("activa", activa);
+        if (vendedor != null) {
+            json.put("vendedorLogin", vendedor.getLogin());
+        }
+        if (compradorFinal != null) {
+            json.put("compradorFinal", compradorFinal.getLogin());
+        }
+        json.put("precioFinal", precioFinal);
+        if (motivoCierre != null) {
+            json.put("motivoCierre", motivoCierre);
+        }
+        JSONArray contra = new JSONArray();
+        for (ContraofertaReventa c : contraofertas.values()) {
+            contra.put(c.toJSON());
+        }
+        json.put("contraofertas", contra);
+        return json;
+    }
+
+    public static OfertaReventa fromJSON(JSONObject json, Tiquete tiquete, Usuario vendedor,
+            Map<String, Usuario> mapaUsuarios) {
+        if (json == null || tiquete == null || vendedor == null) {
+            return null;
+        }
+        if (mapaUsuarios == null) {
+            mapaUsuarios = Collections.emptyMap();
+        }
+        int id = json.optInt("id", 0);
+        double precioBase = json.optDouble("precioBase", 0.0);
+        String fechaStr = json.optString("fechaCreacion", "");
+        LocalDateTime fecha = fechaStr.isEmpty()
+                ? LocalDateTime.now()
+                : LocalDateTime.parse(fechaStr, FORMATTER);
+        boolean activa = json.optBoolean("activa", true);
+        OfertaReventa oferta = new OfertaReventa(id, tiquete, vendedor, precioBase, fecha, activa);
+        oferta.precioFinal = json.optDouble("precioFinal", 0.0);
+        oferta.motivoCierre = json.optString("motivoCierre", null);
+
+        String compradorFinalLogin = json.optString("compradorFinal", null);
+        if (compradorFinalLogin != null && mapaUsuarios.containsKey(compradorFinalLogin)) {
+            oferta.compradorFinal = mapaUsuarios.get(compradorFinalLogin);
+        }
+        JSONArray contra = json.optJSONArray("contraofertas");
+        if (contra != null) {
+            for (int i = 0; i < contra.length(); i++) {
+                JSONObject cj = contra.optJSONObject(i);
+                if (cj == null) continue;
+                String compradorLogin = cj.optString("compradorLogin", null);
+                Usuario comprador = compradorLogin != null ? mapaUsuarios.get(compradorLogin) : null;
+                ContraofertaReventa c = ContraofertaReventa.fromJSON(cj, comprador);
+                if (c != null) {
+                    oferta.agregarContraoferta(c);
+                }
+            }
+        }
+        return oferta;
     }
 }

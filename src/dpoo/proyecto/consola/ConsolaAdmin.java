@@ -284,7 +284,7 @@ public class ConsolaAdmin extends ConsolaBasica {
 			System.out.println("Marketplace no disponible.");
 			return true;
 		}
-		List<OfertaReventa> ofertas = marketplace.listarOfertasActivas();
+		List<OfertaReventa> ofertas = marketplace.listarOfertasParaAdmin();
 		if (ofertas.isEmpty()) {
 			System.out.println("No hay ofertas activas en el Marketplace.");
 			return true;

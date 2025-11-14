@@ -1,6 +1,32 @@
 {
   "secuenciaSolicitudes": 1,
   "solicitudesReembolsoProcesadas": [],
+  "marketplace": {
+    "ofertas": [{
+      "contraofertas": [],
+      "tiqueteId": 1010,
+      "precioBase": 4,
+      "vendedorLogin": "darincow",
+      "motivoCierre": "VENDIDA",
+      "fechaCreacion": "2025-11-13 20:23:22",
+      "precioFinal": 4,
+      "id": 1,
+      "compradorFinal": "emamar",
+      "activa": false
+    }],
+    "secuenciaOfertas": 2,
+    "registros": [
+      {
+        "descripcion": "Oferta #1 creada por darincow para tiquete 1010 a precio 4.0",
+        "fechaHora": "2025-11-13 20:23:22"
+      },
+      {
+        "descripcion": "Venta completada via COMPRA_DIRECTA en oferta #1 entre darincow y emamar por 4.0",
+        "fechaHora": "2025-11-13 20:24:21"
+      }
+    ],
+    "secuenciaContraofertas": 1
+  },
   "secuenciaTiquetes": 1010,
   "eventos": [{
     "cargoPorcentualServicio": 0.1,
@@ -8,15 +34,15 @@
     "localidades": [{
       "nombreLocalidad": "GENERAL",
       "precioTiquetes": 120000,
-      "tiquetesVendidos": 4,
+      "tiquetesVendidos": 6,
       "descuento": 0,
-      "tiquetesDisponibles": 6,
+      "tiquetesDisponibles": 4,
       "esNumerada": false
     }],
     "venueName": "ARENA_DEMO",
     "fecha": "2024-12-01",
-    "cantidadTiquetesDisponibles": 6,
-    "ganancias": 0,
+    "cantidadTiquetesDisponibles": 4,
+    "ganancias": 102000,
     "tipoTiquetes": "GENERAL",
     "tipoEvento": "CONCIERTO",
     "cancelado": false,
@@ -66,7 +92,7 @@
         "type": "TiqueteGeneral",
         "cuotaAdicionalEmision": 5000,
         "fecha": "2024-12-01",
-        "clienteLogin": "darincow",
+        "clienteLogin": "emamar",
         "precioOriginal": 120000,
         "reembolsado": false,
         "eventoNombre": "CONCIERTO_DEMO",
@@ -92,10 +118,7 @@
         "id": 1001,
         "transferible": true,
         "montoPagado": 137000
-      }
-    ],
-    "organizadorLogin": "organizador1",
-    "tiquetes": [
+      },
       {
         "tipo": "GENERAL",
         "estado": "ACTIVO",
@@ -105,13 +128,14 @@
         "type": "TiqueteGeneral",
         "cuotaAdicionalEmision": 5000,
         "fecha": "2024-12-01",
+        "clienteLogin": "darincow",
         "precioOriginal": 120000,
         "reembolsado": false,
         "eventoNombre": "CONCIERTO_DEMO",
         "localidad": "GENERAL",
         "id": 1002,
         "transferible": true,
-        "montoPagado": 0
+        "montoPagado": 137000
       },
       {
         "tipo": "GENERAL",
@@ -122,14 +146,18 @@
         "type": "TiqueteGeneral",
         "cuotaAdicionalEmision": 5000,
         "fecha": "2024-12-01",
+        "clienteLogin": "darincow",
         "precioOriginal": 120000,
         "reembolsado": false,
         "eventoNombre": "CONCIERTO_DEMO",
         "localidad": "GENERAL",
         "id": 1003,
         "transferible": true,
-        "montoPagado": 0
-      },
+        "montoPagado": 137000
+      }
+    ],
+    "organizadorLogin": "organizador1",
+    "tiquetes": [
       {
         "tipo": "GENERAL",
         "estado": "ACTIVO",
@@ -200,13 +228,23 @@
       }
     ]
   }],
-  "venues": [{
-    "ubicacion": "Ciudad Demo",
-    "aprobado": true,
-    "eventos": ["CONCIERTO_DEMO"],
-    "nombre": "ARENA_DEMO",
-    "capacidad": 500
-  }],
+  "venues": [
+    {
+      "ubicacion": "Bogotown",
+      "aprobado": true,
+      "organizadorLogin": "darincon",
+      "eventos": [],
+      "nombre": "MOVISTAR ARENA",
+      "capacidad": 10000
+    },
+    {
+      "ubicacion": "Ciudad Demo",
+      "aprobado": true,
+      "eventos": ["CONCIERTO_DEMO"],
+      "nombre": "ARENA_DEMO",
+      "capacidad": 500
+    }
+  ],
   "usuarios": [
     {
       "password": "cliente123",
@@ -218,7 +256,7 @@
     },
     {
       "password": "laura",
-      "saldoVirtual": 4,
+      "saldoVirtual": 0,
       "type": "Natural",
       "login": "emamar",
       "tiquetesEnReventa": [
@@ -279,6 +317,24 @@
           "id": 1001,
           "transferible": true,
           "montoPagado": 137000
+        },
+        {
+          "tipo": "GENERAL",
+          "estado": "REVENDIDO",
+          "hora": "20:00",
+          "maximoTiquetesPorTransaccion": 4,
+          "usado": false,
+          "type": "TiqueteGeneral",
+          "cuotaAdicionalEmision": 5000,
+          "fecha": "2024-12-01",
+          "clienteLogin": "emamar",
+          "precioOriginal": 120000,
+          "reembolsado": false,
+          "eventoNombre": "CONCIERTO_DEMO",
+          "localidad": "GENERAL",
+          "id": 1010,
+          "transferible": true,
+          "montoPagado": 137000
         }
       ]
     },
@@ -292,28 +348,48 @@
     },
     {
       "password": "aura",
-      "saldoVirtual": 0,
+      "saldoVirtual": 4,
       "type": "Natural",
       "login": "darincow",
       "tiquetesEnReventa": [],
-      "misTiquetes": [{
-        "tipo": "GENERAL",
-        "estado": "REVENDIDO",
-        "hora": "20:00",
-        "maximoTiquetesPorTransaccion": 4,
-        "usado": false,
-        "type": "TiqueteGeneral",
-        "cuotaAdicionalEmision": 5000,
-        "fecha": "2024-12-01",
-        "clienteLogin": "darincow",
-        "precioOriginal": 120000,
-        "reembolsado": false,
-        "eventoNombre": "CONCIERTO_DEMO",
-        "localidad": "GENERAL",
-        "id": 1010,
-        "transferible": true,
-        "montoPagado": 137000
-      }]
+      "misTiquetes": [
+        {
+          "tipo": "GENERAL",
+          "estado": "ACTIVO",
+          "hora": "20:00",
+          "maximoTiquetesPorTransaccion": 4,
+          "usado": false,
+          "type": "TiqueteGeneral",
+          "cuotaAdicionalEmision": 5000,
+          "fecha": "2024-12-01",
+          "clienteLogin": "darincow",
+          "precioOriginal": 120000,
+          "reembolsado": false,
+          "eventoNombre": "CONCIERTO_DEMO",
+          "localidad": "GENERAL",
+          "id": 1002,
+          "transferible": true,
+          "montoPagado": 137000
+        },
+        {
+          "tipo": "GENERAL",
+          "estado": "ACTIVO",
+          "hora": "20:00",
+          "maximoTiquetesPorTransaccion": 4,
+          "usado": false,
+          "type": "TiqueteGeneral",
+          "cuotaAdicionalEmision": 5000,
+          "fecha": "2024-12-01",
+          "clienteLogin": "darincow",
+          "precioOriginal": 120000,
+          "reembolsado": false,
+          "eventoNombre": "CONCIERTO_DEMO",
+          "localidad": "GENERAL",
+          "id": 1003,
+          "transferible": true,
+          "montoPagado": 137000
+        }
+      ]
     },
     {
       "password": "1234",
