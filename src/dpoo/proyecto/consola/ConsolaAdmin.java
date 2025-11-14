@@ -203,7 +203,6 @@ public class ConsolaAdmin extends ConsolaBasica {
 			}
 			
 		}else {
-			//salir TODO
 			System.out.println("Salir");
 			return false;
 		}
