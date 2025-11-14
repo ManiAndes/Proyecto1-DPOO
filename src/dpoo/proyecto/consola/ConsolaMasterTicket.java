@@ -53,18 +53,22 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 			String opcionLogIn = pedirCadena("Seleccione la opción");
 			
 			// Login usuario existente
-			if (opcionLogIn.equals("1")) {
-				String logIn = pedirCadena("Log In");
-				String contrasena = pedirCadena("Contraseña");
-				
-				UsuarioGenerico candidato = usuarios.get(logIn);
-				if (candidato == null) {
-					System.out.println("El usuario no existe.");
-					continue;
-				}
-				if (candidato.getPassword().equals(contrasena)) {
-					usuarioDeseado = candidato;
-					running = false;
+				if (opcionLogIn.equals("1")) {
+					String logIn = pedirCadena("Log In");
+					String contrasena = pedirCadena("Contraseña");
+					
+					UsuarioGenerico candidato = usuarios.get(logIn);
+					if (candidato == null) {
+                        if (sistemaBoleteria.esLoginPendienteOrganizador(logIn)) {
+                            System.out.println("Tu cuenta de organizador está pendiente de aprobación.");
+                        } else {
+						    System.out.println("El usuario no existe.");
+                        }
+						continue;
+					}
+					if (candidato.getPassword().equals(contrasena)) {
+						usuarioDeseado = candidato;
+						running = false;
 				} else {
 					System.out.println("Contraseña incorrecta.");
 				}
@@ -73,34 +77,37 @@ public class ConsolaMasterTicket extends ConsolaBasica {
 				
 			
 			// Crear un nuevo usuario específico REGISTRO
-			} else if (opcionLogIn.equals("2")) {
-				String newLogIn = pedirCadena("Igrese un nombre de usuario");
-				String newContrasena = pedirCadena("Ingrese una contraseña");
-				String tipoUsuario = pedirCadena("Tipo de usuario deseado...\nn - Natural\no - Organizador\n");
-				
-				if (usuarios.get(newLogIn) == null) {
+				} else if (opcionLogIn.equals("2")) {
+					String newLogIn = pedirCadena("Ingrese un nombre de usuario").trim();
+					String newContrasena = pedirCadena("Ingrese una contraseña");
+					String tipoUsuario = pedirCadena("Tipo de usuario deseado...\nn - Natural\no - Organizador\n");
 					
-					UsuarioGenerico nuevoUsuario = null;
-					
+                    if (newLogIn.isEmpty()) {
+                        System.out.println("El login no puede estar vacío.");
+                        continue;
+                    }
+                    if (!sistemaBoleteria.esLoginDisponible(newLogIn)) {
+                        System.out.println("El login ya existe o está pendiente de aprobación.");
+                        continue;
+                    }
+
 					if (tipoUsuario.equals("n")) {
-						nuevoUsuario = new Natural(newLogIn, newContrasena);
-						
+                        Natural nuevoUsuario = new Natural(newLogIn, newContrasena);
+                        usuarios.put(newLogIn, nuevoUsuario);
+                        usuarioDeseado = nuevoUsuario;
+                        System.out.println("Usuario creado exitosamente!");
+                        running = false;
+							
 					} else if (tipoUsuario.equals("o")) {
-						nuevoUsuario = new Organizador(newLogIn, newContrasena);
-						
+                        boolean ok = sistemaBoleteria.registrarSolicitudOrganizador(newLogIn, newContrasena);
+                        if (ok) {
+                            System.out.println("Solicitud enviada. El administrador debe aprobar tu cuenta.");
+                        } else {
+                            System.out.println("No se pudo registrar la solicitud. Intente más tarde.");
+                        }
 					} else {
 						System.out.println("Opción inválida...");
-					
-					}
-					
-					if (nuevoUsuario != null) {
-						usuarios.put(newLogIn, nuevoUsuario);
-						usuarioDeseado = nuevoUsuario;
-						System.out.println("Usuario creado exitosamente!");
-						running = false;
-						
-					}
-				}
+                     }
 			} else if (opcionLogIn.equals("0")) {
 
 				System.exit(0);

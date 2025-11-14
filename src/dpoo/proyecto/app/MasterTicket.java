@@ -153,6 +153,83 @@ public class MasterTicket {
         return ++secuenciaSolicitudes;
     }
 
+    private Administrador obtenerAdministradorPrincipal() {
+        for (UsuarioGenerico usuario : this.usuarios.values()) {
+            if (usuario instanceof Administrador) {
+                return (Administrador) usuario;
+            }
+        }
+        return null;
+    }
+
+    private boolean loginExiste(String login) {
+        if (login == null) return false;
+        for (String key : this.usuarios.keySet()) {
+            if (key.equalsIgnoreCase(login)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean esLoginDisponible(String login) {
+        if (login == null) return false;
+        return !loginExiste(login) && !esLoginPendienteOrganizador(login);
+    }
+
+    public boolean esLoginPendienteOrganizador(String login) {
+        return obtenerLoginPendiente(login) != null;
+    }
+
+    private String obtenerLoginPendiente(String login) {
+        Administrador admin = obtenerAdministradorPrincipal();
+        if (admin == null) return null;
+        return admin.buscarLoginSolicitud(login);
+    }
+
+    public boolean registrarSolicitudOrganizador(String login, String password) {
+        if (login == null || password == null) return false;
+        String limpio = login.trim();
+        if (limpio.isEmpty()) return false;
+        if (loginExiste(limpio) || esLoginPendienteOrganizador(limpio)) {
+            return false;
+        }
+        Administrador admin = obtenerAdministradorPrincipal();
+        if (admin == null) {
+            return false;
+        }
+        admin.agregarSolicitudOrganizador(limpio, password);
+        return true;
+    }
+
+    public boolean aprobarSolicitudOrganizador(String login) {
+        Administrador admin = obtenerAdministradorPrincipal();
+        if (admin == null) return false;
+        String loginReal = obtenerLoginPendiente(login);
+        if (loginReal == null) {
+            return false;
+        }
+        String password = admin.obtenerPasswordSolicitud(loginReal);
+        admin.removerSolicitudOrganizador(loginReal);
+        if (password == null) {
+            return false;
+        }
+        if (loginExiste(loginReal)) {
+            return false;
+        }
+        Organizador nuevo = new Organizador(loginReal, password);
+        this.usuarios.put(loginReal, nuevo);
+        return true;
+    }
+
+    public boolean rechazarSolicitudOrganizador(String login) {
+        Administrador admin = obtenerAdministradorPrincipal();
+        if (admin == null) return false;
+        String loginReal = obtenerLoginPendiente(login);
+        if (loginReal == null) return false;
+        return admin.removerSolicitudOrganizador(loginReal) != null;
+    }
+
     public void registrarTiquete(Tiquete tiquete) {
         if (tiquete != null) {
             indiceTiquetes.put(tiquete.getId(), tiquete);

@@ -35,6 +35,7 @@ public class ConsolaAdmin extends ConsolaBasica {
 		System.out.println("5. VER SOLICITUDES DE REEMBOLSOS");
 		System.out.println("6. Ver log de Marketplace");
 		System.out.println("7. Gestionar ofertas del Marketplace");
+        System.out.println("8. Gestionar solicitudes de organizador");
 		System.out.println("0. Salir");
 	}
 
@@ -67,6 +68,8 @@ public class ConsolaAdmin extends ConsolaBasica {
 					notError = verLogMarketplace();
 				} else if (opcion.equals("7")) {
 					notError = gestionarMarketplace();
+                } else if (opcion.equals("8")) {
+                    notError = gestionarSolicitudesOrganizador();
 
 				}
 				
@@ -306,5 +309,33 @@ public class ConsolaAdmin extends ConsolaBasica {
 		}
 		return true;
 	}
-
+    
+    public boolean gestionarSolicitudesOrganizador() {
+        Map<String, String> solicitudes = this.admin.getSolicitudesOrganizador();
+        if (solicitudes == null || solicitudes.isEmpty()) {
+            System.out.println("No hay solicitudes de organizador pendientes.");
+            return true;
+        }
+        System.out.println("=== SOLICITUDES DE ORGANIZADOR ===");
+        for (String login : solicitudes.keySet()) {
+            System.out.println("- " + login);
+        }
+        String login = pedirCadena("Ingrese el login a gestionar (0 para volver)");
+        if ("0".equals(login)) {
+            return true;
+        }
+        String accion = pedirCadena("Aprobar (a) / Rechazar (r)");
+        boolean resultado = false;
+        if ("a".equalsIgnoreCase(accion)) {
+            resultado = this.sistemaBoleteria.aprobarSolicitudOrganizador(login);
+        } else if ("r".equalsIgnoreCase(accion)) {
+            resultado = this.sistemaBoleteria.rechazarSolicitudOrganizador(login);
+        } else {
+            System.out.println("Acción inválida.");
+            return true;
+        }
+        System.out.println(resultado ? "Operación realizada." : "No se pudo completar la acción.");
+        return resultado;
+    }
+	
 }

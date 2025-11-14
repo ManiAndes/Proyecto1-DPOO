@@ -2,6 +2,8 @@ package dpoo.proyecto.usuarios;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Collections;
 
 import dpoo.proyecto.tiquetes.Tiquete;
 import dpoo.proyecto.app.MasterTicket;
@@ -13,6 +15,7 @@ import org.json.JSONObject;
 public class Administrador extends UsuarioGenerico {
 
 	private double CostoPorcentualServicio;
+    private Map<String, String> solicitudesOrganizador = new LinkedHashMap<>();
 
 	public Administrador(String login, String password) {
 		super(login, password);
@@ -28,6 +31,43 @@ public class Administrador extends UsuarioGenerico {
 		CostoPorcentualServicio = costoPorcentualServicio;
 	}
 
+    public Map<String, String> getSolicitudesOrganizador() {
+        return Collections.unmodifiableMap(this.solicitudesOrganizador);
+    }
+
+    public void setSolicitudesOrganizador(Map<String, String> solicitudes) {
+        this.solicitudesOrganizador = solicitudes != null ? new LinkedHashMap<>(solicitudes) : new LinkedHashMap<>();
+    }
+
+    public boolean tieneSolicitudOrganizador(String login) {
+        return buscarLoginSolicitud(login) != null;
+    }
+
+    public String buscarLoginSolicitud(String login) {
+        if (login == null) return null;
+        for (String key : this.solicitudesOrganizador.keySet()) {
+            if (key.equalsIgnoreCase(login)) {
+                return key;
+            }
+        }
+        return null;
+    }
+
+    public void agregarSolicitudOrganizador(String login, String password) {
+        this.solicitudesOrganizador.put(login, password);
+    }
+
+    public String obtenerPasswordSolicitud(String login) {
+        String key = buscarLoginSolicitud(login);
+        return key != null ? this.solicitudesOrganizador.get(key) : null;
+    }
+
+    public String removerSolicitudOrganizador(String login) {
+        String key = buscarLoginSolicitud(login);
+        if (key == null) return null;
+        return this.solicitudesOrganizador.remove(key);
+    }
+
 
 	private void reembolsar(Usuario cliente, double precio) {
 		
@@ -39,6 +79,14 @@ public class Administrador extends UsuarioGenerico {
 	public JSONObject toJSON() {
 		JSONObject json = super.toJSON();
 		json.put("costoPorcentualServicio", this.CostoPorcentualServicio);
+        org.json.JSONArray solicitudes = new org.json.JSONArray();
+        for (Map.Entry<String, String> entry : this.solicitudesOrganizador.entrySet()) {
+            JSONObject obj = new JSONObject();
+            obj.put("login", entry.getKey());
+            obj.put("password", entry.getValue());
+            solicitudes.put(obj);
+        }
+        json.put("solicitudesOrganizador", solicitudes);
 		return json;
 	}
 
@@ -50,6 +98,20 @@ public class Administrador extends UsuarioGenerico {
 		Administrador a = new Administrador(login, password);
 		a.setSaldoVirtual(saldo);
 		a.setCostoPorcentualEmision(cps);
+        org.json.JSONArray solicitudes = json.optJSONArray("solicitudesOrganizador");
+        if (solicitudes != null) {
+            Map<String, String> map = new LinkedHashMap<>();
+            for (int i = 0; i < solicitudes.length(); i++) {
+                JSONObject obj = solicitudes.optJSONObject(i);
+                if (obj == null) continue;
+                String l = obj.optString("login", null);
+                String p = obj.optString("password", null);
+                if (l != null && p != null) {
+                    map.put(l, p);
+                }
+            }
+            a.setSolicitudesOrganizador(map);
+        }
 		return a;
 	}
     
