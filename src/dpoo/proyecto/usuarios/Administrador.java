@@ -128,13 +128,18 @@ public class Administrador extends UsuarioGenerico {
 				continue;
 			}
 			Usuario cliente = (Usuario) tiquete.getCliente();
-			double pagado = tiquete.getMontoPagado() > 0
-					? tiquete.getMontoPagado()
-					: tiquete.calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
+			boolean pagado = tiquete.getMontoPagado() > 0;
+			double pago;
+			if (pagado) {
+				pago = tiquete.getMontoPagado();
+			} else {
+				pago = tiquete.calcularPrecioFinal(cuotaPorcentual, cuotaEmision);
+			}
+					
 			double reembolso;
 			
 			if (tipoReembolso == 1) {
-				reembolso = Math.max(0, pagado - tiquete.getCuotaAdicionalEmision());
+				reembolso = Math.max(0, pago - tiquete.getCuotaAdicionalEmision());
 
 			} else {
 				reembolso = tiquete.getPrecioOriginal();
