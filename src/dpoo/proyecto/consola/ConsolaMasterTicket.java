@@ -19,15 +19,15 @@ public class ConsolaMasterTicket extends ConsolaBasica {
         try {
             sistemaBoleteria = new MasterTicket();
             cp.loadDefault(sistemaBoleteria);
-			// Cargar la persistencia y añadirla al objeto de MasterTicket para operar
+			// Cargar la persistencia y copiarla y pegarla a la instancia vacia de MasterTicket para operar
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		// Bucle principal: regresar al login cuando un menú termine (opción 0)
 		while (true) {
-        	UsuarioGenerico usuarioActual = logInYAuth();
-			// Mostrar los menus para el usuario respectivo
+        	UsuarioGenerico usuarioActual = logInYAuth(); //Consola de login y auth. Me devuelve el usuario que estaq usando la consola
+			
             if (usuarioActual instanceof Administrador) {
                 menuAdmin((Administrador) usuarioActual);
                 cp.saveDefault(sistemaBoleteria);
@@ -38,6 +38,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
                 menuUsuario((Usuario) usuarioActual);
                 cp.saveDefault(sistemaBoleteria);
             }
+			//Muestra cada consola segun tipo de usuario, y cuando el usuario se salga de la app o al log in, guarda todo
 		}
 		
 	}
@@ -99,6 +100,7 @@ public class ConsolaMasterTicket extends ConsolaBasica {
                         running = false;
 							
 					} else if (tipoUsuario.equals("o")) {
+						//Envia solicitud al admin para aprobar nuevio org.
                         boolean ok = sistemaBoleteria.registrarSolicitudOrganizador(newLogIn, newContrasena);
                         if (ok) {
                             System.out.println("Solicitud enviada. El administrador debe aprobar tu cuenta.");

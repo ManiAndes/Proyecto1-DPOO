@@ -35,20 +35,17 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
     @Override
     public void salvarMasterTicket(String archivo, MasterTicket masterticket) {
         if (archivo == null || masterticket == null) return;
+
         try {
-            Path path = Paths.get(archivo);
-            if (path.getParent() != null) {
-                Files.createDirectories(path.getParent());
+            Path path = Paths.get(archivo); //Construir path
+            if (path.getParent() != null) { //El archivo debe estar en una carpeta, en caso de que no
+                Files.createDirectories(path.getParent());//CRea la carpeta del; archivo
             }
             JSONObject json = masterticket.toJSON();
             String content = json.toString(2);
-            Files.write(
-                path,
-                content.getBytes(StandardCharsets.UTF_8),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.TRUNCATE_EXISTING,
-                StandardOpenOption.WRITE
-            );
+
+            Files.write(path, content.getBytes("UTF-8")); //TRansforma todo a bytes para persistir
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -57,21 +54,30 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
     @Override
     public MasterTicket cargarMasterTicket(String archivo) {
         if (archivo == null) return new MasterTicket();
-        try {
-            Path path = Paths.get(archivo);
-            if (!Files.exists(path)) return new MasterTicket();
-            String content = Files.readString(path, StandardCharsets.UTF_8);
-            if (content == null || content.isEmpty()) return new MasterTicket();
 
-            JSONObject root = new JSONObject(content);
+        try {
+
+            Path path = Paths.get(archivo);
+
+            if (!Files.exists(path)) return new MasterTicket();
+
+            String content = Files.readString(path, StandardCharsets.UTF_8);
+
+            if (content == null || content.isEmpty()) return new MasterTicket(); //en caso de error, casi nunca es null, deberia ser "" si esta vacio
+
+            JSONObject root = new JSONObject(content); //convierte en JSONObject lo que ya estaba en json pero en texto
             MasterTicket m = new MasterTicket();
-            m.setCostoPorEmision(root.optDouble("costoPorEmision", 0.0));
-            m.setSecuenciaTiquetes(root.optInt("secuenciaTiquetes", 1000));
-            m.setSecuenciaSolicitudes(root.optInt("secuenciaSolicitudes", 1));
+
+            //Settea los costos por emision, secuencia de tiquetres y secuencia de solicitudes
+            // opt = optional, no explota si no existe
+            m.setCostoPorEmision(root.optDouble("costoPorEmision", 0.0)); //buisca el valor de "costoPOrEmision", si no existe es 0.0
+            m.setSecuenciaTiquetes(root.optInt("secuenciaTiquetes", 1000));// ""
+            m.setSecuenciaSolicitudes(root.optInt("secuenciaSolicitudes", 1));// """
 
             // Usuarios
             Map<String, UsuarioGenerico> usuarios = new HashMap<>();
-            JSONArray ju = root.optJSONArray("usuarios");
+            JSONArray ju = root.optJSONArray("usuarios",null);//BUyscar usuarios en el JSON
+
             if (ju != null) {
                 for (int i = 0; i < ju.length(); i++) {
                     JSONObject uo = ju.optJSONObject(i);
@@ -88,7 +94,7 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
             // Venues
             Map<String, Venue> venues = new HashMap<>();
             Map<String, Venue> pendientes = new HashMap<>();
-            JSONArray jv = root.optJSONArray("venues");
+            JSONArray jv = root.optJSONArray("venues",null);
             if (jv != null) {
                 for (int i = 0; i < jv.length(); i++) {
                     JSONObject vo = jv.optJSONObject(i);
@@ -102,7 +108,7 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
                     venues.put(key, v);
                 }
             }
-            JSONArray jvp = root.optJSONArray("venuesPendientes");
+            JSONArray jvp = root.optJSONArray("venuesPendientes",null);
             if (jvp != null) {
                 for (int i = 0; i < jvp.length(); i++) {
                     JSONObject vo = jvp.optJSONObject(i);
@@ -125,7 +131,7 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
             Map<String, Evento> eventos = new HashMap<>();
             Map<Integer, Tiquete> indiceTiquetes = new HashMap<>();
             int maxId = m.getSecuenciaTiquetes();
-            JSONArray je = root.optJSONArray("eventos");
+            JSONArray je = root.optJSONArray("eventos",null);
             if (je != null) {
                 for (int i = 0; i < je.length(); i++) {
                     JSONObject eo = je.optJSONObject(i);
@@ -144,7 +150,7 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
                     }
 
                     // Localidades
-                    JSONArray locs = eo.optJSONArray("localidades");
+                    JSONArray locs = eo.optJSONArray("localidades",null);
                     if (locs != null) {
                         for (int j = 0; j < locs.length(); j++) {
                             JSONObject lo = locs.optJSONObject(j);
@@ -155,7 +161,7 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
                     }
 
                     // Tiquetes disponibles
-                    JSONArray tiqs = eo.optJSONArray("tiquetes");
+                    JSONArray tiqs = eo.optJSONArray("tiquetes",null);
                     if (tiqs != null) {
                         for (int j = 0; j < tiqs.length(); j++) {
                             JSONObject to = tiqs.optJSONObject(j);
@@ -182,7 +188,7 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
                     }
 
                     // Tiquetes vendidos
-                    JSONArray vend = eo.optJSONArray("tiquetesVendidos");
+                    JSONArray vend = eo.optJSONArray("tiquetesVendidos",null);
                     if (vend != null) {
                         Map<Integer, Tiquete> vendidos = e.getTiquetesVendidos();
                         for (int j = 0; j < vend.length(); j++) {
@@ -220,7 +226,7 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
             // Solicitudes de reembolso
             Map<Integer, SolicitudReembolso> solicitudesMap = new HashMap<>();
             Map<Integer, SolicitudReembolso> solicitudesProcesadas = new HashMap<>();
-            JSONArray js = root.optJSONArray("solicitudesReembolso");
+            JSONArray js = root.optJSONArray("solicitudesReembolso",null);
             if (js != null) {
                 for (int i = 0; i < js.length(); i++) {
                     JSONObject so = js.optJSONObject(i);
