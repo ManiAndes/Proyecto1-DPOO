@@ -52,6 +52,8 @@ public class MarketplaceReventa {
     }
 
     public boolean cancelarOferta(int ofertaId, Usuario vendedor) {
+        //liberar tiquete y validacion de datos
+        //registra el movimiento de cancelacion
         OfertaReventa oferta = ofertas.get(ofertaId);
         if (oferta == null) {
             throw new IllegalArgumentException("La oferta no existe.");
@@ -256,6 +258,7 @@ public class MarketplaceReventa {
     }
 
     private void liberarTiquete(OfertaReventa oferta) {
+        //Remueve el tiquete de ofertaPOrTiquete y de la lista de tiquetes del vendedor
         Tiquete tiquete = oferta.getTiquete();
         if (tiquete != null) {
             ofertaPorTiquete.remove(tiquete.getId());

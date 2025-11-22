@@ -357,11 +357,13 @@ public class ConsolaUsuario extends ConsolaBasica {
 	}
 
 	private void publicarOfertaMarketplace() {
-		List<Tiquete> elegibles = tiquetesElegiblesParaMarketplace();
+		List<Tiquete> elegibles = tiquetesElegiblesParaMarketplace();//Lista de tiquetes elegibles (ver condiciones en la funcion)
 		if (elegibles.isEmpty()) {
 			System.out.println("No tienes tiquetes elegibles para publicar.");
 			return;
 		}
+
+		//Print de todos los tiquetes elegibles con ID, Evento y Estado (Activo o NO Activo)
 		System.out.println("=== Tiquetes elegibles ===");
 		for (Tiquete t : elegibles) {
 			String evento = t.getEvento() != null ? t.getEvento().getNombre() : "N/A";
@@ -372,6 +374,8 @@ public class ConsolaUsuario extends ConsolaBasica {
 			return;
 		}
 		int id = Integer.parseInt(idStr);
+
+		//Algoritmo de busqueda para todo el tiquete segun el ID escogido
 		Tiquete objetivo = null;
 		for (Tiquete t : elegibles) {
 			if (t.getId() == id) {
@@ -383,21 +387,24 @@ public class ConsolaUsuario extends ConsolaBasica {
 			System.out.println("Tiquete no encontrado entre los elegibles.");
 			return;
 		}
+
 		double precio = Double.parseDouble(pedirCadena("Precio de venta"));
-		marketplace().publicarOferta(usuario, objetivo, precio);
+		marketplace().publicarOferta(usuario, objetivo, precio); //Ver marketplace()
 		System.out.println("Oferta publicada exitosamente.");
 	}
 
 	private void verOfertasDisponiblesMarketplace() {
-		List<OfertaReventa> ofertas = marketplace().listarOfertasActivas();
+		List<OfertaReventa> ofertas = marketplace().listarOfertasActivas(); //Lista de todas las ofertas en marketplace
 		if (ofertas.isEmpty()) {
 			System.out.println("No hay ofertas disponibles en este momento.");
 			return;
 		}
+		//MOstrar las ofertas disponibles
 		System.out.println("=== Ofertas disponibles ===");
 		for (OfertaReventa oferta : ofertas) {
-			System.out.println(oferta.descripcionBasica());
+			System.out.println(oferta.descripcionBasica()); //Se ve el  ID
 		}
+
 	}
 
 	private void comprarOfertaMarketplace() {
@@ -413,6 +420,7 @@ public class ConsolaUsuario extends ConsolaBasica {
 			return;
 		}
 		ResultadoCompraMarketplace resultado = marketplace().comprarOferta(oferta.getId(), usuario);
+		//Tiquete id y oferta ID, precio, saldo usado etc...
 		imprimirResultadoCompra(resultado);
 	}
 
@@ -423,13 +431,18 @@ public class ConsolaUsuario extends ConsolaBasica {
 			return;
 		}
 		int entrada = Integer.parseInt(idStr);
+
 		OfertaReventa oferta = resolverOfertaPorEntrada(entrada);
 		if (oferta == null) {
 			System.out.println("La oferta no existe.");
 			return;
 		}
+		//Pedir monto de contraoferta
 		double monto = Double.parseDouble(pedirCadena("Valor de la contraoferta"));
+		
+		//Se le aegrga a la oferta su contra oferta, se crea un ID de contraoferta y se añade al masrkeplace como registro
 		ContraofertaReventa contra = marketplace().crearContraoferta(oferta.getId(), usuario, monto);
+
 		System.out.println("Contraoferta #" + contra.getId() + " registrada.");
 	}
 
@@ -458,12 +471,14 @@ public class ConsolaUsuario extends ConsolaBasica {
 			System.out.println("Oferta inválida.");
 			return;
 		}
+
 		boolean ok = marketplace().cancelarOferta(oferta.getId(), usuario);
+
 		System.out.println(ok ? "Oferta cancelada." : "No se pudo cancelar la oferta.");
 	}
 
 	private void gestionarContraofertasRecibidas() {
-		List<OfertaReventa> propias = marketplace().listarOfertasPorUsuario(usuario);
+		List<OfertaReventa> propias = marketplace().listarOfertasPorUsuario(usuario);//LIsta de mis ofertas a otros
 		List<OfertaReventa> conPendientes = new ArrayList<>();
 		for (OfertaReventa oferta : propias) {
 			if (!oferta.getContraofertasPendientes().isEmpty()) {
@@ -508,10 +523,12 @@ public class ConsolaUsuario extends ConsolaBasica {
 	}
 
 	private MarketplaceReventa marketplace() {
+		//Devuelve todo el marketplace
 		return sistemaBoleteria.getMarketplaceReventa();
 	}
 
 	private List<Tiquete> tiquetesElegiblesParaMarketplace() {
+		//Un tiquete elegebile no puede ser null ni ya en reventa, ni usado ni reembolsado ni un deluxe
 		List<Tiquete> elegibles = new ArrayList<>();
 		for (Tiquete t : usuario.getMisTiquetes()) {
 			if (t == null) {
@@ -581,6 +598,7 @@ public class ConsolaUsuario extends ConsolaBasica {
 	}
 
 	private OfertaReventa resolverOfertaPorEntrada(int valor) {
+		//Devuelve todo el objeto de Oferta segun el ID
 		if (valor <= 0) {
 			return null;
 		}
