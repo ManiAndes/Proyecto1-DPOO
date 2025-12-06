@@ -61,24 +61,39 @@ public class Organizador extends Usuario {
         return l;
     }
 
-    public Organizador fromJSON(JSONObject json) {
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("type", this.getClass().getSimpleName());
+        json.put("login", getLogin());
+        json.put("password", getPassword());
+        json.put("saldoVirtual", getSaldoVirtual());
+        JSONArray enVenta = new JSONArray();
+        for (Integer id : getTiquetesEnReventa()) {
+            enVenta.put(id);
+        }
+        json.put("tiquetesEnReventa", enVenta);
+        return json;
+    }
+
+    public static Organizador fromJSON(JSONObject json) {
         String login = json.getString("login");
         String password = json.getString("password");
         double saldo = json.optDouble("saldoVirtual", 0.0);
 
+        List<Evento> eventos = new ArrayList<>();
         JSONArray je = json.optJSONArray("eventos",null);
-            if (je != null) {
-                List<Evento> eventos = new ArrayList<>();
-                for (int i = 0; i < je.length(); i++) {
-                    JSONObject eo = je.optJSONObject(i);
-                    if (eo == null) continue;
-                    Evento e = Evento.fromJSON(eo);
-                    String orgLogin = eo.optString("organizadorLogin", null);
-                    if (orgLogin != null && login.equals(orgLogin)) {
-                        eventos.add(e);
-                    }
+        if (je != null) {
+            for (int i = 0; i < je.length(); i++) {
+                JSONObject eo = je.optJSONObject(i);
+                if (eo == null) continue;
+                Evento e = Evento.fromJSON(eo);
+                String orgLogin = eo.optString("organizadorLogin", null);
+                if (orgLogin != null && login.equals(orgLogin)) {
+                    eventos.add(e);
                 }
             }
+        }
         
         
         Organizador o = new Organizador(login, password, eventos);

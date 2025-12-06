@@ -449,7 +449,15 @@ public class MasterTicket {
 
 		JSONArray u = new JSONArray();
 		for (UsuarioGenerico usuario : this.usuarios.values()) {
-			u.put(usuario.toJSON());
+            if (usuario instanceof Administrador) {
+                u.put(((Administrador) usuario).toJSON());
+            } else if (usuario instanceof Organizador) {
+                u.put(((Organizador) usuario).toJSON());
+            } else if (usuario instanceof Natural) {
+                u.put(((Natural) usuario).toJSON());
+            } else {
+                u.put(usuario.toJSON());
+            }
 		}
         json.put("usuarios", u);
 

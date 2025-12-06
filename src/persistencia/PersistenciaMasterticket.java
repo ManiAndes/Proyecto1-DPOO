@@ -286,7 +286,10 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
         return (s == null) ? null : s.toUpperCase();
     }
 
-    private static UsuarioGenerico usuarioFromJSON(JSONObject json) {
+    private UsuarioGenerico usuarioFromJSON(JSONObject json) {
+        if (json == null) {
+            return null;
+        }
         String type = json.optString("type", "");
         switch (type) {
             case "Administrador":

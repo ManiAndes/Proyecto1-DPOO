@@ -12,6 +12,16 @@ public class Natural extends Usuario {
 		super(login, password);
 	}
 
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("type", this.getClass().getSimpleName());
+        json.put("login", getLogin());
+        json.put("password", getPassword());
+        json.put("saldoVirtual", getSaldoVirtual());
+        return json;
+    }
+
 	public static Natural fromJSON(JSONObject json) {
 		String login = json.getString("login");
 		String password = json.getString("password");
