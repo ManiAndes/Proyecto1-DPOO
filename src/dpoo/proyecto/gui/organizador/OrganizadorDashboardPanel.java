@@ -43,10 +43,12 @@ public class OrganizadorDashboardPanel extends JPanel {
 
     private DefaultListModel<String> eventosModel = new DefaultListModel<>();
     private DefaultListModel<String> venuesModel = new DefaultListModel<>();
+    private DefaultListModel<String> localidadesModel = new DefaultListModel<>();
     private JTextArea eventosArea;
 
     private JList<String> eventosList;
     private JList<String> venuesList;
+    private JList<String> localidadesList;
 
     private JTextField nombreVenueField;
     private JTextField ubicacionField;
@@ -104,11 +106,25 @@ public class OrganizadorDashboardPanel extends JPanel {
 
         eventosList = new JList<>(eventosModel);
         venuesList = new JList<>(venuesModel);
+        localidadesList = new JList<>(localidadesModel);
         gbc.gridx = 0; gbc.gridy = 0;
         lists.add(new JScrollPane(eventosList), gbc);
         gbc.gridx = 1;
         lists.add(new JScrollPane(venuesList), gbc);
+        gbc.gridx = 2;
+        lists.add(new JScrollPane(localidadesList), gbc);
         panel.add(lists, BorderLayout.CENTER);
+        eventosList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                cargarLocalidadesEventoSeleccionado();
+            }
+        });
+        // Al seleccionar evento se cargan sus localidades
+        eventosList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                cargarLocalidadesEventoSeleccionado();
+            }
+        });
 
         JPanel forms = new JPanel(new GridBagLayout());
         GridBagConstraints fg = new GridBagConstraints();
@@ -223,6 +239,7 @@ public class OrganizadorDashboardPanel extends JPanel {
     public void refresh() {
         eventosModel.clear();
         venuesModel.clear();
+        localidadesModel.clear();
         List<Evento> eventosOrg = new ArrayList<>();
         for (Evento e : sistema.getEventos().values()) {
             if (e.getOrganizador() != null && organizador.getLogin().equals(e.getOrganizador().getLogin())) {
@@ -241,9 +258,11 @@ public class OrganizadorDashboardPanel extends JPanel {
         StringBuilder sb = new StringBuilder();
         for (Evento e : eventosOrg) {
             sb.append(e.getNombre()).append(" - ").append(e.getFecha())
-                    .append(" | Localidades: ").append(e.getLocalidades().keySet()).append("\n");
+                    .append(" | Localidades: ").append(e.getLocalidades().keySet()).append("
+");
         }
         eventosArea.setText(sb.toString());
+        cargarLocalidadesEventoSeleccionado();
     }
 
     private Evento eventoSeleccionado() {
@@ -251,6 +270,18 @@ public class OrganizadorDashboardPanel extends JPanel {
         if (val == null) return null;
         String nombre = val.split(" - ")[0];
         return sistema.getEventos().get(nombre.toUpperCase());
+    }
+
+    private void cargarLocalidadesEventoSeleccionado() {
+        localidadesModel.clear();
+        Evento ev = eventoSeleccionado();
+        if (ev == null) {
+            return;
+        }
+        for (Localidad l : ev.getLocalidades().values()) {
+            localidadesModel.addElement(l.getNombreLocalidad() + " | $" + l.getPrecioTiquetes()
+                    + " | Disp: " + l.getTiquetes().size());
+        }
     }
 
     private void proponerVenue() {
