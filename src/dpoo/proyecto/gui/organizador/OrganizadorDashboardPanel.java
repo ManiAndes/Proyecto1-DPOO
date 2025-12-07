@@ -418,9 +418,9 @@ eventosList.addListSelectionListener(e -> {
             return;
         }
         // Requerimos crear al menos una localidad en la misma operación
-        String nombreLoc = nombreLocalidadField.getText().trim();
-        String precioStr = precioLocalidadField.getText().trim();
-        String cantStr = cantidadTiquetesField.getText().trim();
+        String nombreLoc = primeraLocalidadField.getText().trim();
+        String precioStr = primeraPrecioField.getText().trim();
+        String cantStr = primeraCantidadField.getText().trim();
         if (nombreLoc.isEmpty() || precioStr.isEmpty() || cantStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Define la primera localidad (nombre, precio, cantidad).", "Info",
                     JOptionPane.INFORMATION_MESSAGE);
@@ -460,6 +460,10 @@ eventosList.addListSelectionListener(e -> {
 
         persistencia.saveDefault(sistema);
         refresh();
+        // limpiar campos de primera localidad para próximas creaciones
+        primeraLocalidadField.setText("");
+        primeraPrecioField.setText("");
+        primeraCantidadField.setText("");
         JOptionPane.showMessageDialog(this, "Evento creado con su primera localidad y tiquetes.", "OK", JOptionPane.INFORMATION_MESSAGE);
     }
 
