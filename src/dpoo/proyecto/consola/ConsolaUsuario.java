@@ -530,19 +530,19 @@ public class ConsolaUsuario extends ConsolaBasica {
 	private List<Tiquete> tiquetesElegiblesParaMarketplace() {
 		//Un tiquete elegebile no puede ser null ni ya en reventa, ni usado ni reembolsado ni un deluxe
 		List<Tiquete> elegibles = new ArrayList<>();
-		for (Tiquete t : usuario.getMisTiquetes()) {
-			if (t == null) {
-				continue;
-			}
-			if (usuario.estaTiqueteEnReventa(t.getId())) {
-				continue;
-			}
-			if (t.isUsado() || t.isReembolsado()) {
-				continue;
-			}
-			if (t instanceof PaqueteDeluxe) {
-				continue;
-			}
+        for (Tiquete t : usuario.getMisTiquetes()) {
+            if (t == null) {
+                continue;
+            }
+            if (usuario.estaTiqueteEnReventa(t.getId())) {
+                continue;
+            }
+            if (t.isUsado() || t.isReembolsado() || t.isImpreso()) {
+                continue;
+            }
+            if (t instanceof PaqueteDeluxe) {
+                continue;
+            }
 			elegibles.add(t);
 		}
 		return elegibles;

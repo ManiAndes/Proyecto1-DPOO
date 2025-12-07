@@ -328,6 +328,8 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
         t.setUsado(json.optBoolean("usado", false));
         t.setReembolsado(json.optBoolean("reembolsado", false));
         t.setTransferible(json.optBoolean("transferible", true));
+        t.setImpreso(json.optBoolean("impreso", false));
+        t.setFechaImpresion(json.optString("fechaImpresion", null));
         t.setMontoPagado(json.optDouble("montoPagado", 0.0));
         t.setEstado(json.optString("estado", "ACTIVO"));
         t.setLocalidad(json.optString("localidad", null));

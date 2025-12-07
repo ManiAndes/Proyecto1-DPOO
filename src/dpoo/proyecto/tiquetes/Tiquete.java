@@ -18,6 +18,8 @@ public abstract class Tiquete {
 	private boolean usado;
 	private boolean reembolsado;
 	private boolean transferible = true;
+	private boolean impreso;
+	private String fechaImpresion;
 	private double montoPagado;
 	private String estado = "ACTIVO";
 	private String localidad;
@@ -147,6 +149,22 @@ public abstract class Tiquete {
 		this.transferible = transferible;
 	}
 
+	public boolean isImpreso() {
+		return impreso;
+	}
+
+	public void setImpreso(boolean impreso) {
+		this.impreso = impreso;
+	}
+
+	public String getFechaImpresion() {
+		return fechaImpresion;
+	}
+
+	public void setFechaImpresion(String fechaImpresion) {
+		this.fechaImpresion = fechaImpresion;
+	}
+
 	public double getMontoPagado() {
 		return montoPagado;
 	}
@@ -216,6 +234,8 @@ public abstract class Tiquete {
 		json.put("usado", this.usado);
 		json.put("reembolsado", this.reembolsado);
 		json.put("transferible", this.transferible);
+		json.put("impreso", this.impreso);
+		json.put("fechaImpresion", this.fechaImpresion);
 		json.put("montoPagado", this.montoPagado);
 		json.put("estado", this.estado);
 		json.put("localidad", this.localidad);

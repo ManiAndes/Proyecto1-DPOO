@@ -218,6 +218,9 @@ public class MarketplaceReventa {
         if (tiquete.isReembolsado()) {
             throw new IllegalArgumentException("El tiquete fue reembolsado.");
         }
+        if (tiquete.isImpreso()) {
+            throw new IllegalArgumentException("El tiquete ya fue impreso y no puede revenderse.");
+        }
         if (!tiquete.isTransferible()) {
             throw new IllegalArgumentException("Este tiquete no permite transferencia.");
         }
