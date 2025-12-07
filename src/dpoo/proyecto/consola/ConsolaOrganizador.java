@@ -35,6 +35,7 @@ public class ConsolaOrganizador extends ConsolaBasica {
         System.out.println("6. Crear Paquete de Entradas");
         System.out.println("7. Crear Paquete Multi-Evento");
         System.out.println("8. Crear Paquete Deluxe");
+        System.out.println("9. Modo Cliente");
         System.out.println("0. Salir");
     }
 
@@ -68,6 +69,9 @@ public class ConsolaOrganizador extends ConsolaBasica {
                     return true;
                 case "8":
                     crearPaqueteDeluxeFlow();
+                    return true;
+                case "9":
+                    ejecutarModoCliente();
                     return true;
                 case "0":
                 default:
@@ -403,5 +407,42 @@ public class ConsolaOrganizador extends ConsolaBasica {
             evento.addLocalidad(localidad);
         }
         return localidad;
+    }
+
+    private void ejecutarModoCliente() {
+        ConsolaUsuario consolaUsuario = new ConsolaUsuario(sistemaBoleteria, organizador);
+        boolean running = true;
+        while (running) {
+            consolaUsuario.consolaUsuario();
+            String opcion = pedirCadena("Opcion (Modo Cliente)");
+            switch (opcion) {
+                case "0":
+                    running = false;
+                    break;
+                case "1":
+                    consolaUsuario.comprarEvento();
+                    break;
+                case "2":
+                    consolaUsuario.verSaldo();
+                    break;
+                case "3":
+                    consolaUsuario.verMisEventos();
+                    break;
+                case "4":
+                    consolaUsuario.verMisTiquetes();
+                    break;
+                case "5":
+                    consolaUsuario.transferirTiquete();
+                    break;
+                case "6":
+                    consolaUsuario.solicitarReembolso();
+                    break;
+                case "7":
+                    consolaUsuario.gestionarMarketplace();
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
+            }
+        }
     }
 }

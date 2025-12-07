@@ -4,15 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import dpoo.proyecto.app.MasterTicket;
-import dpoo.proyecto.app.AuditoriaMarketplaceEntry;
-import dpoo.proyecto.app.OfertaReventa;
-import dpoo.proyecto.app.TransaccionReventa;
+import dpoo.proyecto.app.SolicitudReembolso;
 import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.eventos.Venue;
+import dpoo.proyecto.marketplace.MarketplaceReventa;
+import dpoo.proyecto.marketplace.OfertaReventa;
+import dpoo.proyecto.marketplace.RegistroReventa;
 import dpoo.proyecto.usuarios.Administrador;
-import dpoo.proyecto.usuarios.Organizador;
-import dpoo.proyecto.tiquetes.Tiquete;
-import dpoo.proyecto.app.SolicitudReembolso;
 
 
 public class ConsolaAdmin extends ConsolaBasica {
@@ -35,45 +33,49 @@ public class ConsolaAdmin extends ConsolaBasica {
 		System.out.println("3. VER FINANZAS");
 		System.out.println("4. VER SOLICITUDES DE VENUES");
 		System.out.println("5. VER SOLICITUDES DE REEMBOLSOS");
-        System.out.println("6. Aprobar organizadores");
-        System.out.println("7. Gestionar Marketplace de reventa");
-        System.out.println("8. Ver log de auditoría");
+		System.out.println("6. Ver log de Marketplace");
+		System.out.println("7. Gestionar ofertas del Marketplace");
+        System.out.println("8. Gestionar solicitudes de organizador");
 		System.out.println("0. Salir");
 	}
 
 	
 	public void consolaAdmin(String opcion) {
-		try {
-			switch (opcion) {
-                case "1":
-                    gestionarEventos();
-                    break;
-                case "2":
-                    establecerCostoEmision();
-                    break;
-                case "3":
-                    verFinanzas();
-                    break;
-                case "4":
-                    verSolicitudesVenues();
-                    break;
-                case "5":
-                    gestionarReembolsos();
-                    break;
-                case "6":
-                    gestionarOrganizadoresPendientes();
-                    break;
-                case "7":
-                    gestionarMarketplace();
-                    break;
-                case "8":
-                    verLogAuditoria();
-                    break;
-                default:
-                    System.out.println("Opción inválida.");
-            }
-		} catch (Exception e) {
-			e.printStackTrace();
+		
+		boolean notError = false;
+		
+		while (!notError) {
+			
+			notError = true;
+			try {
+
+				if (opcion.equals("1")) {
+					notError = gestionarEventos();
+					
+				} else if(opcion.equals("2")) {
+					notError = establecerCostoEmision();
+					
+				} else if(opcion.equals("3")){
+					
+					notError = verFinanzas();
+					
+				} else if (opcion.equals("4")) {
+					notError = verSolicitudesVenues();
+
+				} else if (opcion.equals("5")) {
+					notError = gestionarReembolsos();
+				} else if (opcion.equals("6")) {
+					notError = verLogMarketplace();
+				} else if (opcion.equals("7")) {
+					notError = gestionarMarketplace();
+                } else if (opcion.equals("8")) {
+                    notError = gestionarSolicitudesOrganizador();
+
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -119,10 +121,6 @@ public class ConsolaAdmin extends ConsolaBasica {
         System.out.println("TOTAL: " + total);
         return true;
     }
-	
-	public boolean verFinanzasFecha() {
-		return true;
-	}
 
 	public boolean verSolicitudesVenues() {
 	
@@ -205,7 +203,6 @@ public class ConsolaAdmin extends ConsolaBasica {
 			}
 			
 		}else {
-			//salir TODO
 			System.out.println("Salir");
 			return false;
 		}
@@ -265,106 +262,79 @@ public class ConsolaAdmin extends ConsolaBasica {
 		return resultado;
 	}
 
-    private void gestionarOrganizadoresPendientes() {
-        List<Organizador> pendientes = this.sistemaBoleteria.listarOrganizadoresPendientes();
-        if (pendientes.isEmpty()) {
-            System.out.println("No hay organizadores pendientes.");
-            return;
+	public boolean verLogMarketplace() {
+		MarketplaceReventa marketplace = this.sistemaBoleteria.getMarketplaceReventa();
+		if (marketplace == null) {
+			System.out.println("Marketplace no disponible.");
+			return true;
+		}
+		List<RegistroReventa> registros = marketplace.getRegistros();
+		if (registros.isEmpty()) {
+			System.out.println("El log aún no tiene registros.");
+			return true;
+		}
+		System.out.println("=== LOG DE MARKETPLACE ===");
+		for (RegistroReventa registro : registros) {
+			System.out.println(registro.formatear());
+		}
+		return true;
+	}
+
+	public boolean gestionarMarketplace() {
+		MarketplaceReventa marketplace = this.sistemaBoleteria.getMarketplaceReventa();
+		if (marketplace == null) {
+			System.out.println("Marketplace no disponible.");
+			return true;
+		}
+		List<OfertaReventa> ofertas = marketplace.listarOfertasParaAdmin();
+		if (ofertas.isEmpty()) {
+			System.out.println("No hay ofertas activas en el Marketplace.");
+			return true;
+		}
+		System.out.println("=== OFERTAS ACTIVAS ===");
+		for (OfertaReventa oferta : ofertas) {
+			System.out.println(oferta.descripcionBasica());
+		}
+		String idStr = pedirCadena("ID de la oferta a eliminar (0 para volver)");
+		if ("0".equals(idStr)) {
+			return true;
+		}
+		try {
+			int ofertaId = Integer.parseInt(idStr);
+			boolean ok = marketplace.eliminarOfertaComoAdmin(ofertaId, this.admin, "Removida por administrador");
+			System.out.println(ok ? "Oferta eliminada correctamente." : "La oferta no pudo ser eliminada.");
+		} catch (NumberFormatException e) {
+			System.out.println("ID inválido.");
+		}
+		return true;
+	}
+    
+    public boolean gestionarSolicitudesOrganizador() {
+        Map<String, String> solicitudes = this.admin.getSolicitudesOrganizador();
+        if (solicitudes == null || solicitudes.isEmpty()) {
+            System.out.println("No hay solicitudes de organizador pendientes.");
+            return true;
         }
-        System.out.println("=== Organizadores pendientes ===");
-        for (Organizador org : pendientes) {
-            System.out.println("- " + org.getLogin());
+        System.out.println("=== SOLICITUDES DE ORGANIZADOR ===");
+        for (String login : solicitudes.keySet()) {
+            System.out.println("- " + login);
         }
-        String login = pedirCadena("Login a gestionar (0 para volver)");
+        String login = pedirCadena("Ingrese el login a gestionar (0 para volver)");
         if ("0".equals(login)) {
-            return;
+            return true;
         }
-        String accion = pedirCadena("Aprobar (a) o Rechazar (r)");
+        String accion = pedirCadena("Aprobar (a) / Rechazar (r)");
         boolean resultado = false;
         if ("a".equalsIgnoreCase(accion)) {
-            resultado = this.sistemaBoleteria.aprobarOrganizador(login);
-            System.out.println(resultado ? "Organizador aprobado." : "No se pudo aprobar.");
+            resultado = this.sistemaBoleteria.aprobarSolicitudOrganizador(login);
         } else if ("r".equalsIgnoreCase(accion)) {
-            resultado = this.sistemaBoleteria.rechazarOrganizador(login);
-            System.out.println(resultado ? "Organizador rechazado." : "No se pudo rechazar.");
+            resultado = this.sistemaBoleteria.rechazarSolicitudOrganizador(login);
         } else {
             System.out.println("Acción inválida.");
+            return true;
         }
+        System.out.println(resultado ? "Operación realizada." : "No se pudo completar la acción.");
+        return resultado;
     }
-
-    private void gestionarMarketplace() {
-        System.out.println("=== Marketplace de Reventa ===");
-        List<OfertaReventa> ofertas = this.sistemaBoleteria.listarOfertasActivas();
-        if (ofertas.isEmpty()) {
-            System.out.println("No hay ofertas activas.");
-        } else {
-            for (OfertaReventa oferta : ofertas) {
-                imprimirOferta(oferta);
-            }
-        }
-        System.out.println("1. Eliminar oferta");
-        System.out.println("2. Ver transacciones");
-        System.out.println("0. Volver");
-        String opcion = pedirCadena("Seleccione una opción");
-        if ("1".equals(opcion)) {
-            String idStr = pedirCadena("ID de la oferta a eliminar");
-            try {
-                int id = Integer.parseInt(idStr);
-                boolean ok = this.sistemaBoleteria.eliminarOfertaPorAdmin(id, this.admin.getLogin());
-                System.out.println(ok ? "Oferta eliminada." : "No fue posible eliminar la oferta.");
-            } catch (NumberFormatException e) {
-                System.out.println("ID inválido.");
-            }
-        } else if ("2".equals(opcion)) {
-            mostrarTransacciones();
-        }
-    }
-
-    private void mostrarTransacciones() {
-        List<TransaccionReventa> transacciones = this.sistemaBoleteria.listarTransaccionesReventa();
-        if (transacciones.isEmpty()) {
-            System.out.println("No hay transacciones registradas.");
-            return;
-        }
-        System.out.println("=== Transacciones de reventa ===");
-        for (TransaccionReventa tx : transacciones) {
-            System.out.println("Tx#" + tx.getId() + " Oferta#" + tx.getIdOferta()
-                    + " Vendedor: " + tx.getIdVendedor()
-                    + " Comprador: " + tx.getIdComprador()
-                    + " Precio: " + tx.getPrecioFinal()
-                    + " Fecha: " + tx.getFechaHora());
-        }
-    }
-
-    private void verLogAuditoria() {
-        List<AuditoriaMarketplaceEntry> log = this.sistemaBoleteria.obtenerLogAuditoria();
-        if (log.isEmpty()) {
-            System.out.println("No hay eventos registrados en el log.");
-            return;
-        }
-        System.out.println("=== Log de auditoría Marketplace ===");
-        for (AuditoriaMarketplaceEntry entry : log) {
-            System.out.println("[" + entry.getTimestamp() + "] "
-                    + entry.getAccion() + " actor=" + entry.getActor()
-                    + " rol=" + entry.getRol()
-                    + " recurso=" + entry.getRecurso()
-                    + " resultado=" + entry.getResultado()
-                    + " detalle=" + entry.getDetalle());
-        }
-    }
-
-    private void imprimirOferta(OfertaReventa oferta) {
-        StringBuilder detalle = new StringBuilder();
-        for (Integer idTiq : oferta.getTiqueteIds()) {
-            Tiquete tiquete = this.sistemaBoleteria.buscarTiquete(idTiq);
-            String evento = tiquete != null && tiquete.getEvento() != null ? tiquete.getEvento().getNombre() : "N/A";
-            detalle.append("#").append(idTiq).append("(").append(evento).append(") ");
-        }
-        System.out.println("Oferta#" + oferta.getId()
-                + " Vendedor: " + oferta.getIdVendedor()
-                + " Precio: " + oferta.getPrecioPedido()
-                + " Estado: " + oferta.getEstado()
-                + " Tiquetes: " + detalle);
-    }
-
+	
 }

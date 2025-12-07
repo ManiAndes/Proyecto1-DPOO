@@ -7,6 +7,7 @@ import dpoo.proyecto.eventos.Evento;
 import dpoo.proyecto.eventos.Localidad;
 import dpoo.proyecto.eventos.Venue;
 import dpoo.proyecto.app.MasterTicket;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Organizador extends Usuario {
@@ -16,6 +17,11 @@ public class Organizador extends Usuario {
 
     public Organizador(String login, String password) {
         super(login, password);
+    }
+
+    public Organizador(String login, String password, List<Evento> eventos) {
+        super(login, password);
+        this.eventos = eventos;
     }
     
     
@@ -66,8 +72,16 @@ public class Organizador extends Usuario {
 
     @Override
     public JSONObject toJSON() {
-        JSONObject json = super.toJSON();
-        json.put("aprobado", this.aprobado);
+        JSONObject json = new JSONObject();
+        json.put("type", this.getClass().getSimpleName());
+        json.put("login", getLogin());
+        json.put("password", getPassword());
+        json.put("saldoVirtual", getSaldoVirtual());
+        JSONArray enVenta = new JSONArray();
+        for (Integer id : getTiquetesEnReventa()) {
+            enVenta.put(id);
+        }
+        json.put("tiquetesEnReventa", enVenta);
         return json;
     }
 
@@ -75,9 +89,32 @@ public class Organizador extends Usuario {
         String login = json.getString("login");
         String password = json.getString("password");
         double saldo = json.optDouble("saldoVirtual", 0.0);
-        Organizador o = new Organizador(login, password);
+
+        List<Evento> eventos = new ArrayList<>();
+        JSONArray je = json.optJSONArray("eventos",null);
+        if (je != null) {
+            for (int i = 0; i < je.length(); i++) {
+                JSONObject eo = je.optJSONObject(i);
+                if (eo == null) continue;
+                Evento e = Evento.fromJSON(eo);
+                String orgLogin = eo.optString("organizadorLogin", null);
+                if (orgLogin != null && login.equals(orgLogin)) {
+                    eventos.add(e);
+                }
+            }
+        }
+        
+        
+        Organizador o = new Organizador(login, password, eventos);
         o.setSaldoVirtual(saldo);
-        o.setAprobado(json.optBoolean("aprobado", true));
+        JSONArray enVenta = json.optJSONArray("tiquetesEnReventa");
+        if (enVenta != null) {
+            List<Integer> ids = new ArrayList<>();
+            for (int i = 0; i < enVenta.length(); i++) {
+                ids.add(enVenta.optInt(i));
+            }
+            o.setTiquetesEnReventa(ids);
+        }
         return o;
     }
 }

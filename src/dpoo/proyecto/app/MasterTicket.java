@@ -2,6 +2,7 @@ package dpoo.proyecto.app;
 
 import dpoo.proyecto.usuarios.*;
 import dpoo.proyecto.eventos.*;
+import dpoo.proyecto.marketplace.MarketplaceReventa;
 import dpoo.proyecto.tiquetes.*;
 
 import java.time.LocalDate;
@@ -22,7 +23,7 @@ public class MasterTicket {
 	// Mapa de los usuarios registrados
 	private Map<String, UsuarioGenerico> usuarios;
 	
-	// Mapa de todos los eventos (activos?)
+	// Mapa de todos los eventos
 	private Map<String, Evento> eventos;
 	
     // Mapa de todos los venues
@@ -35,17 +36,7 @@ public class MasterTicket {
     private Map<Integer, Tiquete> indiceTiquetes;
     private int secuenciaTiquetes;
     private int secuenciaSolicitudes;
-    private Map<Integer, OfertaReventa> ofertasReventa;
-    private Map<Integer, Contraoferta> contraofertas;
-    private Map<Integer, TransaccionReventa> transaccionesReventa;
-    private Map<Integer, AuditoriaMarketplaceEntry> auditoriaMarketplace;
-    private List<Integer> auditoriaOrden;
-    private Map<Integer, Integer> indiceOfertaPorTiquete;
-    private int secuenciaOfertas;
-    private int secuenciaContraofertas;
-    private int secuenciaTransacciones;
-    private int secuenciaLogMarketplace;
-    private Set<String> organizadoresPendientes;
+    private MarketplaceReventa marketplaceReventa;
 	
 
 	public MasterTicket() {
@@ -60,17 +51,7 @@ public class MasterTicket {
         this.secuenciaTiquetes = 1000;
         this.secuenciaSolicitudes = 1;
 		this.costoPorEmision = 0.0;
-        this.ofertasReventa = new HashMap<>();
-        this.contraofertas = new HashMap<>();
-        this.transaccionesReventa = new HashMap<>();
-        this.auditoriaMarketplace = new LinkedHashMap<>();
-        this.auditoriaOrden = new ArrayList<>();
-        this.indiceOfertaPorTiquete = new HashMap<>();
-        this.secuenciaOfertas = 1;
-        this.secuenciaContraofertas = 1;
-        this.secuenciaTransacciones = 1;
-        this.secuenciaLogMarketplace = 1;
-        this.organizadoresPendientes = new LinkedHashSet<>();
+        this.marketplaceReventa = new MarketplaceReventa();
 	}
 
 	public double getCostoPorEmision() {
@@ -150,131 +131,12 @@ public class MasterTicket {
         this.secuenciaSolicitudes = secuenciaSolicitudes;
     }
 
-    public List<Organizador> listarOrganizadoresPendientes() {
-        List<Organizador> lista = new ArrayList<>();
-        for (String login : this.organizadoresPendientes) {
-            UsuarioGenerico usuario = this.usuarios.get(login);
-            if (usuario instanceof Organizador) {
-                lista.add((Organizador) usuario);
-            }
-        }
-        return lista;
+    public MarketplaceReventa getMarketplaceReventa() {
+        return marketplaceReventa;
     }
 
-    public void registrarOrganizadorPendiente(Organizador organizador) {
-        if (organizador == null || organizador.getLogin() == null) return;
-        organizador.setAprobado(false);
-        this.organizadoresPendientes.add(organizador.getLogin());
-    }
-
-    public boolean aprobarOrganizador(String loginOrganizador) {
-        if (loginOrganizador == null) return false;
-        UsuarioGenerico usuario = this.usuarios.get(loginOrganizador);
-        if (usuario instanceof Organizador) {
-            ((Organizador) usuario).setAprobado(true);
-            this.organizadoresPendientes.remove(loginOrganizador);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean rechazarOrganizador(String loginOrganizador) {
-        if (loginOrganizador == null) return false;
-        UsuarioGenerico usuario = this.usuarios.get(loginOrganizador);
-        if (usuario instanceof Organizador) {
-            this.organizadoresPendientes.remove(loginOrganizador);
-            this.usuarios.remove(loginOrganizador);
-            return true;
-        }
-        return false;
-    }
-    public Map<Integer, OfertaReventa> getOfertasReventa() {
-        return ofertasReventa;
-    }
-
-    public void setOfertasReventa(Map<Integer, OfertaReventa> ofertasReventa) {
-        this.ofertasReventa = ofertasReventa != null ? ofertasReventa : new HashMap<>();
-        reconstruirIndiceOfertas();
-    }
-
-    public Map<Integer, Contraoferta> getContraofertas() {
-        return contraofertas;
-    }
-
-    public void setContraofertas(Map<Integer, Contraoferta> contraofertas) {
-        this.contraofertas = contraofertas != null ? contraofertas : new HashMap<>();
-    }
-
-    public Map<Integer, TransaccionReventa> getTransaccionesReventaMap() {
-        return transaccionesReventa;
-    }
-
-    public void setTransaccionesReventa(Map<Integer, TransaccionReventa> transaccionesReventa) {
-        this.transaccionesReventa = transaccionesReventa != null ? transaccionesReventa : new HashMap<>();
-    }
-
-    public Map<Integer, AuditoriaMarketplaceEntry> getAuditoriaMarketplace() {
-        return auditoriaMarketplace;
-    }
-
-    public void setAuditoriaMarketplace(Map<Integer, AuditoriaMarketplaceEntry> auditoriaMarketplace) {
-        this.auditoriaMarketplace = auditoriaMarketplace != null ? auditoriaMarketplace : new LinkedHashMap<>();
-    }
-
-    public List<Integer> getAuditoriaOrden() {
-        return auditoriaOrden;
-    }
-
-    public void setAuditoriaOrden(List<Integer> auditoriaOrden) {
-        this.auditoriaOrden = auditoriaOrden != null ? auditoriaOrden : new ArrayList<>();
-    }
-
-    public Map<Integer, Integer> getIndiceOfertaPorTiquete() {
-        return indiceOfertaPorTiquete;
-    }
-
-    public void setIndiceOfertaPorTiquete(Map<Integer, Integer> indiceOfertaPorTiquete) {
-        this.indiceOfertaPorTiquete = indiceOfertaPorTiquete != null ? indiceOfertaPorTiquete : new HashMap<>();
-    }
-
-    public int getSecuenciaOfertas() {
-        return secuenciaOfertas;
-    }
-
-    public void setSecuenciaOfertas(int secuenciaOfertas) {
-        this.secuenciaOfertas = secuenciaOfertas;
-    }
-
-    public int getSecuenciaContraofertas() {
-        return secuenciaContraofertas;
-    }
-
-    public void setSecuenciaContraofertas(int secuenciaContraofertas) {
-        this.secuenciaContraofertas = secuenciaContraofertas;
-    }
-
-    public int getSecuenciaTransacciones() {
-        return secuenciaTransacciones;
-    }
-
-    public void setSecuenciaTransacciones(int secuenciaTransacciones) {
-        this.secuenciaTransacciones = secuenciaTransacciones;
-    }
-
-    public int getSecuenciaLogMarketplace() {
-        return secuenciaLogMarketplace;
-    }
-
-    public void setSecuenciaLogMarketplace(int secuenciaLogMarketplace) {
-        this.secuenciaLogMarketplace = secuenciaLogMarketplace;
-    }
-
-    public Set<String> getOrganizadoresPendientes() {
-        return organizadoresPendientes;
-    }
-
-    public void setOrganizadoresPendientes(Set<String> organizadoresPendientes) {
-        this.organizadoresPendientes = organizadoresPendientes != null ? organizadoresPendientes : new LinkedHashSet<>();
+    public void setMarketplaceReventa(MarketplaceReventa marketplaceReventa) {
+        this.marketplaceReventa = marketplaceReventa != null ? marketplaceReventa : new MarketplaceReventa();
     }
 
     private void refrescarVenuesPendientes() {
@@ -290,28 +152,89 @@ public class MasterTicket {
         this.venuesPendientes = pend;
     }
 
-    public synchronized int siguienteIdTiquete() {
+    public int siguienteIdTiquete() {
         return ++secuenciaTiquetes;
     }
 
-    public synchronized int siguienteIdSolicitud() {
+    public int siguienteIdSolicitud() {
         return ++secuenciaSolicitudes;
     }
 
-    public synchronized int siguienteIdOferta() {
-        return ++secuenciaOfertas;
+    private Administrador obtenerAdministradorPrincipal() {
+        for (UsuarioGenerico usuario : this.usuarios.values()) {
+            if (usuario instanceof Administrador) {
+                return (Administrador) usuario;
+            }
+        }
+        return null;
     }
 
-    public synchronized int siguienteIdContraoferta() {
-        return ++secuenciaContraofertas;
+    private boolean loginExiste(String login) {
+        if (login == null) return false;
+        for (String key : this.usuarios.keySet()) {
+            if (key.equalsIgnoreCase(login)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public synchronized int siguienteIdTransaccion() {
-        return ++secuenciaTransacciones;
+    public boolean esLoginDisponible(String login) {
+        if (login == null) return false;
+        return !loginExiste(login) && !esLoginPendienteOrganizador(login);
     }
 
-    public synchronized int siguienteIdLogMarketplace() {
-        return ++secuenciaLogMarketplace;
+    public boolean esLoginPendienteOrganizador(String login) {
+        return obtenerLoginPendiente(login) != null;
+    }
+
+    private String obtenerLoginPendiente(String login) {
+        Administrador admin = obtenerAdministradorPrincipal();
+        if (admin == null) return null;
+        return admin.buscarLoginSolicitud(login);
+    }
+
+    public boolean registrarSolicitudOrganizador(String login, String password) {
+        if (login == null || password == null) return false;
+        String limpio = login.trim();
+        if (limpio.isEmpty()) return false;
+        if (loginExiste(limpio) || esLoginPendienteOrganizador(limpio)) {
+            return false;
+        }
+        Administrador admin = obtenerAdministradorPrincipal();
+        if (admin == null) {
+            return false;
+        }
+        admin.agregarSolicitudOrganizador(limpio, password);
+        return true;
+    }
+
+    public boolean aprobarSolicitudOrganizador(String login) {
+        Administrador admin = obtenerAdministradorPrincipal();
+        if (admin == null) return false;
+        String loginReal = obtenerLoginPendiente(login);
+        if (loginReal == null) {
+            return false;
+        }
+        String password = admin.obtenerPasswordSolicitud(loginReal);
+        admin.removerSolicitudOrganizador(loginReal);
+        if (password == null) {
+            return false;
+        }
+        if (loginExiste(loginReal)) {
+            return false;
+        }
+        Organizador nuevo = new Organizador(loginReal, password);
+        this.usuarios.put(loginReal, nuevo);
+        return true;
+    }
+
+    public boolean rechazarSolicitudOrganizador(String login) {
+        Administrador admin = obtenerAdministradorPrincipal();
+        if (admin == null) return false;
+        String loginReal = obtenerLoginPendiente(login);
+        if (loginReal == null) return false;
+        return admin.removerSolicitudOrganizador(loginReal) != null;
     }
 
     public void registrarTiquete(Tiquete tiquete) {
@@ -801,19 +724,15 @@ public class MasterTicket {
 		
 		int i = 1;
 	
-		
 		for (Map.Entry<String, Evento> pareja : this.eventos.entrySet()) {
 			
 			String i_ = Integer.toString(i);
-			
 			String nombre = pareja.getKey();
-			
 			System.out.println(i_ + ". "+nombre);
 			
 			i++;
 			
 		}	
-		
 	}
 	
 	public Evento selectorEvento(String nombreEvento) {
@@ -838,104 +757,6 @@ public class MasterTicket {
 			
 			i++;
 		}
-		
-		
-	}
-	
-	public boolean cargarUsuarios() {
-		// TODO
-		return false;
-	}
-	
-	public boolean cargarEventos() {
-		// TODO
-		return false;
-	}
-	
-	public boolean cargarVenues() {
-		// TODO
-		return false;
-	}
-
-	public JSONObject toJSON() {
-		JSONObject json = new JSONObject();
-		json.put("costoPorEmision", this.costoPorEmision);
-        json.put("secuenciaTiquetes", this.secuenciaTiquetes);
-        json.put("secuenciaSolicitudes", this.secuenciaSolicitudes);
-        json.put("secuenciaOfertas", this.secuenciaOfertas);
-        json.put("secuenciaContraofertas", this.secuenciaContraofertas);
-        json.put("secuenciaTransacciones", this.secuenciaTransacciones);
-        json.put("secuenciaLogMarketplace", this.secuenciaLogMarketplace);
-
-		JSONArray u = new JSONArray();
-		for (UsuarioGenerico usuario : this.usuarios.values()) {
-			u.put(usuario.toJSON());
-		}
-        json.put("usuarios", u);
-
-		JSONArray ev = new JSONArray();
-		for (Evento evento : this.eventos.values()) {
-			ev.put(evento.toJSON());
-		}
-        json.put("eventos", ev);
-
-        JSONArray vv = new JSONArray();
-		for (Venue venue : this.venues.values()) {
-			vv.put(venue.toJSON());
-		}
-        json.put("venues", vv);
-
-        JSONArray vvPend = new JSONArray();
-        for (Venue venuePendiente : this.venuesPendientes.values()) {
-            vvPend.put(venuePendiente.toJSON());
-        }
-        json.put("venuesPendientes", vvPend);
-
-        JSONArray solicitudes = new JSONArray();
-        for (SolicitudReembolso s : this.solicitudesReembolso.values()) {
-            solicitudes.put(s.toJSON());
-        }
-        json.put("solicitudesReembolso", solicitudes);
-        JSONArray solicitudesProc = new JSONArray();
-        for (SolicitudReembolso s : this.solicitudesReembolsoProcesadas.values()) {
-            solicitudesProc.put(s.toJSON());
-        }
-        json.put("solicitudesReembolsoProcesadas", solicitudesProc);
-
-        JSONArray ofertas = new JSONArray();
-        for (OfertaReventa oferta : this.ofertasReventa.values()) {
-            ofertas.put(oferta.toJSON());
-        }
-        json.put("ofertasReventa", ofertas);
-
-        JSONArray contra = new JSONArray();
-        for (Contraoferta c : this.contraofertas.values()) {
-            contra.put(c.toJSON());
-        }
-        json.put("contraofertas", contra);
-
-        JSONArray trans = new JSONArray();
-        for (TransaccionReventa t : this.transaccionesReventa.values()) {
-            trans.put(t.toJSON());
-        }
-        json.put("transaccionesReventa", trans);
-
-        JSONArray log = new JSONArray();
-        for (Integer id : this.auditoriaOrden) {
-            AuditoriaMarketplaceEntry entry = this.auditoriaMarketplace.get(id);
-            if (entry != null) {
-                log.put(entry.toJSON());
-            }
-        }
-        json.put("logMarketplace", log);
-
-        JSONArray orgPend = new JSONArray();
-        for (String loginPendiente : this.organizadoresPendientes) {
-            orgPend.put(loginPendiente);
-        }
-        json.put("organizadoresPendientes", orgPend);
-
-		return json;
 	}
     
     public void proponerVenue(Venue venue) {
@@ -948,7 +769,9 @@ public class MasterTicket {
     }
 
     public void marcarEventoCancelado(Evento evento) {
-        if (evento == null || evento.getNombre() == null) return;
+        if (evento == null || evento.getNombre() == null) {
+            return;
+        }
         evento.setCancelado(true);
         this.eventos.put(evento.getNombre(), evento);
     }
@@ -968,13 +791,7 @@ public class MasterTicket {
         this.secuenciaTransacciones = 1;
         this.secuenciaLogMarketplace = 1;
         this.costoPorEmision = 5000;
-        this.ofertasReventa.clear();
-        this.contraofertas.clear();
-        this.transaccionesReventa.clear();
-        this.auditoriaMarketplace.clear();
-        this.auditoriaOrden.clear();
-        this.indiceOfertaPorTiquete.clear();
-        this.organizadoresPendientes.clear();
+        this.marketplaceReventa = new MarketplaceReventa();
 
         Administrador admin = new Administrador("admin1", "1234");
         this.usuarios.put(admin.getLogin(), admin);
@@ -1040,16 +857,62 @@ public class MasterTicket {
         eventoDemo.setCantidadTiquetesDisponibles(localidadGeneral.getTiquetes().size());
         this.eventos.put(eventoDemo.getNombre(), eventoDemo);
         refrescarVenuesPendientes();
+    }
 
-        // Oferta demo en el marketplace
-        List<Integer> tiquetesDemo = new ArrayList<>();
-        for (Tiquete t : compradorDemo.getMisTiquetes()) {
-            tiquetesDemo.add(t.getId());
-            break;
+    public JSONObject toJSON() {
+
+		JSONObject json = new JSONObject();
+		json.put("costoPorEmision", this.costoPorEmision);
+        json.put("secuenciaTiquetes", this.secuenciaTiquetes);
+        json.put("secuenciaSolicitudes", this.secuenciaSolicitudes);
+
+		JSONArray u = new JSONArray();
+		for (UsuarioGenerico usuario : this.usuarios.values()) {
+            if (usuario instanceof Administrador) {
+                u.put(((Administrador) usuario).toJSON());
+            } else if (usuario instanceof Organizador) {
+                u.put(((Organizador) usuario).toJSON());
+            } else if (usuario instanceof Natural) {
+                u.put(((Natural) usuario).toJSON());
+            } else {
+                u.put(usuario.toJSON());
+            }
+		}
+        json.put("usuarios", u);
+
+		JSONArray ev = new JSONArray();
+		for (Evento evento : this.eventos.values()) {
+			ev.put(evento.toJSON());
+		}
+        json.put("eventos", ev);
+
+        JSONArray vv = new JSONArray();
+		for (Venue venue : this.venues.values()) {
+			vv.put(venue.toJSON());
+		}
+        json.put("venues", vv);
+
+        JSONArray vvPend = new JSONArray();
+        for (Venue venuePendiente : this.venuesPendientes.values()) {
+            vvPend.put(venuePendiente.toJSON());
         }
-        if (!tiquetesDemo.isEmpty()) {
-            crearOfertaReventa(compradorDemo.getLogin(), tiquetesDemo, 140000);
+        json.put("venuesPendientes", vvPend);
+
+        JSONArray solicitudes = new JSONArray();
+        for (SolicitudReembolso s : this.solicitudesReembolso.values()) {
+            solicitudes.put(s.toJSON());
         }
+        json.put("solicitudesReembolso", solicitudes);
+        JSONArray solicitudesProc = new JSONArray();
+        for (SolicitudReembolso s : this.solicitudesReembolsoProcesadas.values()) {
+            solicitudesProc.put(s.toJSON());
+        }
+        json.put("solicitudesReembolsoProcesadas", solicitudesProc);
+        if (this.marketplaceReventa != null) {
+            json.put("marketplace", this.marketplaceReventa.toJSON());
+        }
+
+        return json;
     }
 	
 }
