@@ -507,10 +507,21 @@ public class UsuarioDashboardPanel extends JPanel {
         String[] opciones = pendientes.stream()
                 .map(c -> "#" + c.getId() + " - " + c.getComprador().getLogin() + " $" + c.getMonto())
                 .toArray(String[]::new);
-        String seleccion = (String) JOptionPane.showInputDialog(this, "Elige contraoferta", "Contraofertas",
-                JOptionPane.PLAIN_MESSAGE, null, opciones, opciones[0]);
+        String seleccion = (String) JOptionPane.showInputDialog(this, "Elige contraoferta",
+                "Contraofertas", JOptionPane.PLAIN_MESSAGE, null, opciones, opciones[0]);
         if (seleccion == null) return;
-        int contraId = Integer.parseInt(seleccion.replaceAll("[^0-9]", ""));
+        int idx = -1;
+        for (int i = 0; i < opciones.length; i++) {
+            if (opciones[i].equals(seleccion)) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx < 0 || idx >= pendientes.size()) {
+            JOptionPane.showMessageDialog(this, "Selección inválida.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        int contraId = pendientes.get(idx).getId();
         String accion = JOptionPane.showInputDialog(this, "Aceptar (a) / Rechazar (r)");
         if (accion == null) return;
         try {
