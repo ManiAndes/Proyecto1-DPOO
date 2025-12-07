@@ -129,6 +129,14 @@ public class OfertaReventa {
                 + (activa ? " - ACTIVA" : " - INACTIVA");
     }
 
+    @Override
+    public String toString() {
+        Evento evento = tiquete != null ? tiquete.getEvento() : null;
+        String eventoNombre = evento != null ? evento.getNombre() : "N/A";
+        return "#" + id + " | Tiquete " + (tiquete != null ? tiquete.getId() : "?") + " | " + eventoNombre
+                + " | $" + precioBase + (activa ? " (ACTIVA)" : " (" + (motivoCierre != null ? motivoCierre : "INACTIVA") + ")");
+    }
+
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("id", id);

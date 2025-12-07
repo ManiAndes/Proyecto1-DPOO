@@ -21,6 +21,8 @@ public abstract class Tiquete {
 	private double montoPagado;
 	private String estado = "ACTIVO";
 	private String localidad;
+	private boolean impreso;
+	private String fechaImpresion;
 	
 	private Usuario cliente;
 	
@@ -173,6 +175,24 @@ public abstract class Tiquete {
 		this.localidad = localidad;
 	}
 
+	public boolean isImpreso() {
+		return impreso;
+	}
+
+	public String getFechaImpresion() {
+		return fechaImpresion;
+	}
+
+	public void marcarImpreso(String fechaImpresion) {
+		if (this.impreso) {
+			return;
+		}
+		this.impreso = true;
+		this.fechaImpresion = fechaImpresion;
+		// Un tiquete impreso ya no debe transferirse ni revenderse.
+		this.transferible = false;
+	}
+	
 	public void marcarTransferido() {
 		this.estado = "TRANSFERIDO";
 	}
@@ -219,6 +239,8 @@ public abstract class Tiquete {
 		json.put("montoPagado", this.montoPagado);
 		json.put("estado", this.estado);
 		json.put("localidad", this.localidad);
+		json.put("impreso", this.impreso);
+		json.put("fechaImpresion", this.fechaImpresion);
 		
 		if (this.cliente != null) {
 			json.put("clienteLogin", this.cliente.getLogin());

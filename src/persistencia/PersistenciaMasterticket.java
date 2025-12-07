@@ -331,6 +331,10 @@ public class PersistenciaMasterticket implements IPersistenciaMasterticket {
         t.setMontoPagado(json.optDouble("montoPagado", 0.0));
         t.setEstado(json.optString("estado", "ACTIVO"));
         t.setLocalidad(json.optString("localidad", null));
+        boolean impreso = json.optBoolean("impreso", false);
+        if (impreso) {
+            t.marcarImpreso(json.optString("fechaImpresion", null));
+        }
         return t;
     }
 
