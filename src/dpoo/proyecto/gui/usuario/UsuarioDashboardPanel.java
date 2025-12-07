@@ -104,7 +104,10 @@ public class UsuarioDashboardPanel extends JPanel {
                 java.awt.Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Evento) {
                     Evento ev = (Evento) value;
-                    setText(ev.getNombre() + " - " + ev.getFecha() + (ev.isCancelado() ? " (CANCELADO)" : ""));
+                    int disp = ev.getCantidadTiquetesDisponibles();
+                    setText(ev.getNombre() + " - " + ev.getFecha()
+                            + " | Disponibles: " + disp
+                            + (ev.isCancelado() ? " (CANCELADO)" : ""));
                 }
                 return c;
             }

@@ -124,6 +124,9 @@ public class MarketplaceReventa {
             throw new IllegalArgumentException("Solo el vendedor puede aceptar contraofertas.");
         }
         ContraofertaReventa contraoferta = oferta.getContraoferta(contraofertaId);
+        if (contraoferta == null) {
+            throw new IllegalArgumentException("La contraoferta seleccionada no existe.");
+        }
         if (!ContraofertaReventa.PENDIENTE.equals(contraoferta.getEstado())) {
             throw new IllegalArgumentException("La contraoferta seleccionada ya fue resuelta.");
         }
