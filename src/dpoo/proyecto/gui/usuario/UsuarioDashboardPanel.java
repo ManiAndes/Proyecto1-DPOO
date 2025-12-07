@@ -57,6 +57,7 @@ public class UsuarioDashboardPanel extends JPanel {
     private JComboBox<String> localidadCombo;
     private JSpinner cantidadSpinner;
     private JLabel saldoLabel;
+    private JTextField transferDestinoField;
 
     public UsuarioDashboardPanel(MasterTicket sistema, CentralPersistencia persistencia, Usuario usuario, Runnable onLogout) {
         this.sistema = sistema;
@@ -78,6 +79,7 @@ public class UsuarioDashboardPanel extends JPanel {
         tabs.addTab("Eventos", buildEventosTab());
         tabs.addTab("Mis tiquetes", buildTiquetesTab());
         tabs.addTab("Marketplace", buildMarketplaceTab());
+        tabs.addTab("Transferir", buildTransferTab());
         add(tabs, BorderLayout.CENTER);
 
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -168,6 +170,43 @@ public class UsuarioDashboardPanel extends JPanel {
         acciones.add(imprimir);
         acciones.add(reembolso);
         panel.add(acciones, BorderLayout.SOUTH);
+        return panel;
+    }
+
+    private JPanel buildTransferTab() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        JList<Tiquete> lista = new JList<>(tiquetesModel);
+        lista.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public java.awt.Component getListCellRendererComponent(javax.swing.JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                java.awt.Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Tiquete) {
+                    Tiquete t = (Tiquete) value;
+                    String evento = t.getEvento() != null ? t.getEvento().getNombre() : "N/A";
+                    setText("#" + t.getId() + " - " + evento + " - " + t.getEstado());
+                }
+                return c;
+            }
+        });
+        panel.add(new JScrollPane(lista), BorderLayout.CENTER);
+
+        JPanel form = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0; gbc.gridy = 0;
+        form.add(new JLabel("Login destino"), gbc);
+        gbc.gridx = 1;
+        transferDestinoField = new JTextField(14);
+        form.add(transferDestinoField, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
+        JButton transferir = new JButton("Transferir tiquete seleccionado");
+        transferir.addActionListener(e -> transferirSeleccion(lista.getSelectedValue()));
+        form.add(transferir, gbc);
+
+        panel.add(form, BorderLayout.SOUTH);
         return panel;
     }
 
@@ -363,6 +402,43 @@ public class UsuarioDashboardPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "No se pudo registrar la solicitud.", "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void transferirSeleccion(Tiquete t) {
+        if (t == null) {
+            JOptionPane.showMessageDialog(this, "Seleccione un tiquete.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        if (t.isUsado() || t.isReembolsado() || t.isImpreso() || usuario.estaTiqueteEnReventa(t.getId())) {
+            JOptionPane.showMessageDialog(this, "El tiquete no es transferible (usado/reembolsado/impreso/en reventa).",
+                    "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        String loginDestino = transferDestinoField != null ? transferDestinoField.getText().trim() : null;
+        if (loginDestino == null || loginDestino.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese el login destino.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        if (loginDestino.equalsIgnoreCase(usuario.getLogin())) {
+            JOptionPane.showMessageDialog(this, "No puede transferir a sí mismo.", "Info",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        var destinoGen = sistema.getUsuarios().get(loginDestino);
+        if (!(destinoGen instanceof Usuario)) {
+            JOptionPane.showMessageDialog(this, "Usuario destino no encontrado o no es cliente.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        Usuario destino = (Usuario) destinoGen;
+        usuario.removerTiquete(t);
+        destino.agregarTiquete(t);
+        t.setCliente(destino);
+        t.marcarTransferido();
+        persistencia.saveDefault(sistema);
+        refresh();
+        JOptionPane.showMessageDialog(this, "Tiquete transferido a " + destino.getLogin(), "OK",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private boolean tieneSolicitudPendiente(Tiquete tiquete) {
