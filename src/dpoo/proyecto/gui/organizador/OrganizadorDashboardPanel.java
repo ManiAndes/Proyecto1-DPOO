@@ -20,6 +20,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.JComboBox;
 
 import dpoo.proyecto.app.MasterTicket;
 import dpoo.proyecto.eventos.Evento;
@@ -49,6 +50,7 @@ public class OrganizadorDashboardPanel extends JPanel {
     private JList<String> eventosList;
     private JList<String> venuesList;
     private JList<String> localidadesList;
+    private JComboBox<String> venueCombo;
 
     private JTextField nombreVenueField;
     private JTextField ubicacionField;
@@ -237,6 +239,15 @@ public class OrganizadorDashboardPanel extends JPanel {
     }
 
     public void refresh() {
+        if (venueCombo != null) {
+            venueCombo.removeAllItems();
+            for (Venue v : sistema.getVenues().values()) {
+                if (v != null && v.isAprobado() && v.getOrganizador() != null
+                        && organizador.getLogin().equals(v.getOrganizador().getLogin())) {
+                    venueCombo.addItem(v.getNombre());
+                }
+            }
+        }
         eventosModel.clear();
         venuesModel.clear();
         localidadesModel.clear();
@@ -328,28 +339,64 @@ public class OrganizadorDashboardPanel extends JPanel {
                     JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        Venue venue = null;
-        for (Venue v : sistema.getVenues().values()) {
-            if (v != null && v.isAprobado() && v.getOrganizador() != null
-                    && organizador.getLogin().equals(v.getOrganizador().getLogin())) {
-                venue = v;
-                break;
-            }
-        }
-        if (venue == null) {
-            JOptionPane.showMessageDialog(this, "Necesitas un venue aprobado para crear evento.", "Info",
+        String venueNombre = venueCombo != null && venueCombo.getSelectedItem() != null
+                ? venueCombo.getSelectedItem().toString()
+                : null;
+        if (venueNombre == null || venueNombre.isBlank()) {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar un venue aprobado.", "Info",
                     JOptionPane.INFORMATION_MESSAGE);
             return;
         }
+        Venue venue = sistema.getVenues().get(venueNombre.toUpperCase());
+        if (venue == null || !venue.isAprobado()) {
+            JOptionPane.showMessageDialog(this, "El venue seleccionado no está aprobado.", "Info",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        // Requerimos crear al menos una localidad en la misma operación
+        String nombreLoc = nombreLocalidadField.getText().trim();
+        String precioStr = precioLocalidadField.getText().trim();
+        String cantStr = cantidadTiquetesField.getText().trim();
+        if (nombreLoc.isEmpty() || precioStr.isEmpty() || cantStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Define la primera localidad (nombre, precio, cantidad).", "Info",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        double precio; int cantidad;
+        try {
+            precio = Double.parseDouble(precioStr);
+            cantidad = Integer.parseInt(cantStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Precio o cantidad inválidos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         Evento evento = new Evento(nombre.toUpperCase(), tipo.toUpperCase(), tipoTiq.toUpperCase(), 0, venue, fecha);
         evento.setOrganizador(organizador);
         evento.setCargoPorcentualServicio(cargo);
         venue.addEvento(evento);
         organizador.addEvento(evento);
         sistema.getEventos().put(evento.getNombre(), evento);
+
+        // Primera localidad obligatoria
+        Localidad localidad = new Localidad(nombreLoc.toUpperCase(), precio, false, evento);
+        evento.addLocalidad(localidad);
+        for (int i = 0; i < cantidad; i++) {
+            TiqueteGeneral t = new TiqueteGeneral(precio, sistema.getCostoPorEmision(), evento.getFecha(), "20:00", 6,
+                    localidad.getNombreLocalidad());
+            int id = sistema.siguienteIdTiquete();
+            t.setId(id);
+            t.setEvento(evento);
+            t.setLocalidad(localidad.getNombreLocalidad());
+            localidad.addTiquete(t);
+            evento.addTiquete(t);
+            sistema.registrarTiquete(t);
+        }
+        evento.setCantidadTiquetesDisponibles(evento.getTiquetes().size());
+
         persistencia.saveDefault(sistema);
         refresh();
-        JOptionPane.showMessageDialog(this, "Evento creado.", "OK", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Evento creado con su primera localidad y tiquetes.", "OK", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void agregarLocalidadYTiquetes() {
