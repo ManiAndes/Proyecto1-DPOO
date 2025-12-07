@@ -1,5 +1,15 @@
 package dpoo.proyecto.gui.usuario;
 
+import dpoo.proyecto.app.MasterTicket;
+import dpoo.proyecto.app.SolicitudReembolso;
+import dpoo.proyecto.eventos.Evento;
+import dpoo.proyecto.eventos.Localidad;
+import dpoo.proyecto.marketplace.ContraofertaReventa;
+import dpoo.proyecto.marketplace.MarketplaceReventa;
+import dpoo.proyecto.marketplace.OfertaReventa;
+import dpoo.proyecto.marketplace.ResultadoCompraMarketplace;
+import dpoo.proyecto.tiquetes.Tiquete;
+import dpoo.proyecto.usuarios.Usuario;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -8,8 +18,6 @@ import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -22,20 +30,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
-
-import dpoo.proyecto.app.MasterTicket;
-import dpoo.proyecto.app.SolicitudReembolso;
-import dpoo.proyecto.eventos.Evento;
-import dpoo.proyecto.eventos.Localidad;
-import dpoo.proyecto.marketplace.ContraofertaReventa;
-import dpoo.proyecto.marketplace.MarketplaceReventa;
-import dpoo.proyecto.marketplace.OfertaReventa;
-import dpoo.proyecto.marketplace.ResultadoCompraMarketplace;
-import dpoo.proyecto.tiquetes.Tiquete;
-import dpoo.proyecto.usuarios.Usuario;
 import persistencia.CentralPersistencia;
 
 public class UsuarioDashboardPanel extends JPanel {

@@ -50,6 +50,7 @@ public class OrganizadorDashboardPanel extends JPanel {
     private JList<String> localidadesList;
     private JComboBox<String> venueCombo;
     private JComboBox<String> localidadCombo;
+    private JComboBox<String> eventoLocalidadCombo;
 
     private JTextField nombreVenueField;
     private JTextField ubicacionField;
@@ -59,6 +60,9 @@ public class OrganizadorDashboardPanel extends JPanel {
     private JTextField tipoEventoField;
     private JTextField tipoTiqueteField;
     private JTextField cargoServicioField;
+    private JTextField primeraLocalidadField;
+    private JTextField primeraPrecioField;
+    private JTextField primeraCantidadField;
     private JTextField nombreLocalidadField;
     private JTextField precioLocalidadField;
     private JTextField cantidadTiquetesField;
@@ -79,7 +83,8 @@ public class OrganizadorDashboardPanel extends JPanel {
         setBorder(new EmptyBorder(8, 8, 8, 8));
 
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Eventos/Localidades", buildEventosPanel());
+        tabs.addTab("Eventos", buildEventosPanel());
+        tabs.addTab("Localidades", buildLocalidadesPanel());
         tabs.addTab("Paquetes", buildPaquetesPanel());
         tabs.addTab("Venues", buildVenuesPanel());
         tabs.addTab("Modo Cliente", buildClientePanel());
@@ -107,21 +112,12 @@ public class OrganizadorDashboardPanel extends JPanel {
 
         eventosList = new JList<>(eventosModel);
         venuesList = new JList<>(venuesModel);
-        localidadesList = new JList<>(localidadesModel);
         gbc.gridx = 0; gbc.gridy = 0;
         lists.add(new JScrollPane(eventosList), gbc);
         gbc.gridx = 1;
         lists.add(new JScrollPane(venuesList), gbc);
-        gbc.gridx = 2;
-        lists.add(new JScrollPane(localidadesList), gbc);
         panel.add(lists, BorderLayout.CENTER);
-        eventosList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                cargarLocalidadesEventoSeleccionado();
-            }
-        });
-        // Al seleccionar evento se cargan sus localidades
-        eventosList.addListSelectionListener(e -> {
+eventosList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 cargarLocalidadesEventoSeleccionado();
             }
@@ -147,33 +143,18 @@ public class OrganizadorDashboardPanel extends JPanel {
         fg.gridx = 1; cargoServicioField = new JTextField("0.0", 8); forms.add(cargoServicioField, fg);
         fg.gridy++; fg.gridx = 0; forms.add(new JLabel("Venue (aprobado)"), fg);
         fg.gridx = 1; venueCombo = new JComboBox<>(); forms.add(venueCombo, fg);
+
+        fg.gridy++; fg.gridx = 0; forms.add(new JLabel("1a localidad (nombre)"), fg);
+        fg.gridx = 1; primeraLocalidadField = new JTextField(12); forms.add(primeraLocalidadField, fg);
+        fg.gridy++; fg.gridx = 0; forms.add(new JLabel("1a precio"), fg);
+        fg.gridx = 1; primeraPrecioField = new JTextField(10); forms.add(primeraPrecioField, fg);
+        fg.gridy++; fg.gridx = 0; forms.add(new JLabel("1a cantidad tiquetes"), fg);
+        fg.gridx = 1; primeraCantidadField = new JTextField(6); forms.add(primeraCantidadField, fg);
+
         fg.gridy++; fg.gridx = 0; fg.gridwidth = 2;
-        JButton crearEvt = new JButton("Crear evento (requiere 1a localidad)");
+        JButton crearEvt = new JButton("Crear evento + primera localidad");
         crearEvt.addActionListener(e -> crearEvento());
         forms.add(crearEvt, fg);
-
-        fg.gridy++; fg.gridwidth = 2;
-        forms.add(new JLabel("Selecciona un evento (lista izquierda) y agrega localidades/tiquetes"), fg);
-        fg.gridwidth = 1;
-        fg.gridy++; fg.gridx = 0; forms.add(new JLabel("Localidad"), fg);
-        fg.gridx = 1; nombreLocalidadField = new JTextField(12); forms.add(nombreLocalidadField, fg);
-        fg.gridy++; fg.gridx = 0; forms.add(new JLabel("Precio"), fg);
-        fg.gridx = 1; precioLocalidadField = new JTextField(10); forms.add(precioLocalidadField, fg);
-        fg.gridy++; fg.gridx = 0; forms.add(new JLabel("Cantidad tiquetes"), fg);
-        fg.gridx = 1; cantidadTiquetesField = new JTextField(6); forms.add(cantidadTiquetesField, fg);
-        fg.gridy++; fg.gridx = 0; forms.add(new JLabel("Descuento (%)"), fg);
-        fg.gridx = 1; descuentoField = new JTextField("0", 6); forms.add(descuentoField, fg);
-        fg.gridy++; fg.gridx = 0; forms.add(new JLabel("Localidad existente"), fg);
-        fg.gridx = 1; localidadCombo = new JComboBox<>(); forms.add(localidadCombo, fg);
-        fg.gridy++; fg.gridx = 0; fg.gridwidth = 2;
-        JButton agregarLoc = new JButton("Agregar localidad + tiquetes");
-        agregarLoc.addActionListener(e -> agregarLocalidadYTiquetes());
-        forms.add(agregarLoc, fg);
-
-        fg.gridy++; fg.gridwidth = 2;
-        JButton aplicarDesc = new JButton("Aplicar descuento localidad");
-        aplicarDesc.addActionListener(e -> aplicarDescuento());
-        forms.add(aplicarDesc, fg);
 
         fg.gridy++; fg.gridwidth = 2;
         forms.add(new JLabel("Mis eventos"), fg);
@@ -183,6 +164,61 @@ public class OrganizadorDashboardPanel extends JPanel {
         forms.add(new JScrollPane(eventosArea), fg);
 
         panel.add(forms, BorderLayout.SOUTH);
+        return panel;
+    }
+
+    private JPanel buildLocalidadesPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JPanel lists = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1; gbc.weighty = 1;
+
+        localidadesList = new JList<>(localidadesModel);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        lists.add(new JScrollPane(localidadesList), gbc);
+        panel.add(lists, BorderLayout.CENTER);
+eventosList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                cargarLocalidadesEventoSeleccionado();
+            }
+        });
+
+        JPanel form = new JPanel(new GridBagLayout());
+        GridBagConstraints fg = new GridBagConstraints();
+        fg.insets = new Insets(4, 4, 4, 4);
+        fg.fill = GridBagConstraints.HORIZONTAL;
+
+        fg.gridx = 0; fg.gridy = 0;
+        form.add(new JLabel("Evento destino"), fg);
+        fg.gridx = 1;
+        eventoLocalidadCombo = new JComboBox<>();
+        form.add(eventoLocalidadCombo, fg);
+        eventoLocalidadCombo.addActionListener(e -> cargarLocalidadesEventoSeleccionado());
+
+        fg.gridy++; fg.gridx = 0; form.add(new JLabel("Localidad"), fg);
+        fg.gridx = 1; nombreLocalidadField = new JTextField(12); form.add(nombreLocalidadField, fg);
+        fg.gridy++; fg.gridx = 0; form.add(new JLabel("Precio"), fg);
+        fg.gridx = 1; precioLocalidadField = new JTextField(10); form.add(precioLocalidadField, fg);
+        fg.gridy++; fg.gridx = 0; form.add(new JLabel("Cantidad tiquetes"), fg);
+        fg.gridx = 1; cantidadTiquetesField = new JTextField(6); form.add(cantidadTiquetesField, fg);
+        fg.gridy++; fg.gridx = 0; form.add(new JLabel("Descuento (%)"), fg);
+        fg.gridx = 1; descuentoField = new JTextField("0", 6); form.add(descuentoField, fg);
+        fg.gridy++; fg.gridx = 0; form.add(new JLabel("Localidad existente"), fg);
+        fg.gridx = 1; localidadCombo = new JComboBox<>(); form.add(localidadCombo, fg);
+
+        fg.gridy++; fg.gridx = 0; fg.gridwidth = 2;
+        JButton agregarLoc = new JButton("Agregar localidad + tiquetes");
+        agregarLoc.addActionListener(e -> agregarLocalidadYTiquetes());
+        form.add(agregarLoc, fg);
+
+        fg.gridy++; fg.gridwidth = 2;
+        JButton aplicarDesc = new JButton("Aplicar descuento localidad");
+        aplicarDesc.addActionListener(e -> aplicarDescuento());
+        form.add(aplicarDesc, fg);
+
+        panel.add(form, BorderLayout.SOUTH);
         return panel;
     }
 
@@ -251,6 +287,9 @@ public class OrganizadorDashboardPanel extends JPanel {
                 }
             }
         }
+        if (eventoLocalidadCombo != null) {
+            eventoLocalidadCombo.removeAllItems();
+        }
         eventosModel.clear();
         venuesModel.clear();
         localidadesModel.clear();
@@ -259,7 +298,13 @@ public class OrganizadorDashboardPanel extends JPanel {
             if (e.getOrganizador() != null && organizador.getLogin().equals(e.getOrganizador().getLogin())) {
                 eventosOrg.add(e);
                 eventosModel.addElement(e.getNombre() + " - " + e.getFecha() + " (" + e.getCantidadTiquetesDisponibles() + ")");
+                if (eventoLocalidadCombo != null) {
+                    eventoLocalidadCombo.addItem(e.getNombre());
+                }
             }
+        }
+        if (eventoLocalidadCombo != null && eventoLocalidadCombo.getItemCount() > 0) {
+            eventoLocalidadCombo.setSelectedIndex(0);
         }
         for (Map.Entry<String, Venue> entry : sistema.getVenues().entrySet()) {
             Venue v = entry.getValue();
@@ -278,11 +323,17 @@ public class OrganizadorDashboardPanel extends JPanel {
         cargarLocalidadesEventoSeleccionado();
     }
 
-    private Evento eventoSeleccionado() {
-        String val = eventosList.getSelectedValue();
-        if (val == null) return null;
-        String nombre = val.split(" - ")[0];
-        return sistema.getEventos().get(nombre.toUpperCase());
+    private Evento eventoSeleccionadoGeneral() {
+        String val = eventosList != null ? eventosList.getSelectedValue() : null;
+        if (val != null) {
+            String nombre = val.split(" - ")[0];
+            return sistema.getEventos().get(nombre.toUpperCase());
+        }
+        if (eventoLocalidadCombo != null && eventoLocalidadCombo.getSelectedItem() != null) {
+            String nombre = eventoLocalidadCombo.getSelectedItem().toString();
+            return sistema.getEventos().get(nombre.toUpperCase());
+        }
+        return null;
     }
 
     private void cargarLocalidadesEventoSeleccionado() {
@@ -290,7 +341,7 @@ public class OrganizadorDashboardPanel extends JPanel {
         if (localidadCombo != null) {
             localidadCombo.removeAllItems();
         }
-        Evento ev = eventoSeleccionado();
+        Evento ev = eventoSeleccionadoGeneral();
         if (ev == null) {
             return;
         }
@@ -413,7 +464,7 @@ public class OrganizadorDashboardPanel extends JPanel {
     }
 
     private void agregarLocalidadYTiquetes() {
-        Evento evento = eventoSeleccionado();
+        Evento evento = eventoSeleccionadoGeneral();
         if (evento == null) {
             JOptionPane.showMessageDialog(this, "Seleccione un evento.", "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
@@ -459,7 +510,7 @@ public class OrganizadorDashboardPanel extends JPanel {
     }
 
     private void aplicarDescuento() {
-        Evento evento = eventoSeleccionado();
+        Evento evento = eventoSeleccionadoGeneral();
         if (evento == null) {
             JOptionPane.showMessageDialog(this, "Seleccione un evento.", "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
