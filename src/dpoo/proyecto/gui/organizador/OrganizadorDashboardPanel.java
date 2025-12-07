@@ -541,7 +541,7 @@ eventosList.addListSelectionListener(e -> {
     }
 
     private void crearPaqueteEntradas() {
-        Evento evento = eventoSeleccionado();
+        Evento evento = eventoSeleccionadoGeneral();
         if (evento == null) {
             JOptionPane.showMessageDialog(this, "Seleccione un evento.", "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
@@ -605,7 +605,7 @@ eventosList.addListSelectionListener(e -> {
     }
 
     private void crearPaqueteDeluxe() {
-        Evento evento = eventoSeleccionado();
+        Evento evento = eventoSeleccionadoGeneral();
         if (evento == null) {
             JOptionPane.showMessageDialog(this, "Seleccione un evento.", "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
